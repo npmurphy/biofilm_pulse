@@ -48,11 +48,15 @@ def compute_subtraction(row, maskname, color, subtraction_value, section=""):
     basepath = os.path.join(dirname, basename, basename)
     datapath = basepath + "_" + maskname + ".mat"
     imgpath = basepath + "_c{0}.tiff".format(color[0])
-    if maskname == "distmap":
-        df = scipy.io.loadmat(datapath)["distmap_masked"]
-        data = (image_section_funcs[section])(df) # get top, bottom, or all
-    else:
-        data = scipy.io.loadmat(datapath)["image"]
+    try:
+        if maskname == "distmap":
+            df = scipy.io.loadmat(datapath)["distmap_masked"]
+            data = (image_section_funcs[section])(df) # get top, bottom, or all
+        else:
+            data = scipy.io.loadmat(datapath)["image"]
+    except TypeError as e:
+        print("file {0} not found".format(datapath))
+        raise e
     img = skimage.io.imread(imgpath)
     img = util.array_sub(img, subtraction_value)
     return np.mean(img[data==1])

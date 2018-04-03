@@ -2,3 +2,4 @@ datasets
 proc_data
 raw_data
 .ipynb_checkpoints/
+*.pyc
