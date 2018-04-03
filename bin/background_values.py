@@ -18,6 +18,18 @@ image_section_funcs = {
     "bottom": lambda x: x > 30, # after most of slope
     "top": lambda x: (x > 0) & (x <= 20) # before most of slope
 }
+    
+channels = {"red": ["bg", "autofluor"], 
+            "green":["bg", "autofluor", "bleedthrough", "actual"],
+            "green_raw": ["actual"]} # get the raw YFP signal with no subtractions
+file_keys = {"bg": "WT|RFP", 
+             "autofluor": "WT",
+             "bleedthrough": "RFP",
+             "actual": "SigB"}
+mask_keys = {"bg":"background", 
+             "autofluor": "segmented", 
+             "bleedthrough": "segmented", 
+             "actual": "distmap"}
 
 
 def get_file_dirname(path):
@@ -52,24 +64,14 @@ def get_new_bg_flour_func(pa):
     fileData["file_name"] = filenames
     fileData["dir_name"] = dirnames
     fileData["strain"] = strains
-    fileData["red_none"] = 0
-    fileData["green_none"] = 0
-
-    channels = {"red": ["bg", "autofluor"], 
-                "green":["bg", "autofluor", "bleedthrough", "actual"] }
-    file_keys = {"bg": "WT|RFP", 
-                 "autofluor": "WT",
-                 "bleedthrough": "RFP",
-                 "actual": "SigB"}
-    mask_keys = {"bg":"background", 
-                 "autofluor": "segmented", 
-                 "bleedthrough": "segmented", 
-                 "actual": "distmap"}
-
+    
     for color in channels.keys(): # yes I know, we read each mask twice but we just run once. 
+        print("Color ", color)
+        fileData[color + "_none"] = 0
         acumulated_subtraction_list = ["none"]
         for subtraction in channels[color]:
             means = fileData.mean() # a series with the mean of each column
+            print(acumulated_subtraction_list)
             print([ means[color + "_" + s] for s in acumulated_subtraction_list])
             subtraction_value = sum([ means[color + "_" + s] for s in acumulated_subtraction_list])
 
@@ -80,6 +82,7 @@ def get_new_bg_flour_func(pa):
                     return np.nan
 
             if subtraction == "actual":
+                # look at the "top", "not top", and "all" of gradient.
                 for section in image_section_funcs.keys():
                     sec_col = color + "_" + subtraction + "_" + section 
                     fp = lambda x: file_process(x, section=section)
@@ -89,6 +92,7 @@ def get_new_bg_flour_func(pa):
                 fileData[color + "_" + subtraction] = fileData.apply(file_process, axis=1)
             acumulated_subtraction_list += [subtraction]
 
+    fileData = fileData.drop(columns=[c + "_none" for c in channels])
     fileData.to_csv(pa.output + ".tsv", sep="\t", index_label="index")
     means = fileData.mean() # a series with the mean of each column
     with open(pa.output + ".json", "w") as jo:
