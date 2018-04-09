@@ -30,13 +30,26 @@ python bin/background_values.py --output ${bgvalues} --files ${filesBG} ${filesS
 ##########################
 ## catagorise and images. 
 ##########################
+dirname="2xQP"
+dirname="delRU"
+dirname="SigB/*"
+dirname="delSigB"
+dirname="delQP"
+#dirname="SigB/96hrs"
+################
+## make sure all the images are all oriented correctly
+###############
+python bin/manual_correct_orientation.py -d ${img_dir}/${dirname}
+
 # Due to inconsitantancies edge and center numbering system, the code in filename_parser.py 
 # does not assign the correct location to many images.
 # Instead I manually looked at the images and assined "edge", "edgecenter" or "center" to them
-python bin/manual_bf_location.py -o ${outputdir}/image_locations.json -d ${img_dir}/SigB/96hrs 
-# this generated a file call manloc.json
-# that maps the files to my manual location assignment. Some might be wrong its hard to tell at times. 
-# Once that is done I make a filedb tsv file using this script. currently you need to manually set the directory and it myust be run 
+python bin/manual_bf_location.py -o ${outputdir}/image_locations.json -d ${img_dir}/${dirname}
+ 
+# this generated a file that maps the files to my manual location assignment.
+# Some might be wrong its hard to tell at times. 
+# Once that is done I make a filedb tsv file using this script.
+# currently you need to manually set the directory and it myust be run 
 # in the directroy with the images due to a glob being used to find the number location setting.
 python ~/stochastic/data/bio_film_data/tenx_init_filedb.py -db ~/stochastic/data/bio_film_data/sigb_tenx_slice_analysis/tenx_filedb.tsv  -f *.tiff
 
