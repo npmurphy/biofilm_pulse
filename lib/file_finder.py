@@ -20,3 +20,11 @@ def get_labeled_path(path, label):
     return ".".join(body) + "_" + label + "." + ext
 
 
+def get_file_dirname(path):
+    filename = os.path.splitext(os.path.basename(path))[0]
+    dirname = os.path.dirname(path)
+    return dirname, filename
+
+def get_paths(path):
+    dirname, basename = get_file_dirname(path)
+    return basename, os.path.join(dirname, basename, basename)

@@ -49,7 +49,7 @@ python bin/mask_maker.py --remove_cr_from_mat_path --mask_name background --remo
 
 ## Compute the BG values
 
-bgvalues="datasets/LSM700_63x_sigb/bg_values_eugene2"
+bgvalues="datasets/LSM700_63x_sigb/bg_values"
 # background and RFP only 
 #filesBG=`find "proc_data/slice63x_bg_subtract/November_2014/63x_optimization" -name "*.lsm" -not -path "*/10x/*"`
 filesBG=`find "${bgdir}" -name "*.lsm" ! -name "SigB*"`
