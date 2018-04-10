@@ -1,9 +1,7 @@
 import unittest
-import filedb
-#import datetime
+from lib import filedb
 import os
 import pandas as pd
-#import numpy as np
 from pandas.util.testing import assert_frame_equal
 
 file_zero = {"name": "file_zero.txt",
