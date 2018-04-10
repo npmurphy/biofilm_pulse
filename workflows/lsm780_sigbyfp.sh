@@ -55,8 +55,38 @@ python one_offs/tenx_init_filedb.py -db ${outputdir}/tenx_filedb_redux.tsv \
 --files ${img_dir}/*/*.tiff ${img_dir}/SigB/*/*.tiff
 
 
-###
-## Segment the 10X image. 
+##################
+## Segment the images
+##################
+#dirname="2xQP"
+dirname="delRU"
+dirname="delQP"
+#dirname="sigB/36hrs"
+#dirname="*"
+#dirname="sigB/*"
+dirname="delSigB"
+#dirname="sigB/36hrs"
+#dirname="sigB/72hrs"
+#dirname="sigB/96hrs"
+#i="SigB_36hrs_1_1_230615_sect"
+filename="delRU_72hrs_center_2"
+for i in `ls ${img_dir}/${dirname}/*.tiff`;
+do
+    lsmfile=$(basename "$i");
+    filename="${lsmfile%.*}";
+    dirnameb=$(dirname "$i");
+    echo ${dirnameb} $filename
+    # segments, 
+    python bin/segment_10x.py --make_new_bfmask -f ${img_dir}/${dirname}/${filename}.tiff
+    # marks the tops
+    python bin/mask_maker.py --edge_estimate --use_expanded_mask -f ${img_dir}/${dirname}/${filename}/${filename}_cr.tiff
+    # marks the pixels with distance from the top
+    python bin/distmap_maker.py --filled edgemask  --magnification 10 -f  ${img_dir}/${dirname}/${filename}.tiff 
+done
+    
+    ## We dont use  this script any more !
+    #python biofilm_distance_summary.py -f ${basedir}/${dirname}/${filename}.tiff --width=0.5 --frequency=0.25 --distancemap distmap_masked
+
 
 # Generate the 
 
