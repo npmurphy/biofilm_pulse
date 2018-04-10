@@ -49,9 +49,11 @@ python bin/manual_bf_location.py -o ${outputdir}/image_locations.json -d ${img_d
 # this generated a file that maps the files to my manual location assignment.
 # Some might be wrong its hard to tell at times. 
 # Once that is done I make a filedb tsv file using this script.
-# currently you need to manually set the directory and it myust be run 
-# in the directroy with the images due to a glob being used to find the number location setting.
-python ~/stochastic/data/bio_film_data/tenx_init_filedb.py -db ~/stochastic/data/bio_film_data/sigb_tenx_slice_analysis/tenx_filedb.tsv  -f *.tiff
+python one_offs/tenx_init_filedb.py -db ${outputdir}/tenx_filedb_redux.tsv \
+--image_locations ${outputdir}/image_locations.json \
+--basedir ${img_dir} \
+--files ${img_dir}/*/*.tiff ${img_dir}/SigB/*/*.tiff
+
 
 ###
 ## Segment the 10X image. 
