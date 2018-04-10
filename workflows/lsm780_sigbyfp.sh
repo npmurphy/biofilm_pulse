@@ -7,7 +7,7 @@ bgdir="proc_data/slice10x_analysis/calibration"
 img_dir="proc_data/slice10x_analysis/images/"
 # output files
 outputdir="datasets/LSM780_10x_sigb/" 
-bgvalues="${outputdir}/bg_values_redux"
+bgvalues="${outputdir}/bg_values"
 
 
 # make and check the biofilm mask  
@@ -58,18 +58,20 @@ python one_offs/tenx_init_filedb.py -db ${outputdir}/tenx_filedb_redux.tsv \
 ##################
 ## Segment the images
 ##################
-#dirname="2xQP"
+dirname="2xQP"
 dirname="delRU"
 dirname="delQP"
 #dirname="sigB/36hrs"
 #dirname="*"
 #dirname="sigB/*"
 dirname="delSigB"
+#dirname="sigB/24hrs"
 #dirname="sigB/36hrs"
+#dirname="sigB/48hrs"
 #dirname="sigB/72hrs"
 #dirname="sigB/96hrs"
 #i="SigB_36hrs_1_1_230615_sect"
-filename="delRU_72hrs_center_2"
+#filename="delRU_72hrs_center_2"
 for i in `ls ${img_dir}/${dirname}/*.tiff`;
 do
     lsmfile=$(basename "$i");
@@ -82,11 +84,32 @@ do
     python bin/mask_maker.py --edge_estimate --use_expanded_mask -f ${img_dir}/${dirname}/${filename}/${filename}_cr.tiff
     # marks the pixels with distance from the top
     python bin/distmap_maker.py --filled edgemask  --magnification 10 -f  ${img_dir}/${dirname}/${filename}.tiff 
+    # Compute the mean signal accross the biofilm for each image.
+    # width and frequency are in micrometers
+    #python bin/gradient_10x_maker.py -f ${img_dir}/${dirname}/${filename}.tiff ${widths} --bg_subtract  ${bgvalues}.json
 done
+
+#dirname="delRU"
+#dirname="2xQP"
+dirname="delQP"
+#dirname="SigB/24hrs"
+#dirname="SigB/36hrs"
+#dirname="SigB/48hrs"
+dirname="SigB/72hrs"
+#dirname="SigB/96hrs"
+#dirname="delSigB"
+widths='--sample_freq 0.25 --slice_width 0.5'
+python bin/gradient_10x_maker.py -f ${img_dir}/${dirname}/*.tiff ${widths} --bg_subtract  ${bgvalues}.json
+
+python bin/data_aggregator_10x.py \
+    -db ${outputdir}/filedb.tsv \
+    --basepathtoignore ${img_dir} \
+    --data distmap \
+    --outfile ${outputdir}/gradient_data \
+    -f ${img_dir}/SigB/*/*.tiff \
+       ${img_dir}/delRU/*.tiff \
+       ${img_dir}/delQP/*.tiff \
+       ${img_dir}/2xQP/*.tiff \
+       ${img_dir}/delSigB/*.tiff
     
-    ## We dont use  this script any more !
-    #python biofilm_distance_summary.py -f ${basedir}/${dirname}/${filename}.tiff --width=0.5 --frequency=0.25 --distancemap distmap_masked
-
-
-# Generate the 
 
