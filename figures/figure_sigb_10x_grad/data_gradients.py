@@ -1,7 +1,6 @@
 import os.path
 
 import pandas as pd
-import scipy.io
 
 import data.bio_film_data.strainmap as strainmap
 from lib import filedb
