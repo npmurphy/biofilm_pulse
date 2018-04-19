@@ -17,7 +17,8 @@ beads_end_g40_r50
 #mv ${data_dir}/${dset}/72hr_position39_2/72hr_position39_2_ch00.tif ${data_dir}/${dset}/72hr_timepoint/Position39_ch00.tif;
 #mv ${data_dir}/${dset}/72hr_position39_2/72hr_position39_2_ch01.tif ${data_dir}/${dset}/72hr_timepoint/Position39_ch01.tif;
 
-dset="BF_12hoursnaps2"
+#dset="BF_12hoursnaps2"
+dset="BF_12hoursnaps3"
 
 # Turn from leica format to something easier to deal with
 find ${data_dir}/${dset} -name .DS_Store -exec rm {} +
@@ -28,7 +29,7 @@ for d in ${data_dir}/${dset}/*timepoint/; do
     mkdir "${d}/MetaData/"
     for p in ${d}/*/; do
         echo "P" ${p}
-        mv ${p}/*.tif ${p}/../
+        #mv ${p}/*.tif ${p}/../
         mv -f "${p}/MetaData/"* ${d}/MetaData/
         rmdir ${p}/MetaData
         rmdir ${p}
@@ -110,3 +111,5 @@ mv ${data_dir}/${dset}/${timepoint}/Position*.tif ${data_dir}/${dset}/${timepoin
 
 ### 
 #Process images.
+#python bin/mask_maker.py --mask_name biofilmmask --remove_cr_from_mat_pat --minidraw -l ${bgdir}/${fpath} --maxbright ${bright}
+python bin/mask_maker.py --mask_name biofilmmask --remove_cr_from_mat_pat -l ${bgdir}/${fpath} 

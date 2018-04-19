@@ -25,7 +25,7 @@ from lib.cell_tracking import cell_tracker
 from lib.util.tiff import get_shape
 import lib.cell_tracking.track_data as track_data
 from lib.cell_tracking.track_data import TrackData
-import lib.cell_tracking.compile_cell_tracks_v3 as compiledtracks 
+import lib.cell_tracking.compile_cell_tracks as compiledtracks 
 
 from lib.cell_tracking import auto_match
 
@@ -37,6 +37,10 @@ matplotlib.use('TKAgg')
 #TODO hide segmentation button (s)
 #TODO add cell lable
 
+######
+# Bugs:
+# TODO  deleting a cell causes the image moving to stop working.
+# TODO sometimes a cell's parent is a string.  
 
 class State():
 
@@ -59,7 +63,7 @@ class State():
         self.compiled_path = compiled_path
         
         self.trackdata = TrackData(track_path, max(self.image_range))
-        self.compileddata = compiledtracks.load_compiled_data(self.compiled_path)
+        self.compileddata = compiledtracks.load_compiled_data(self.compiled_path, fail_silently=True)
         if self.compileddata is not None:
             self.compileddata["gr"] = self.compileddata["green"]/self.compileddata["red"]
 
@@ -384,7 +388,7 @@ class State():
             self.cell_trace_plots = [ None for _ in self.cell_trace_plots ]
             return None
         #all_frames = np.arange(0, self.trackdata.metadata["max_frames"])
-        something = np.array(self.trackdata.cells[cell]["state"])>0
+        something = np.array(self.trackdata.cells[cell]["state"]) > 0
         frames, = np.where(something)
         states = np.array(self.trackdata.cells[cell]["state"])
         lengths = np.array(self.trackdata.cells[cell]["length"])
@@ -443,7 +447,7 @@ class State():
         self.art_img.set_clim(vmax=self.bg_img.max()*self.vmaxs)
         self.ax_img.set_title(self.make_title())
         ## update tree
-        self.update_tree(recalculate_parents=False)
+        self.update_tree(recalculate_parents=True)#False)
         self.fig.canvas.draw_idle()
         # for ot in self.text_labels:
         #     print("removing old labels")
@@ -481,9 +485,11 @@ class State():
                     self.move_to_cell(cid)
     
     def select_frame(self, event):
+        print(event)
         if (event.inaxes.name == "cell_trace") or (event.inaxes.name == "compiled_trace"):
             select = int(np.round(event.xdata))
-            self.move_ui_to_image(str(select))
+            print("Selecting frame", select)
+            self.move_ui_to_image(select)
 
     def make_current_cell_like_previous_frame(self):
         prev_frame = self.current_image - 1
@@ -535,7 +541,7 @@ class State():
         self.fig.canvas.draw_idle()
 
     def set_cell_state(self, state):
-        self.trackdata.set_cell_state(self.current_image, self.current_cell_id, state)
+        self.trackdata.set_cell_state(self.current_image, self.current_cell_id, int(state))
 
     def track_cell(self):
         print("tracking")

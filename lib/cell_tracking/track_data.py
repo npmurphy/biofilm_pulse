@@ -8,12 +8,12 @@ from typing import Dict
 
 class TrackData(object):
     _default_states = {
-        "0": "NE",
-        "1": "growing",
-        "2": "divided",
-        "3": "disapeared",
-        "4": "sporulating",
-        "5": "spore"}
+        0: "NE",
+        1: "growing",
+        2: "divided",
+        3: "disapeared",
+        4: "sporulating",
+        5: "spore"}
 
     def __init__(self, path, maxframes=None):
         try:
@@ -69,7 +69,7 @@ class TrackData(object):
         self.cells[cell_id]["width"][frame] = 0
         self.cells[cell_id]["angle"][frame] = 0
         self.cells[cell_id]["state"][frame] = 0
-        self.cells[cell_id]["parent"] = 0
+        self.cells[cell_id]["parent"] = "0"
         #return center, length, width, angle
 
     def get_cells_list(self):
@@ -410,7 +410,7 @@ def main_ui():
     if arguments.set_cell_state and arguments.from_frame and arguments.cell:
         try:
             statenum = int(arguments.set_cell_state)
-            state = td.metadata["states"][str(statenum)]
+            state = td.metadata["states"][statenum]
         except ValueError:
             state = arguments.set_cell_state 
             print("SS", list(td.states.items())) #metadata["states"].items()))
