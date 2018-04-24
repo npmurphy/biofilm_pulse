@@ -13,7 +13,7 @@ class TrackData(object):
         2: "divided",
         3: "disapeared",
         4: "sporulating",
-        5: "spore"}
+        5: "spore" }
 
     def __init__(self, path, maxframes=None):
         try:
@@ -165,7 +165,8 @@ class TrackData(object):
 
         # what cells were alive in the previous frame 
         cell_alive_in_pre = [ c for c in self.cells.keys() 
-                                if self.get_cell_state(first_appears-1, c) > 0] 
+                                if (self.get_cell_state(first_appears-1, c) > 0) & 
+                                   (self.get_cell_state(first_appears, c))]  # and not alive now
 
         # which cell overlaps with the new cell
         for precell in cell_alive_in_pre:
@@ -184,8 +185,10 @@ class TrackData(object):
         else: 
             return "0"
 
-    def get_cells_in_frame(self, frame, state=1):
-        return [ c for c in self.get_cells_list() if self.get_cell_state(frame, c)==state]
+    def get_cells_in_frame(self, frame, state=[1]):
+        if not isinstance(state, list):
+            state = [state]
+        return [ c for c in self.get_cells_list() if self.get_cell_state(frame, c) in state]
 
 
     def check_all_probable_parents(self):
@@ -325,6 +328,8 @@ def set_possible_parents(td):
     good, suggested, wrong = td.check_all_probable_parents()
 
     for cell, parent in suggested.items():
+        if parent == "0":  # dont set to the root.
+            continue
         print("Setting {0} as the parent of {1}".format(parent, cell))
         td = td.set_parent_of(cell, parent)
     return td
@@ -374,7 +379,25 @@ def convert_angles_to_radians(td_path):
         print("-----------")
     td.save(td_path)
 
+def get_tree_points(td):
+    # get the number of leaves. 
+    # set as width. 
+    # for each leaf: 
+    #     add lines from birth to death. 
 
+
+    #for td.cells
+    return None
+
+def plot_lineage_tree(ax, td):
+    tree_points = get_tree_points(td)
+    ax.plot(tree_points, color="blue")
+    return ax
+
+def view_lineage_tree(td):
+    fig, ax = plt.subplots(1,1)
+    ax = plot_lineage_tree(ax, td)
+    plt.show()
 
 def main_ui():
     import argparse
@@ -383,6 +406,7 @@ def main_ui():
     parser.add_argument("--set_auto_suggested_parents", action='store_true', default=False )
     parser.add_argument("--check_consistency", action='store_true', default=False )
     parser.add_argument("--trackdata", "-t", )
+    parser.add_argument("--view_tree", action='store_true' )
     parser.add_argument("--set_parent", type=str)
     parser.add_argument("--set_child", type=str)
     ####
@@ -403,6 +427,9 @@ def main_ui():
     if arguments.set_auto_suggested_parents:
         tdn = set_possible_parents(td)
         tdn.save(arguments.trackdata)
+    
+    if arguments.view_tree:
+        view_lineage_tree(td)
     
     if arguments.check_consistency:
         td.check_data_consistency()

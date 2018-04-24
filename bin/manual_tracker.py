@@ -52,8 +52,8 @@ class State():
         self.image_range = self._get_image_range(image_range)
         print(self.image_range)
 
-        self.red_chan = "ch01"
-        self.green_chan = "ch00"
+        self.red_chan = "ch00"
+        self.green_chan = "ch01"
         self.blue_chan = "ch02"
         #self.red_chan = "_r"
 
@@ -261,7 +261,7 @@ class State():
         # red_max = 2800
         # grn_max = 2800
         red_max = 0.08
-        grn_max = 0.08
+        grn_max = 0.05
 
         def modify(im):
             img = skimage.filters.gaussian(im, sigma=1.1)
@@ -319,14 +319,15 @@ class State():
         img = tifffile.imread(self.current_path.format("r"))
         self.bg_img = self.view_method(img)
 
-    def guess_next_cell_location(self):
-        jet_pattern = self.filepattern + ".mat"
+    def guess_next_cell_location(self, direction=+1):
+        #jet_pattern = self.filepattern + ".mat"
         self.trackdata = auto_match.guess_next_cell_gui(self.trackdata, 
                                                         self.current_cell_id,
                                                         self.current_image, 
-                                                        jet_pattern,
-                                                        self.filepattern)
-        print("guessed someting ")                                                
+                                                        "",
+                                                        self.filepattern,
+                                                        direction=direction)
+        #print("guessed someting ")                                                
         self.move_ui_to_image(self.current_image)
 
     
@@ -408,7 +409,7 @@ class State():
             
         for i, (x, y, m) in enumerate(plots): 
             if self.cell_trace_plots[i] is None:
-                line, = self.ax_cell_trace.plot(x, y, markersize=10, marker=m)
+                line, = self.ax_cell_trace.plot(x, y, markersize=10, marker=m)#, fontname='Symbola', )
                 self.cell_trace_plots[i] = line
             else: 
                 self.cell_trace_plots[i].set_data(x, y)
@@ -447,7 +448,7 @@ class State():
         self.art_img.set_clim(vmax=self.bg_img.max()*self.vmaxs)
         self.ax_img.set_title(self.make_title())
         ## update tree
-        self.update_tree(recalculate_parents=True)#False)
+        self.update_tree(recalculate_parents=False)#False)
         self.fig.canvas.draw_idle()
         # for ot in self.text_labels:
         #     print("removing old labels")
@@ -562,12 +563,12 @@ class State():
 
     def on_key_press(self, event):
         #print("type", event.key)
-        if event.key == "f":
+        if event.key == "t":
             self.track_cell()            
         elif event.key == "z":# used to be a
             self.add_new_cell_to_frame(self.current_cell_id)
-        elif event.key == "t":
-            self.update_tree(True)
+        # elif event.key == "t":
+        #     self.update_tree(True)
         elif event.key == "A":
             print("add cell number:")
             self.read_numbers = self.add_new_cell_to_frame
@@ -607,7 +608,9 @@ class State():
             print("Saving frame {0}".format(self.current_image))
             self.save_segmentation()
         elif event.key == "g":
-            self.guess_next_cell_location()
+            self.guess_next_cell_location(direction=+1)
+        elif event.key == "f":
+            self.guess_next_cell_location(direction=-1)
         else:
             print("Pressing {0} does nothing yet".format(event.key))
 
