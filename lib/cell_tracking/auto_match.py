@@ -110,16 +110,12 @@ def guess_lineages(td, image_pattern):
 
         parent_states = [td.states["growing"], td.states["divided"]]
         cell_alive_in_pre = td.get_cells_in_frame(first_appears -1, parent_states) 
-        #print(cell_alive_in_pre)
 
         possible_parents = []
         for precell in cell_alive_in_pre:
             pre_ellipse = td.get_cell_params(first_appears-1, precell)
-            # print(point_in_past)
-            # print(pre_ellipse)
             inside = cell_dimensions.is_point_in_ellipse(point_in_past, pre_ellipse)
             if inside:
-                #print("a hit")
                 possible_parents += [precell]
 
         if len(possible_parents) > 1:
@@ -127,11 +123,11 @@ def guess_lineages(td, image_pattern):
             continue 
         elif len(possible_parents) == 1:
             parent = possible_parents[0]
-            print("setting parent", parent)
+            print("setting {0} to be parent of {1}".format(parent, cell))
             td = td.set_parent_of(cell, parent)
-            td.set_cell_state(first_appears, parent, 2)
+            td.set_cell_state(first_appears-1, parent, 2)
         else: 
-            print("cell {0} has no parents {1}".format(cell, first_appears))
+            print("cell {0} has no parents, born at {1}".format(cell, first_appears))
 
     return td
 

@@ -4,7 +4,7 @@ import datetime
 import networkx as nx
 from lib.cell_tracking import cell_dimensions
 
-from typing import Dict
+#from typing import Dict
 
 class TrackData(object):
     _default_states = {
@@ -62,15 +62,12 @@ class TrackData(object):
         #return center, length, width, angle
     
     def blank_cell_params(self, frame, cell_id:str):
-        #cell_id = str(cell_id)
         self.cells[cell_id]["row"][frame] = 0
         self.cells[cell_id]["col"][frame] = 0
         self.cells[cell_id]["length"][frame] = 0
         self.cells[cell_id]["width"][frame] = 0
         self.cells[cell_id]["angle"][frame] = 0
         self.cells[cell_id]["state"][frame] = 0
-        self.cells[cell_id]["parent"] = "0"
-        #return center, length, width, angle
 
     def get_cells_list(self):
         #return [int(k) for k in self.cells.keys()]
@@ -95,10 +92,15 @@ class TrackData(object):
         cell["state"] = [0] * num_frames
         return cell
 
+    def get_cell_time_property_list(self, cell_id=None):
+        if cell_id is None:
+            #cell_id = list(self.cells.keys())[0]
+            #maybe this returns a nicer error if there is no cell.
+            cell_id = next(iter(self.cells.keys()))
+        return [ key for key in self.cells[cell_id].keys() if key != "parent"] 
+
     def copy_cell_info_from_frame(self, cell_id:str, source_frame, target_frame):
-        for key in self.cells[cell_id].keys():
-            if key == "parent":
-                continue
+        for key in self.get_cell_time_property_list(cell_id):
             self.cells[cell_id][key][target_frame] = self.cells[cell_id][key][source_frame]
 
     def create_cell_if_new(self, cell_id:str):
@@ -119,10 +121,11 @@ class TrackData(object):
                 print("Failed to set frame {0} of cell {1} key {2}".format(frame, cell_id, properties))
                 raise e
 
-    #def clear_cell_params_after_from_frame(self, frame, cell_id, end_frame=None):
+    def what_was_cell_called_at_frame(self, cell, frame):
+        for c in self.get_cell_lineage(cell):
+            if self.get_cell_state(frame, c):
+                return cell
 
-
-    
     def get_cell_properties(self, frame, cell_id:str, properties=[]):
         if properties == []:
             properties = self.cells[cell_id].keys()
@@ -150,6 +153,28 @@ class TrackData(object):
         self.cells[child]["parent"] = parent
         return self
 
+    
+    def split_cell_from_point(self, parent:str, frame, new_cell:str=None):
+        """
+        copys the data from cell "parent" from "frame" onwards, putting the data in "new_cell".
+        If new_cell is not specified, it assumes cell ids are strings of ints and uses max + 1. 
+        """
+        print(new_cell)
+        n = self.metadata["max_frames"] 
+        if new_cell is None:
+            new_cell = str(max([ int(c) for c in self.get_cells_list()]) + 1)
+        print(new_cell)
+        # maybe we want to copy to a preexisting cell
+        if new_cell not in self.cells.keys(): 
+            print("make new")
+            self.cells[new_cell] = self.get_empty_entry()
+
+        for prop in self.get_cell_time_property_list(parent):
+            self.cells[new_cell][prop][frame:] = self.cells[parent][prop][frame:]
+            #self.cells[parent][prop][frame:] = 0 # remove # only numpy :(
+            self.cells[parent][prop][frame:] = [0]*(n - frame) # remove
+
+        return new_cell, self
 
     def get_final_frame(self, cell:str):
         frames_nonzero = [ f for f, s in enumerate(self.cells[cell]["state"]) if s > 0 ]
@@ -158,32 +183,32 @@ class TrackData(object):
         else:
             return max([ f for f, s in enumerate(self.cells[cell]["state"]) if s > 0 ])
 
-    def guess_probable_parents(self, cell:str):
-        first_appears = self.cells[cell]["state"].index(1)
-        point, _, _, _, = self.get_cell_params(first_appears, cell) 
-        possible_parents = []
+    # def guess_probable_parents(self, cell:str):
+    #     first_appears = self.cells[cell]["state"].index(1)
+    #     point, _, _, _, = self.get_cell_params(first_appears, cell) 
+    #     possible_parents = []
 
-        # what cells were alive in the previous frame 
-        cell_alive_in_pre = [ c for c in self.cells.keys() 
-                                if (self.get_cell_state(first_appears-1, c) > 0) & 
-                                   (self.get_cell_state(first_appears, c))]  # and not alive now
+    #     # what cells were alive in the previous frame 
+    #     cell_alive_in_pre = [ c for c in self.cells.keys() 
+    #                             if (self.get_cell_state(first_appears-1, c) > 0) & 
+    #                                (self.get_cell_state(first_appears, c))]  # and not alive now
 
-        # which cell overlaps with the new cell
-        for precell in cell_alive_in_pre:
-            pre_ellipse = self.get_cell_params(first_appears-1, precell)
-            inside = cell_dimensions.is_point_in_ellipse(point, pre_ellipse)
-            if inside:
-                possible_parents += [precell]
+    #     # which cell overlaps with the new cell
+    #     for precell in cell_alive_in_pre:
+    #         pre_ellipse = self.get_cell_params(first_appears-1, precell)
+    #         inside = cell_dimensions.is_point_in_ellipse(point, pre_ellipse)
+    #         if inside:
+    #             possible_parents += [precell]
 
 
-        error = """ too many parents detected for cell {0} born frame {1} 
-            candidates are {2} on the previous frame"""
-        if len(possible_parents) > 1:
-            raise ValueError(error.format(cell, first_appears, possible_parents))
-        elif len(possible_parents) == 1:
-            return possible_parents[0]
-        else: 
-            return "0"
+    #     error = """ too many parents detected for cell {0} born frame {1} 
+    #         candidates are {2} on the previous frame"""
+    #     if len(possible_parents) > 1:
+    #         raise ValueError(error.format(cell, first_appears, possible_parents))
+    #     elif len(possible_parents) == 1:
+    #         return possible_parents[0]
+    #     else: 
+    #         return "0"
 
     def get_cells_in_frame(self, frame, state=[1]):
         if not isinstance(state, list):
@@ -191,24 +216,24 @@ class TrackData(object):
         return [ c for c in self.get_cells_list() if self.get_cell_state(frame, c) in state]
 
 
-    def check_all_probable_parents(self):
-        good_parent_matches = {}
-        suggested_parent_matches = {}
-        wrong_parent_matches = {}
+    # def check_all_probable_parents(self):
+    #     good_parent_matches = {}
+    #     suggested_parent_matches = {}
+    #     wrong_parent_matches = {}
 
-        for cell in self.cells.keys():
-            probable_parent = self.guess_probable_parents(cell)
-            recorded_parent = self.cells[cell]["parent"]
+    #     for cell in self.cells.keys():
+    #         probable_parent = self.guess_probable_parents(cell)
+    #         recorded_parent = self.cells[cell]["parent"]
 
-            if recorded_parent == probable_parent:
-                good_parent_matches[cell] = probable_parent
-            #elif (probable_parent != 0) and recorded_parent != probable_parent:
-            elif recorded_parent != probable_parent:
-                wrong_parent_matches[cell] = recorded_parent
-                suggested_parent_matches[cell] = probable_parent
-            #elif recorded_parent != probable_parent:
-            #else:
-        return good_parent_matches, suggested_parent_matches, wrong_parent_matches
+    #         if recorded_parent == probable_parent:
+    #             good_parent_matches[cell] = probable_parent
+    #         #elif (probable_parent != 0) and recorded_parent != probable_parent:
+    #         elif recorded_parent != probable_parent:
+    #             wrong_parent_matches[cell] = recorded_parent
+    #             suggested_parent_matches[cell] = probable_parent
+    #         #elif recorded_parent != probable_parent:
+    #         #else:
+    #     return good_parent_matches, suggested_parent_matches, wrong_parent_matches
 
     def make_tree(self):
         tree = nx.DiGraph()
@@ -314,25 +339,25 @@ def frame_pos(G, root, vert_locs, width=1., xcenter = 0.5, pos = None, parent = 
     return pos
 
 
-def print_possible_parents(td):
-    good, suggested, wrong = td.check_all_probable_parents()
-    print("----Look Good----")
-    for cell, parent in good.items():
-        print("parent of {0} : {1}".format(cell, parent))
+# def print_possible_parents(td):
+#     good, suggested, wrong = td.check_all_probable_parents()
+#     print("----Look Good----")
+#     for cell, parent in good.items():
+#         print("parent of {0} : {1}".format(cell, parent))
 
-    print("----Look wrong!----")
-    for cell, parent in suggested.items():
-        print("parent of \t{0}\t should be \t{1}\t not \t{2}".format(cell, parent, wrong[cell]))
+#     print("----Look wrong!----")
+#     for cell, parent in suggested.items():
+#         print("parent of \t{0}\t should be \t{1}\t not \t{2}".format(cell, parent, wrong[cell]))
 
-def set_possible_parents(td):
-    good, suggested, wrong = td.check_all_probable_parents()
+# def set_possible_parents(td):
+#     good, suggested, wrong = td.check_all_probable_parents()
 
-    for cell, parent in suggested.items():
-        if parent == "0":  # dont set to the root.
-            continue
-        print("Setting {0} as the parent of {1}".format(parent, cell))
-        td = td.set_parent_of(cell, parent)
-    return td
+#     for cell, parent in suggested.items():
+#         if parent == "0":  # dont set to the root.
+#             continue
+#         print("Setting {0} as the parent of {1}".format(parent, cell))
+#         td = td.set_parent_of(cell, parent)
+#     return td
 
 
 def set_and_check_parent(td, par, chi):
@@ -342,30 +367,30 @@ def set_and_check_parent(td, par, chi):
     print("Confirming {0} as the parent of {1}".format(check_par, chi))
     return tdn
 
-def test_tree_lineage():
-    path = "data/bio_film_data/data_local_cache/sp8_movies/zoom_1x_30_22/delru_1/cell_track.json"
-    td = TrackData(path)
-    print(td.get_cell_lineage(7))
+# def test_tree_lineage():
+#     path = "data/bio_film_data/data_local_cache/sp8_movies/zoom_1x_30_22/delru_1/cell_track.json"
+#     td = TrackData(path)
+#     print(td.get_cell_lineage(7))
 
 
-def test_graph_data():
-    #path = "data/bio_film_data/data/test_movie/cell_track.json"
-    path = "data/bio_film_data/data_local_cache/sp8_movies/del_fast_slow/time_lapse_sequence/fast_img_2_106/cell_track.json"
+# def test_graph_data():
+#     #path = "data/bio_film_data/data/test_movie/cell_track.json"
+#     path = "data/bio_film_data/data_local_cache/sp8_movies/del_fast_slow/time_lapse_sequence/fast_img_2_106/cell_track.json"
 
-    td = TrackData(path)
-    print("9s parent is", td.cells["9"]["parent"])
-    G = td.make_tree()
-    print(G.adj)
-    import matplotlib.pylab as plt
-    fig, ax = plt.subplots(1,1)
-    #pos=nx.graphviz_layout(G, prog='dot')
-    td.plot_tree(ax)
-    #nx.draw(G, pos=hierarchy_pos(G, 0), nodecolor='r', edge_color='b', ax=ax, with_labels=True, arrows=True)
-    plt.show()
-    # path = "/Users/npm33/stochastic/data/bio_film_data/data_local_cache/sp8_movies/del_fast_slow/time_lapse_sequence/fast_img_2_106/cell_track.json"
-    # td = TrackData(path)
-    # td.extend_max_frames(388)
-    # td.save(path)
+#     td = TrackData(path)
+#     print("9s parent is", td.cells["9"]["parent"])
+#     G = td.make_tree()
+#     print(G.adj)
+#     import matplotlib.pylab as plt
+#     fig, ax = plt.subplots(1,1)
+#     #pos=nx.graphviz_layout(G, prog='dot')
+#     td.plot_tree(ax)
+#     #nx.draw(G, pos=hierarchy_pos(G, 0), nodecolor='r', edge_color='b', ax=ax, with_labels=True, arrows=True)
+#     plt.show()
+#     # path = "/Users/npm33/stochastic/data/bio_film_data/data_local_cache/sp8_movies/del_fast_slow/time_lapse_sequence/fast_img_2_106/cell_track.json"
+#     # td = TrackData(path)
+#     # td.extend_max_frames(388)
+#     # td.save(path)
 
 def convert_angles_to_radians(td_path):
     import numpy as np
@@ -399,62 +424,3 @@ def view_lineage_tree(td):
     ax = plot_lineage_tree(ax, td)
     plt.show()
 
-def main_ui():
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-l', "--list_possible_parents", action='store_true', default=False )
-    parser.add_argument("--set_auto_suggested_parents", action='store_true', default=False )
-    parser.add_argument("--check_consistency", action='store_true', default=False )
-    parser.add_argument("--trackdata", "-t", )
-    parser.add_argument("--view_tree", action='store_true' )
-    parser.add_argument("--set_parent", type=str)
-    parser.add_argument("--set_child", type=str)
-    ####
-    parser.add_argument("--set_cell_state", type=str)
-    parser.add_argument("--cell", type=str)
-    parser.add_argument("--from_frame", type=int)
-    arguments = parser.parse_args()
-
-    td = TrackData(arguments.trackdata)
-    
-    if arguments.list_possible_parents:
-        print_possible_parents(td)
-
-    if arguments.set_parent and arguments.set_child:
-        tdn = set_and_check_parent(td, arguments.set_parent, arguments.set_child)
-        tdn.save(arguments.trackdata)
-    
-    if arguments.set_auto_suggested_parents:
-        tdn = set_possible_parents(td)
-        tdn.save(arguments.trackdata)
-    
-    if arguments.view_tree:
-        view_lineage_tree(td)
-    
-    if arguments.check_consistency:
-        td.check_data_consistency()
-
-    if arguments.set_cell_state and arguments.from_frame and arguments.cell:
-        try:
-            statenum = int(arguments.set_cell_state)
-            state = td.metadata["states"][statenum]
-        except ValueError:
-            state = arguments.set_cell_state 
-            print("SS", list(td.states.items())) #metadata["states"].items()))
-            statenum = td.states[state]
-            print("SS")
-
-        for f in range(int(arguments.from_frame), td.metadata["max_frames"]):
-            current_state = td.get_cell_state(f, arguments.cell)
-            if current_state > 0:
-                td.set_cell_state(f, arguments.cell, statenum)
-        td.save(arguments.trackdata)
-
-
-
-if __name__ == "__main__": 
-    #test_graph_data()
-    #test_tree_lineage()
-    # import sys
-    # convert_angles_to_radians(sys.argv[1])
-    main_ui()
