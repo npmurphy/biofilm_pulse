@@ -12,7 +12,9 @@ def main_ui():
     parser.add_argument("--set_child", type=str)
     parser.add_argument("--set_cell_state", type=str)
     parser.add_argument("--cell", type=str)
+    parser.add_argument("--new_cell", type=str)
     parser.add_argument("--from_frame", type=int)
+    parser.add_argument("--upto_frame", type=int)
     parser.add_argument("--at_frame", type=int)
     parser.add_argument("--view_cell", type=str)
     arguments = parser.parse_args()
@@ -24,7 +26,10 @@ def main_ui():
         td.save(arguments.trackdata)
 
     if arguments.split_cell_at_frame:
-        new_cell, td = td.split_cell_from_point(arguments.set_parent, arguments.from_frame, arguments.set_child)
+        new_cell, td = td.split_cell_from_point(arguments.cell,
+                                                arguments.from_frame,
+                                                arguments.upto_frame,
+                                                arguments.new_cell)
         print("New cell added # {0}".format(new_cell))
         td.save(arguments.trackdata)
 

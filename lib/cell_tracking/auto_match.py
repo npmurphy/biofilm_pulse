@@ -96,9 +96,13 @@ predict_next_location = predict_next_location_simple
 
 def guess_lineages(td, image_pattern):
     for cell in td.cells:
-        print("cell", cell)
+        #print("cell", cell)
         # I wonder if this is faster or slower than coverting to numpy
-        first_appears = td.cells[cell]["state"].index(1)
+        try:
+            first_appears = td.cells[cell]["state"].index(1)
+        except ValueError as e:
+            print("cell {0} never exists".format(cell))
+            continue
 
         point, _, _, _, = td.get_cell_params(first_appears, cell)
         cell_col, cell_row = (int(np.round(i)) for i in point)

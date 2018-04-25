@@ -154,7 +154,7 @@ class TrackData(object):
         return self
 
     
-    def split_cell_from_point(self, parent:str, frame, new_cell:str=None):
+    def split_cell_from_point(self, parent:str, frame_start, frame_end, new_cell:str=None):
         """
         copys the data from cell "parent" from "frame" onwards, putting the data in "new_cell".
         If new_cell is not specified, it assumes cell ids are strings of ints and uses max + 1. 
@@ -168,11 +168,15 @@ class TrackData(object):
         if new_cell not in self.cells.keys(): 
             print("make new")
             self.cells[new_cell] = self.get_empty_entry()
+        
+        if frame_end is None:
+            frame_end = n
+        if frame_start is None:
+            frame_start = 0
 
         for prop in self.get_cell_time_property_list(parent):
-            self.cells[new_cell][prop][frame:] = self.cells[parent][prop][frame:]
-            #self.cells[parent][prop][frame:] = 0 # remove # only numpy :(
-            self.cells[parent][prop][frame:] = [0]*(n - frame) # remove
+            self.cells[new_cell][prop][frame_start:frame_end] = self.cells[parent][prop][frame_start:frame_end]
+            self.cells[parent][prop][frame_start:frame_end] = [0]*(frame_end - frame_start) # remove
 
         return new_cell, self
 
