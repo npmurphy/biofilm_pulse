@@ -6,6 +6,7 @@ import pandas as pd
 import scipy.io
 import skimage.io
 import lib.cell_tracking.cell_dimensions as cell_dimensions
+import re
 
 #import warnings
 
@@ -44,10 +45,22 @@ def get_channel_of_cell(df, cell, chan):
     # cell = df[df["cell_id"].isin(cell)].sort_values(by=["cell_id", "frame"])
     # return cell["frame"].values, cell[chan].values
 
+def parse_offset(time_str):
+    "Turns 3h20m into a float of that duration in mins"
+    hour, mins = re.search("(\d+)h(\d+)m", time_str).groups()
+    return int(hour)*60 + int(mins)
+
+def parse_step(time_str):
+    "Turns 10m into a float of that duration in mins"
+    mins, = re.search("(\d+)m", time_str).groups()
+    return int(mins)
+
 def compile(data_pattern, track_data, outpath, channels, start_frame=None, end_frame=None):
     names = ["red", "green", "blue"]
     lab_channels = {names[i]:c for i, c in enumerate(channels)}
-    data_fields = ["frame", "cell_id", "row", "col", "angle", "state", "length", "width", "g_by_r"] + list(lab_channels.keys())
+    offset_mins = parse_offset(track_data.metadata["time_offset"])
+    timestep_mins = parse_step(track_data.metadata["time_offset"])
+    data_fields = ["frame", "time", "cell_id", "row", "col", "angle", "state", "length", "width", "g_by_r"] + list(lab_channels.keys())
 
     with open(outpath, 'w') as tsvf:
         csvw = csv.DictWriter(tsvf, data_fields, delimiter='\t')
@@ -77,6 +90,7 @@ def compile(data_pattern, track_data, outpath, channels, start_frame=None, end_f
                 cellps = track_data.get_cell_properties(frame, cell)
                 cell_param = track_data.get_cell_params(frame, cell)
                 cellps["frame"] = frame
+                cellps["time"] = (frame * timestep_mins) + offset_mins
                 cellps["cell_id"] = cell
                 cellps.pop("parent")
                 cell_pixels = cell_dimensions.get_cell_pixels(*cell_param, img_shape )

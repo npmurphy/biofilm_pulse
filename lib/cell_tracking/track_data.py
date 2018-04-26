@@ -25,6 +25,8 @@ class TrackData(object):
         except FileNotFoundError as e:
             self.metadata = {
                     "max_frames": maxframes,
+                    "time_offset": "0h0m",
+                    "time_offset": "1m",
                     "states": self._default_states }
             self.states = {v: int(k) for k, v in self.metadata["states"].items()}
             self.cells = {}

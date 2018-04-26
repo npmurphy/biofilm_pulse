@@ -26,7 +26,6 @@ class State():
 
     def on_key_press(self, event):
         print('press', event.key)
-        #sys.stdout.flush()
         filename = self.files[self.current]
         if event.key == 'f':
             print("flip: {0}".format(self.files[self.current]))
