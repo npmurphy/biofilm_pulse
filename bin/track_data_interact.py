@@ -6,6 +6,8 @@ def main_ui():
     parser = argparse.ArgumentParser()
     parser.add_argument("--split_cell_at_frame", action='store_true', default=False )
     parser.add_argument("--check_consistency", action='store_true', default=False )
+    parser.add_argument("--auto_correct_if_possible", action='store_true', default=False )
+
     parser.add_argument("--trackdata", "-t", )
     parser.add_argument("--view_tree", action='store_true' )
     parser.add_argument("--set_parent", type=str)
@@ -37,7 +39,9 @@ def main_ui():
     #     view_lineage_tree(td)
     
     if arguments.check_consistency:
-        td.check_data_consistency()
+        td = td.check_data_consistency(arguments.auto_correct_if_possible)
+        if arguments.auto_correct_if_possible:
+            td.save(arguments.trackdata)
     
     if arguments.view_cell and arguments.at_frame:
         props = td.get_cell_properties(arguments.at_frame, arguments.view_cell)

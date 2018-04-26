@@ -4,7 +4,6 @@ import re
 from glob import glob
 
 import sys
-print(sys.path)
 
 import matplotlib
 import matplotlib.gridspec as gridspec
@@ -48,9 +47,9 @@ class State():
                  viewmethod="straight", vmax=1.0, image_range=(None,None)):
         self.filepattern = filepattern
         self.parse_re = re.compile(re.sub(r"{\d?:\d+d}", r"(\d+)", self.filepattern))
-        print(self.parse_re)
+        #print(self.parse_re)
         self.image_range = self._get_image_range(image_range)
-        print(self.image_range)
+        #print(self.image_range)
 
         self.red_chan = "ch00"
         self.green_chan = "ch01"
@@ -265,7 +264,7 @@ class State():
 
         def modify(im):
             img = skimage.filters.gaussian(im, sigma=1.1)
-            print(img.max())
+            #print(img.max())
             return img
         imr = skimage.exposure.rescale_intensity(modify(im[:,:,0]), in_range=(0, red_max), out_range=(0,255)).astype(np.uint8)
         img = skimage.exposure.rescale_intensity(modify(im[:,:,1]), in_range=(0, grn_max), out_range=(0,255)).astype(np.uint8)

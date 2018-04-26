@@ -265,7 +265,32 @@ class TrackData(object):
         nx.draw(tree, pos=pos, node_color=node_colors, edge_color='k', ax=ax, with_labels=True)
         return ax, pos
 
-    def check_data_consistency(self):
+    def _check_for_double_division_state(self, auto_correct):
+        dividing = self.states["divided"]
+        for cell in self.get_cells_list():
+            number = 0
+            frames = []
+            for f, s in enumerate(self.cells[cell]["state"]):
+                if s == dividing:
+                    number += 1
+                    frames += [f]
+            if number > 1:
+                print("Cell {0} has more than one division state frames: {1}".format(cell, frames))
+                if auto_correct:
+                    parameters = self.get_cell_properties(frames[-1], cell)
+                    ignore = ["state", "parent"]
+                    if all([ v == 0 for k,v in parameters.items() if k not in ignore]):
+                        print("Trying to fix it!")
+                        self.set_cell_state(frames[-1], cell, self.states["NE"])
+        
+    # def _check_cell_lineage(self, cell):
+    #     lineage = self.get_cell_lineage(cell)
+    #     for l in lineage:
+    #         self.cells[l][]
+
+
+    def check_data_consistency(self, auto_correct):
+        self._check_for_double_division_state(auto_correct)
         maxf = self.metadata["max_frames"]
         for cell in self.cells.keys():
             for key in self.cells[cell].keys():
@@ -273,9 +298,10 @@ class TrackData(object):
                     continue
                 if maxf != len(self.cells[cell][key]):
                     print("cell {0} key {1} was {2} not {3}!".format(cell, key, len(self.cells[cell][key]), maxf))
+        return self
     
 def get_leaves(tree):
-    leaves = [x for x in tree.nodes_iter() if tree.out_degree(x)==0 and tree.in_degree(x)==1]
+    leaves = [x for x in tree.nodes if tree.out_degree(x)==0 and tree.in_degree(x)==1]
     return leaves
 
 #%%
