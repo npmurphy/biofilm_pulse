@@ -1,51 +1,79 @@
-% Scanning electron microscopy
-% Author: Eric Jensen
-\documentclass[a4paper,10pt]{article}
-    \usepackage{tikz}
-    \usetikzlibrary{%
-        calc,%
-        decorations.pathmorphing,%
-        fadings,%
-        shadings%
-    }
-    \renewcommand*{\familydefault}{\sfdefault}
+\documentclass[tikz]{standalone}
+
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric}
+\usetikzlibrary{%
+    calc,%
+    decorations.pathmorphing,%
+    fadings,%
+    shadings%
+}
+
+\renewcommand*{\familydefault}{\sfdefault}
     
-    \begin{document}
-    \begin{tikzpicture}
-      \draw[gray,fill=gray,path fading=south] (0,0) rectangle +(5,-2);% sample
-        \begin{scope}[decoration={snake,amplitude=.4mm,
-            segment length=2mm,post length=1mm}]
-          \draw[decorate,blue,->] (2.5,0) -- ++(112:3);% x-ray
-          \draw[decorate,red,->] (2.5,0) -- ++(5:2);% auger
-          \draw[decorate,orange,->] (2.5,0) -- ++(45:3);% cathodlimuescence
-        \end{scope}
-      \fill[color=red, path fading=north,fading transform={rotate=-15}]
-        (2.5,0) ++(60:3) ++(150:0.1) -- ++(-30:0.2) -- (2.5,0) -- cycle;%backscatter
-      \fill[color=green, path fading=north,fading transform={rotate=45}]
-        (2.5,0) ++(135:2) ++(225:0.3) -- ++(45:0.6) -- (2.5,0) -- cycle;%secondary
-      \shade[inner color=blue, top color=blue] (2.2,1.8)
-        -- ++(0.6,0) -- ++(-0.3,-1.8) -- cycle;%primary electrons
-    
-      \shade[left color=gray!50!white,right color=gray] (1.7,3)
-        -- ++(1.6,0) -- ++(-0.3,-1) -- ++(-1,0) -- cycle;% column
-      \shade[left color=gray!50!white,right color=gray] (2.1,2)
-        -- ++(0.8,0) -- ++(0,-0.2) -- ++(-0.8,0) -- cycle;% column bottom
-      \draw[gray!80!black] (1.7,3) -- ++(1.6,0) -- ++(-0.3,-1)
-        -- ++(-1,0) -- cycle;%column
-      \draw[gray!80!black] (2.1,2) -- ++(0,-0.2) -- ++(0.8,0)
-        -- ++(0,0.2);%column bottom
-            
-      \shade[left color=gray!50!white,right color=gray] (2.5,0) ++(135:2) --
-        ++(225:0.3) -- ++(135:0.8) -- ++(45:0.6) -- ++(315:0.8) -- cycle;% detector
-            
-      %labels
-      \draw (0,-2) node[above right] {\footnotesize Sample};
-      \draw (2.5,0) ++(5:2) node[right] {\footnotesize Auger};
-      \draw (2.5,0) ++(45:3) node[right] {\footnotesize Cathodeluminescence};
-      \draw (2.5,0) ++(60:3) node[right] {\footnotesize Backscattered};
-      \draw (2.5,0) ++(112:3) node[left] {\footnotesize X-ray};
-      \draw (2.5,0) ++(135:1.2) node[left=0.4cm] {\footnotesize Secondary};
-      \draw (2.5,0) ++(135:2) ++(225:0.3) ++(135:0.8) node[left]
-        {\footnotesize Detector};
-    \end{tikzpicture}
-    \end{document}
+\begin{document}
+
+\tikzstyle{objective}=[
+trapezium,
+left color=gray!80!black,
+right color=gray!20!white,
+draw, thick]
+%trapezium stretches,
+\tikzstyle{dish}=[draw = blue, very thick]
+
+\begin{tikzpicture}
+
+	\node at (1.60, 0)
+    [anchor= bottom left corner,
+      objective,
+      trapezium angle=70,
+      minimum width=15mm,
+      minimum height=8mm] (objbase) {};
+
+	\node at (objbase.north west)
+    [anchor= bottom left corner,
+      objective,
+      yshift=-0.3mm,
+      trapezium angle=40,
+      minimum width=7mm,
+      minimum height=2mm, draw, thick] (objtip) {};
+  
+  % \draw[white,fill=brown!50!white,path fading=east]
+  %   (objtip.top side) rectangle +(3,1);
+  \node at (objtip.top side)
+       [rectangle,
+         minimum width=3cm,
+         minimum height=1cm,
+         anchor =south west,
+         fill=brown!50!white, path fading=east] (agar) {};
+
+  %% cover slip
+  \path [draw] 
+    ($(objtip.top side) + (-1, 0)$) --
+	  ($(objtip.top side) + (+1, 0)$);
+  
+  \coordinate (dishSW) at ($(objtip.top side) + (-3,0)$);
+  \coordinate (dishNW) at ($(dishSW) + (0, 1.5)$);
+  \coordinate (dishSE) at ($(objtip.top side) + (3,0)$);
+  \coordinate (dishNE) at ($(dishSE) + (0, 1.5)$);
+
+  \path[dish] 
+    ($(objtip.top side) + (-1, 0)$) -- (dishSW) -- (dishNW);
+  \path[dish]
+     ($(objtip.top side) + (+1,0)$) -- (dishSE) -- (dishNE);
+
+  % lid
+  \path[dish]
+    ($(dishNW) + (-0.1, -0.5)$) -- ++ (0, 0.7) -- ++ (6.2, 0) -- ++ (0, -0.7);
+
+  % biofilm
+  \path[draw=brown, thin, fill=yellow]
+    ($(agar.south west) + (0, 0.01)$)
+                   -- ++ (-0.3, 0.0)
+      decorate [decoration={random steps,segment length=0.05cm,amplitude=.02cm}]
+      { -- ++ (0, 0.7) -- ++ (+0.3, 0)}
+       -- ($(agar.south west) + (0, 0.01)$);
+  
+
+\end{tikzpicture}
+\end{document}
