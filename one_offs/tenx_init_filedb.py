@@ -2,7 +2,7 @@ import argparse
 import os
 import os.path
 from lib.filename_parser import parse_10_filename
-import filedb
+import lib.filedb
 import json
 
 def main():
@@ -13,7 +13,7 @@ def main():
     parser.add_argument('-b', "--basedir", type=str)
     pa = parser.parse_args()
 
-    db = filedb.get_filedb(pa.filedb)
+    db = lib.filedb.get_filedb(pa.filedb)
 
     strain_lookup = {
         "sigb" : "JLB021",
@@ -25,8 +25,12 @@ def main():
         "wt" : "JLB001"
     }
 
-    with open(pa.image_locations) as jp:
-        loc_dict = json.load(jp)
+    #if pa.image_locations is "filename": 
+    location_data = lambda x: "unknown"
+    if pa.image_locations is not None:
+        with open(pa.image_locations) as jp:
+            loc_dict = json.load(jp)
+        location_data = lambda x: loc_dict[x]
 
     for path in pa.files:
         print(path)
@@ -48,10 +52,10 @@ def main():
         }
         file_info.update(fn_extra)
         rebuild_path = pa.basedir + dirname +"/" + file_base + ".tiff" # kind of a check
-        file_info["location"] = loc_dict[rebuild_path] # replace with human checked.
-        filedb.add_if_new(db, file_info)
+        file_info["location"] = location_data(rebuild_path) # replace with human checked.
+        lib.filedb.add_if_new(db, file_info)
 
-        filedb.save_db(db, pa.filedb)
+        lib.filedb.save_db(db, pa.filedb)
 
 
 if __name__ == "__main__":

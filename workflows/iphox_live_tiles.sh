@@ -107,9 +107,60 @@ done
 mkdir ${data_dir}/${dset}/${timepoint}/unstitched
 mv ${data_dir}/${dset}/${timepoint}/Position*.tif ${data_dir}/${dset}/${timepoint}/unstitched/
 
-
+##################
+### We could use the 10x tools for this. 
+####################
 
 ### 
 #Process images.
 #python bin/mask_maker.py --mask_name biofilmmask --remove_cr_from_mat_pat --minidraw -l ${bgdir}/${fpath} --maxbright ${bright}
-python bin/mask_maker.py --mask_name biofilmmask --remove_cr_from_mat_pat -l ${bgdir}/${fpath} 
+data_dir="/Users/npm33/bf_pulse/proc_data/iphox_live_gradient_checks"
+dset="BF_12hoursnaps2"
+
+## Change the format to be more like the other datasets
+python bin/live_tile_renamer.py
+
+### Then make the biofilm masks
+for f in ${data_dir}/${dset}/delRU/*hr_timepoint/delRU_*hr_Column*.tiff; do 
+    echo $f
+    python bin/mask_maker.py --classic63x --mask_name biofilmmask --remove_cr_from_mat_pat -l ${f}
+done
+#checked with this.
+python bin/mask_maker.py --minidraw --mask_name biofilmmask --remove_cr_from_mat_pat -l ${data_dir}/${dset}/delRU/12hr_timepoint/delRU_12hr_Column10.tiff
+python bin/mask_maker.py --minidraw --mask_name edgemask --remove_cr_from_mat_pat -l ${data_dir}/${dset}/delRU/12hr_timepoint/delRU_12hr_Column1.tiff
+
+# All were fine except the first 4 12 hour columns. Did those manually using
+python bin/mask_maker.py --minidraw --mask_name biofilmmask --remove_cr_from_mat_pat -l ${data_dir}/${dset}/delRU/12hr_timepoint/delRU_12hr_Column10.tiff
+# reran the edge estimator 
+for f in ${data_dir}/${dset}/delRU/*hr_timepoint/delRU_12hr_Column*.tiff; do 
+    python bin/mask_maker.py --edge_estimate --remove_cr_from_mat_pat -l ${f};
+done
+
+
+# next we need to make the distance from top map.
+for f in ${data_dir}/${dset}/delRU/*hr_timepoint/delRU_*hr_Column*.tiff; do 
+    echo $f
+    python bin/distmap_maker.py --filled edgemask  --magnification "100-IPhox_1.5zoom" -f  ${f} 
+done
+
+### Now get the gradients of the images. 
+widths='--sample_freq 0.25 --slice_width 0.5'
+python bin/gradient_10x_maker.py \
+    -f ${data_dir}/${dset}/*hr_timepoint/delRU_*hr_Column*.tiff \
+    ${widths} \
+    --bg_subtract  ${data_dir}/bg_values.json \
+    --subtractions "bg_only"
+
+## Make the file DB
+outputdir="/Users/npm33/bf_pulse/datasets/iphox_gradient_snaps"
+python one_offs/tenx_init_filedb.py -db ${outputdir}/filedb.tsv \
+--basedir ${data_dir}/ \
+--files ${data_dir}/${dset}/*hr_timepoint/delRU_*hr_Column*.tiff 
+
+python bin/data_aggregator_10x.py \
+    -db ${outputdir}/filedb.tsv \
+    --basepathtoignore ${data_dir} \
+    --data distmap \
+    --outfile ${outputdir}/gradient_data \
+    -f ${data_dir}/${dset}/*hr_timepoint/delRU_*hr_Column*.tiff  
+

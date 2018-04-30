@@ -11,7 +11,7 @@ import calendar
 #filepatrn = re.compile(r'(?P<strain>[^_\W]+)_(?P<time>\d+)[H|h]rs_(?P<loc>[a-zA-Z]+)\d*_(?P<date>[a-zA-Z]+_\d+|[^_\W]+)?.*stitched.tiff')
 #works for new files 
 strain_p = r'(?P<strain>[^_\W]+|del_SigB|RFP_only)'
-time_p = r'(?P<time>\d+)[H|h]rs'
+time_p = r'(?P<time>\d+)[H|h]r(s)?'
 sectdate_p = r'(?P<date>\d+)_?sect'
 location_p   = r'(?P<loc>[a-zA-Z]+)[_]?\d*' # center3 ignore the 3
 location_p2   = r'(?P<loc>[a-zA-Z]+)[_]?\d_\d' # center_3_2 ignore the 3 and 2
@@ -32,6 +32,7 @@ filepatrn_10x_classic = re.compile(strain_p + '_'+ time_p +'_' +location_p  + ".
 filepatrn_10x_classic2 = re.compile(strain_p + '_'+ time_p +'_' +location_p2  + ".tiff")
 filepatrn_10x_numloc = re.compile(strain_p + '_'+ time_p + r'_\d+_(?P<loc>\d+)_'+ sectdate_p+ ".tiff")
 filepatrn_10x_name_numloc = re.compile(strain_p + '_'+ time_p +r'_(?P<loc>[a-zA-Z]+|[a-zA-Z]+_[a-zA-Z]+)_(\d_)?(\d_)?' + sectdate_p+ ".tiff")
+
 
 dateformats = [ "%b%y" # Feb14
               , "%b_%y" # Feb_14

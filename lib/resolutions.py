@@ -6,3 +6,5 @@ PX_TO_UM_LSM700_GIANT = 1/20.1545 #1px = 0.05 microns
 PX_TO_UM_LSM780_63x = 1/9.8643 #1px = 0.1 microns
 
 PX_TO_UM_LSM700_20x = 0.31 # 1 px = 0.31 um
+
+PX_TO_UM_IPHOX_100x_1p5zoom = 0.075

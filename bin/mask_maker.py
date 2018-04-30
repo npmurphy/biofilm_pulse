@@ -115,7 +115,7 @@ def heuristic_biofilmmask(imgpath):
     maskpath = file_finder.get_labeled_path(matpath, "biofilmmask")
     try:
         mask = scipy.io.loadmat(segtpath)["image"].astype(np.bool)
-    except OSError as e:
+    except (OSError, TypeError) as e:
         print("you probably need to generate a segmentation file first")
         raise e
     skimage.morphology.remove_small_objects(mask, min_size=64, connectivity=1, in_place=True)

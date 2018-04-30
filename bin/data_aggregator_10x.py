@@ -1,5 +1,5 @@
 import pandas as pd
-import filedb 
+import lib.filedb 
 import argparse
 import os.path
 from glob import glob
@@ -11,7 +11,7 @@ def load_file_data(filepath, ignore_path_section, data, file_df):
     lookuppath = lookuppath.replace(ignore_path_section, "")
     if lookuppath[0] == "/":
         lookuppath = lookuppath[1:]
-    file_id = filedb.exists_in_db(file_df, {"name": basename, "dirname": lookuppath})
+    file_id = lib.filedb.exists_in_db(file_df, {"name": basename, "dirname": lookuppath})
     print("found in DB", file_id)
     # if search_param != "":
     #     search_path = os.path.join(dirname, basename + "_" + data + "-masked_" + search_param + ".tsv")
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     if pa.files is None:
         print(parser.usage())
 
-    file_df = filedb.get_filedb(pa.filedb)
+    file_df = lib.filedb.get_filedb(pa.filedb)
     if len(pa.files) == 1 and "*" in pa.files[0]:
         pa.files = glob(pa.files[0])
 

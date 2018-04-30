@@ -301,7 +301,17 @@ class TrackData(object):
                 if maxf != len(self.cells[cell][key]):
                     print("cell {0} key {1} was {2} not {3}!".format(cell, key, len(self.cells[cell][key]), maxf))
         return self
-    
+
+def parse_time(time_str):
+    import re
+    "Turns 3h20m, or 4m, into a float of that duration in mins"
+    hour_g = re.search("(\d+)h", time_str)
+    mins_g = re.search("(\d+)m", time_str)
+    hour = 0 if hour_g is None else hour_g.groups()[0]
+    mins = 0 if mins_g is None else mins_g.groups()[0]
+    return int(hour)*60 + int(mins)
+
+
 def get_leaves(tree):
     leaves = [x for x in tree.nodes if tree.out_degree(x)==0 and tree.in_degree(x)==1]
     return leaves

@@ -11,15 +11,15 @@ import skimage.filters
 import skimage.io
 import skimage.morphology
 
-import util.file_finder as file_finder
-from util import array_sub
+import lib.file_finder as file_finder
+from lib.util import array_sub
 
 chans = { "red": 0,
           "green": 1,
           "blue": 2}
 
 stats = [("mean", np.mean), ("std", np.std)]
-subtractions = {"raw": {"red": ["red_raw"],
+subtractions_all = {"raw": {"red": ["red_raw"],
                         "green": ["green_raw"]}, 
                 "bg": {"red": ["red_bg"],
                        "green": ["red_bg"]}, 
@@ -28,13 +28,19 @@ subtractions = {"raw": {"red": ["red_raw"],
                 "bg_af_bt": {"green": ["green_bg", "green_autofluor", "green_bleedthrough"]} 
                 }
 
+subtractions_bg_only = {"raw": {"red": ["red_raw"],
+                        "green": ["green_raw"]}, 
+                        "bg": {"red": ["red_bg"],
+                            "green": ["red_bg"]} }
+
+subtractions_none = {"raw": {"red": ["red_raw"],
+                        "green": ["green_raw"]} }
+
+
 fixed_heads = [ "cdist", "pixels"] 
-color_chans = [ch + "_" + des for des, dt in subtractions.items() for ch in dt.keys()]
-color_chans_stats = [ cc + "_" + s for cc in color_chans for s, _ in stats ] 
-names = fixed_heads + color_chans_stats
 
 
-def init_dict():
+def init_dict(names):
     return OrderedDict(zip(names, [np.nan]*len(names)))
 
 
@@ -52,18 +58,31 @@ def main():
     parser.add_argument('--sample_freq', type=float, default=0.25)
     parser.add_argument('--slice_width', type=float, default=0.5)
     parser.add_argument('--bg_subtract')
+    parser.add_argument('--subtractions', default="all")
     pa = parser.parse_args()
+
+    if pa.subtractions == "bg_only":
+        subtractions = subtractions_bg_only
+    elif pa.subtractions == "all":
+        subtractions = subtractions_all
+    else:# pa.substractions == "none":
+        subtractions = subtractions_none
+
+    color_chans = [ch + "_" + des for des, dt in subtractions.items() for ch in dt.keys()]
+    color_chans_stats = [ cc + "_" + s for cc in color_chans for s, _ in stats ] 
+    names = fixed_heads + color_chans_stats
 
     with open(pa.bg_subtract) as bgjs:
         bg_subvals = json.load(bgjs)
         bg_subvals["red_raw"] = 0 
         bg_subvals["green_raw"] = 0 
 
-    datarow = init_dict()
+    datarow = init_dict(names)
 
     for num, f in enumerate(pa.files):
         print("{0} of {1}: {2}".format(num, len(pa.files), f))
         sptsv = f.replace(".tiff", ".tsv")
+
         with open(sptsv, "w") as csvf:
             writer = csv.DictWriter(csvf, fieldnames=names, delimiter="\t")
             writer.writeheader()

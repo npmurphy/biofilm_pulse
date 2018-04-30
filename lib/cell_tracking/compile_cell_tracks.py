@@ -7,6 +7,7 @@ import scipy.io
 import skimage.io
 import lib.cell_tracking.cell_dimensions as cell_dimensions
 import re
+import lib.cell_tracking.track_data as track_data
 
 #import warnings
 
@@ -45,21 +46,11 @@ def get_channel_of_cell(df, cell, chan):
     # cell = df[df["cell_id"].isin(cell)].sort_values(by=["cell_id", "frame"])
     # return cell["frame"].values, cell[chan].values
 
-def parse_offset(time_str):
-    "Turns 3h20m into a float of that duration in mins"
-    hour, mins = re.search("(\d+)h(\d+)m", time_str).groups()
-    return int(hour)*60 + int(mins)
-
-def parse_step(time_str):
-    "Turns 10m into a float of that duration in mins"
-    mins, = re.search("(\d+)m", time_str).groups()
-    return int(mins)
-
-def compile(data_pattern, track_data, outpath, channels, start_frame=None, end_frame=None):
+def compile(data_pattern, td, outpath, channels, start_frame=None, end_frame=None):
     names = ["red", "green", "blue"]
     lab_channels = {names[i]:c for i, c in enumerate(channels)}
-    offset_mins = parse_offset(track_data.metadata["time_offset"])
-    timestep_mins = parse_step(track_data.metadata["time_offset"])
+    offset_mins = track_data.parse_time(td.metadata["time_offset"])
+    timestep_mins = track_data.parse_time(td.metadata["time_offset"])
     data_fields = ["frame", "time", "cell_id", "row", "col", "angle", "state", "length", "width", "g_by_r"] + list(lab_channels.keys())
 
     with open(outpath, 'w') as tsvf:
@@ -67,7 +58,7 @@ def compile(data_pattern, track_data, outpath, channels, start_frame=None, end_f
         csvw.writeheader()
 
         if start_frame is None: start_frame = 0 
-        if end_frame is None: end_frame = track_data.metadata["max_frames"]
+        if end_frame is None: end_frame = td.metadata["max_frames"]
         frames = range(start_frame, end_frame) 
         for frame in frames:
             print("frame, ", frame)
@@ -86,9 +77,9 @@ def compile(data_pattern, track_data, outpath, channels, start_frame=None, end_f
                     pass
                 seg = np.zeros(img_shape, dtype=np.uint8)
 
-            for cell in track_data.cells.keys():
-                cellps = track_data.get_cell_properties(frame, cell)
-                cell_param = track_data.get_cell_params(frame, cell)
+            for cell in td.cells.keys():
+                cellps = td.get_cell_properties(frame, cell)
+                cell_param = td.get_cell_params(frame, cell)
                 cellps["frame"] = frame
                 cellps["time"] = (frame * timestep_mins) + offset_mins
                 cellps["cell_id"] = cell

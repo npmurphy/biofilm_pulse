@@ -1,5 +1,5 @@
 import argparse
-import util.file_finder
+import lib.file_finder
 import scipy.io
 import scipy.ndimage
 import os.path
@@ -18,13 +18,15 @@ if __name__ == "__main__":
     pa = parser.parse_args()
 
     if pa.magnification == "63":
-        from resolutions import PX_TO_UM_LSM700_63x as PX_TO_UM
+        from lib.resolutions import PX_TO_UM_LSM700_63x as PX_TO_UM
     elif pa.magnification == "10":
-        from resolutions import PX_TO_UM_LSM780_10x as PX_TO_UM
+        from lib.resolutions import PX_TO_UM_LSM780_10x as PX_TO_UM
     elif pa.magnification == "20":
-        from resolutions import PX_TO_UM_LSM700_20x as PX_TO_UM
+        from lib.resolutions import PX_TO_UM_LSM700_20x as PX_TO_UM
     elif pa.magnification == "63-LSM780":
-        from resolutions import PX_TO_UM_LSM780_63x as PX_TO_UM
+        from lib.resolutions import PX_TO_UM_LSM780_63x as PX_TO_UM
+    elif pa.magnification == "100-IPhox_1.5zoom":
+        from lib.resolutions import PX_TO_UM_IPHOX_100x_1p5zoom as PX_TO_UM
     else:
         print("NOT a vaild magnification value")
         PX_TO_UM = 1.0
@@ -42,11 +44,11 @@ if __name__ == "__main__":
 
         base_fn = os.path.join(base_dir, base_no_ext, base_no_ext_tag + ".mat")
 
-        fn = util.file_finder.insert_dir_in_path(base_no_ext, lsm_file)
+        fn = lib.file_finder.insert_dir_in_path(base_no_ext, lsm_file)
 
-        biofilm_path = util.file_finder.get_labeled_path(base_fn, bfm_lab)
-        distmap_path = util.file_finder.get_labeled_path(base_fn, dst_lab)
-        edge_path    = util.file_finder.get_labeled_path(base_fn, pa.filled)
+        biofilm_path = lib.file_finder.get_labeled_path(base_fn, bfm_lab)
+        distmap_path = lib.file_finder.get_labeled_path(base_fn, dst_lab)
+        edge_path    = lib.file_finder.get_labeled_path(base_fn, pa.filled)
 
         biofilm_mask = scipy.io.loadmat(biofilm_path)["image"]
         edge_mask = scipy.io.loadmat(edge_path)["image"]
