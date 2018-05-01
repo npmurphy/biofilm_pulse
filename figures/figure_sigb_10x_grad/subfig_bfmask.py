@@ -9,10 +9,10 @@ import skimage.morphology
 this_dir = os.path.dirname(__file__)
 plt.style.use(os.path.join(this_dir, '../../figures/figstyle.mpl'))
 
-def get_figure(ax, img_path, cache_path):
+def get_figure(ax, img_path, original_path): 
     imgpath, slice_it = ("SigB_48hrs_center_1_1_100615_sect.tiff", ((800, 1300), (300, 1600)))
     bname = os.path.splitext(imgpath)[0]
-    data_path = os.path.join(cache_path, "slice10x_analysis", "images",  "SigB", "48hrs", bname, imgpath.replace(".tiff", "_biofilmmask.mat"))
+    data_path = os.path.join(original_path, "slice10x_analysis", "images",  "SigB", "48hrs", bname, imgpath.replace(".tiff", "_biofilmmask.mat"))
     mask = scipy.io.loadmat(data_path)["image"]
     smask = skimage.morphology.binary_erosion(mask, selem=skimage.morphology.disk(2))
     outline = mask & ~(smask)
@@ -37,7 +37,7 @@ def get_figure(ax, img_path, cache_path):
 
 def main():
     fig_main, ax = plt.subplots(1,1, sharex=True)
-    ax = get_figure(ax, os.path.join(this_dir, "../../proc_data/" ), "" )
+    ax = get_figure(ax, os.path.join(this_dir, "images"), os.path.join(this_dir, "../../proc_data/"))
     plt.show()
 
 
