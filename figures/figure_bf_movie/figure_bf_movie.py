@@ -16,7 +16,7 @@ import lib.figure_util as figure_util
 from lib.figure_util import dpi, strain_color, strain_label
 
 fig = plt.figure()
-gs = gridspec.GridSpec(2, 2, width_ratios=[0.3, 0.7], height_ratios=[0.6, 0.4])
+gs = gridspec.GridSpec(2, 2, width_ratios=[0.3, 0.7], height_ratios=[0.55, 0.45])
 
 ax_exprmt = plt.subplot(gs[0, 0])
 ax_fstrip = plt.subplot(gs[0, 1])
@@ -41,8 +41,8 @@ movie = "Column_2"
 comp_path  = os.path.join(base_dir, movie , "compiled.tsv")
 ct_path = os.path.join(base_dir, movie , "cell_track.json")
 compiled_trace, cell_tracks = subfig_trace.load_data(comp_path, ct_path)
-compiled_trace["time"] = compiled_trace["time"]/60
-ax_pulses = subfig_trace.get_figure(ax_pulses, compiled_trace, cell_tracks )
+compiled_trace["time"] = compiled_trace["time"]/60 # hours
+ax_pulses = subfig_trace.get_figure(ax_pulses, compiled_trace, cell_tracks)
 
 ################
 ## Gradient 
@@ -66,8 +66,8 @@ ax_gradnt.set_ylabel("YFP (AU)")
 ##################
 im = skimage.io.imread(os.path.join(this_dir, "delru_bf10_col2_strip.png"))
 ax_fstrip.imshow(im, 
-        #interpolation="bicubic")
-        interpolation="none")
+        interpolation="bicubic")
+        #interpolation="none")
     # aximg.text(0.9, 0.98, label, ha="right", va="top", 
     #             transform=aximg.transAxes, 
     #             fontsize=plt.rcParams["axes.titlesize"],
@@ -83,7 +83,7 @@ ax_fstrip.axis('off')
 
 filename = os.path.join(this_dir, "bf_movie_main")
 width, height = figure_util.get_figsize(figure_util.fig_width_big_pt, wf=1.0, hf=0.5 )
-fig.subplots_adjust(left=0.08, right=0.98, top=0.98, bottom=0.06, hspace=0.25, wspace=0.25)
+fig.subplots_adjust(left=0.06, right=0.98, top=0.98, bottom=0.08, hspace=0.25, wspace=0.25)
 
 fig.set_size_inches(width, height)# common.cm2inch(width, height))
 fig.savefig(filename + ".png") #, bbox_inches="tight"  )

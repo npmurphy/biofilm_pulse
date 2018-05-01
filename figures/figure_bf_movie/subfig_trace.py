@@ -2,7 +2,7 @@ import numpy as np
 import lib.cell_tracking.track_data as track_data
 from lib.cell_tracking.track_data import TrackData
 import pandas as pd
-
+import lib.figure_util as figure_util
 import matplotlib.pyplot as plt
 
 
@@ -28,10 +28,25 @@ def get_figure(ax, compiled, tracked):
     tree = tracked.make_tree()
     leaves = track_data.get_leaves(tree)
 
+    print(leaves)
+
     for l in leaves:
-        opts = {"color": np.random.rand(3),
+        opts = {"color": "gray", #np.random.rand(3),
+                "linewidth": 0.5,
                 "label": str(l)}
         lineage =  tracked.get_cell_lineage(l)
+        plot_trace(ax, compiled, "g_by_r", lineage, opts)
+
+
+    short_cells = [ "18", "33", "25", 20, 36, 30, 17 ]
+    #['1 '6', '34', '29', '11', '22', '1', '32']
+    select_cells = [ "34", "28", "10" ]
+    nice_colors = [ figure_util.red, figure_util.green, figure_util.blue]
+    for cell, color in zip(select_cells, nice_colors):
+        opts = {"color": color,
+                "linewidth": 2,
+                "label": str(l)}
+        lineage =  tracked.get_cell_lineage(cell)
         plot_trace(ax, compiled, "g_by_r", lineage, opts)
     
     return ax

@@ -19,7 +19,7 @@
   right color=gray!20!white,
   draw, thick]
   %trapezium stretches,
-  \tikzstyle{dish}=[draw = blue, very thick]
+  \tikzstyle{dish}=[draw = blue!40!white, line width=1mm]
 
   \tikzset{fontscale/.style = {font=\scriptsize\sffamily,}}
   % r [(0.73568627450980395, 0.26039215686274508, 0.26509803921568614),
@@ -29,39 +29,41 @@
 
   \begin{tikzpicture}[fontscale]
     %fig_width_medium_cm = 11.4
-    %\coordinate (origin) at (6.61, -0.35);
     %\coordinate (end) at (11.25, -2.27);
     %fig_width_medium_cm = 8cm 
     \node (bgimage) [anchor=north west] at (0, 0){\includegraphics{bf_movie_main.pdf}};
-    \coordinate (origin) at ($(bgimage.west) + (2.6cm, 3cm)$);% 4, -0.35);
+    \coordinate (origin) at ($(bgimage.north west) + (5cm, -8.45cm)$);
+    \node at (origin) {X};
     \coordinate (end) at (8, -2.27);
 
     %\draw [step=1.0,red,thin,anchor=north west] (origin) grid (end);
 
-    \begin{scope}[shift={(origin)}]
-	\node at (1.60, 0)
-    [anchor= bottom left corner,
-      objective,
-      trapezium angle=70,
-      minimum width=15mm,
-      minimum height=8mm] (objbase) {};
+    \begin{scope}[shift={(origin)}, transform canvas={scale=0.5}]
+      \node at (1.60, 0)
+        [anchor= bottom left corner,
+          objective,
+          trapezium angle=70,
+          minimum width=15mm,
+          minimum height=8mm] (objbase) {};
 
-	\node at (objbase.north west)
-    [anchor= bottom left corner,
-      objective,
-      yshift=-0.3mm,
-      trapezium angle=40,
-      minimum width=7mm,
-      minimum height=2mm, draw, thick] (objtip) {};
+      \node at (objbase.north west)
+        [anchor= bottom left corner,
+          objective,
+          yshift=-0.3mm,
+          trapezium angle=40,
+          minimum width=7mm,
+          minimum height=2mm, draw, thick] (objtip) {};
+ 
+      
   
-  % \draw[white,fill=brown!50!white,path fading=east]
-  %   (objtip.top side) rectangle +(3,1);
-  \node at (objtip.top side)
+      \node at (objtip.top side)
        [rectangle,
+        draw,
          minimum width=3cm,
          minimum height=1cm,
          anchor =south west,
-         fill=brown!50!white, path fading=east] (agar) {};
+         left color=brown!50!white,
+         right color=brown!20!white] (agar) {MSgg Agar};
 
   %% cover slip
   \path [draw] 
@@ -89,6 +91,19 @@
       decorate [decoration={random steps,segment length=0.05cm,amplitude=.02cm}]
       { -- ++ (0, 0.7) -- ++ (+0.3, 0)}
        -- ($(agar.south west) + (0, 0.01)$);
+      
+    %%%%%%%%%%%%%%%%%%%5
+    %%%%  fresh agar
+    %%%%%%%%%%%%%%%%%%5
+      
+       \node at ($(objtip.top side)+(0, 4)$)
+       [rectangle,
+        draw,
+         minimum width=3cm,
+         minimum height=1cm,
+         anchor =south west,
+         fill=brown!20!white] (fresh_agar) {MSgg Agar};
+
 \end{scope} 
 
 \end{tikzpicture}
