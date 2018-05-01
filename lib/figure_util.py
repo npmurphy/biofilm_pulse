@@ -12,6 +12,15 @@ def apply_style():
     current_dir = os.path.dirname(os.path.realpath(__file__))
     plt.style.use(os.path.join(current_dir, '../figures/figstyle.mpl'))
 
+def save_figures(fig, filename, extensions, dpi=300):
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    basename = os.path.join(current_dir, filename)
+    for ext in extensions: 
+        fig.savefig(basename + "." + ext, dpi=dpi)
+        fig.clear()
+    if "pdf" in extensions:
+        print_pdf_size(basename + ".pdf")
+
 
 letter_font_size = 8
 dpi = 300

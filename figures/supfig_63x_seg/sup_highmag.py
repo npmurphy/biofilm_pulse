@@ -37,8 +37,5 @@ filename = "sup_cell_spore_segment"
 width, height = figure_util.get_figsize(figure_util.fig_width_medium_pt, wf=1.0, hf=0.8)
 fig.subplots_adjust(left=0.06, right=0.98, top=0.95, bottom=0.03, hspace=0.15, wspace=0.15)
 
-fig.set_size_inches(width, height)# common.cm2inch(width, height))
 print("request size : ", figure_util.inch2cm((width, height)))
-fig.savefig(filename + ".pdf", dpi=dpi) #, bbox_inches="tight"  )
-fig.savefig(filename + ".png", dpi=dpi) #, bbox_inches="tight"  )
-figure_util.print_pdf_size(filename + ".pdf")
+figure_util.save_figures(fig, filename, ["pdf", "png"], figure_util.dpi)
