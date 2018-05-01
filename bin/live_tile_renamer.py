@@ -3,6 +3,7 @@ import shutil
 import os.path
 import glob 
 import skimage.io
+import argparse
 import numpy as np
 #import skimage.io.imread()
 
@@ -14,12 +15,17 @@ def make_joined_image(red_path):
 
 
 def main():
-    data_dir="/Users/npm33/bf_pulse/proc_data/iphox_live_gradient_checks"
-    dset="BF_12hoursnaps2"
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-d', '--directory', type=str)
+    pa = parser.parse_args()
+    print(pa.directory)
+    data_dir = pa.directory
 
     rename = {"ch00": "cr", "ch01":"cp", "ch02":"cg"}
 
-    timepoint_dirs = glob.glob(os.path.join(data_dir, dset, "delRU/*_timepoint"))
+    timepoint_dirs = glob.glob(os.path.join(data_dir, "*_timepoint"))
+    print(os.path.join(data_dir, "/*_timepoint"))
+    print(timepoint_dirs)
     for tp_dir in timepoint_dirs:
         #time = 
         time_dir = os.path.basename(tp_dir)
