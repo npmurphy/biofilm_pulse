@@ -182,6 +182,6 @@ python bin/data_aggregator_10x.py \
     --basepathtoignore ${data_dir} \
     --data distmap \
     --outfile ${outputdir}/gradient_data \
-    -f ${data_dir}/BF_12hoursnaps2/*hr_timepoint/delRU_*hr_Column*.tiff  
+    -f ${data_dir}/BF_12hoursnaps2/*hr_timepoint/delRU_*hr_Column*.tiff \
        ${data_dir}/BF_12hoursnaps3/*hr_timepoint/delRU_*hr_Column*.tiff  
 
