@@ -12,12 +12,12 @@ def apply_style():
     current_dir = os.path.dirname(os.path.realpath(__file__))
     plt.style.use(os.path.join(current_dir, '../figures/figstyle.mpl'))
 
-def save_figures(fig, filename, extensions, dpi=300):
-    current_dir = os.path.dirname(os.path.realpath(__file__))
-    basename = os.path.join(current_dir, filename)
+def save_figures(fig, filename, extensions, base_dir=".", dpi=300):
+    #current_dir = os.path.dirname(os.path.realpath(__file__))
+    basename = os.path.join(base_dir, filename)
     for ext in extensions: 
         fig.savefig(basename + "." + ext, dpi=dpi)
-        fig.clear()
+        #fig.clear()
     if "pdf" in extensions:
         print_pdf_size(basename + ".pdf")
 
@@ -40,6 +40,17 @@ hrs24, hrs48, hrs72, hrs96 = [
     (0.56880000000000008, 0.85999999999999999, 0.33999999999999997),
     (0.33999999999999997, 0.82879999999999987, 0.85999999999999999),
     (0.63119999999999976, 0.33999999999999997, 0.85999999999999999)]
+
+#sns.hls_palette( 7, l=0.7, s=0.9)
+all_times_dict = { 
+    12: (0.9700000000000001, 0.46239999999999987, 0.4299999999999998),
+    24: (0.9700000000000001, 0.92525714285714289, 0.4299999999999998),
+    36: (0.55188571428571398, 0.9700000000000001, 0.4299999999999998),
+    48: (0.4299999999999998, 0.9700000000000001, 0.77097142857142864),
+    60: (0.4299999999999998, 0.70617142857142845, 0.9700000000000001),
+    72: (0.61668571428571362, 0.4299999999999998, 0.9700000000000001),
+    96: (0.9700000000000001, 0.4299999999999998, 0.86045714285714303)
+}
 
 black = (0, 0, 0)
 timecolor = { 24:hrs24, 48:hrs48, 72:hrs72, 96:hrs96 }

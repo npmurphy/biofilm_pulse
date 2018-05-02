@@ -38,9 +38,9 @@ def get_figure(ax, compiled, tracked):
         plot_trace(ax, compiled, "g_by_r", lineage, opts)
 
 
-    short_cells = [ "18", "33", "25", 20, 36, 30, 17 ]
+    short_cells = [ "29", "33", "25", 20, 36, 30, 17 ]
     #['1 '6', '34', '29', '11', '22', '1', '32']
-    select_cells = [ "34", "28", "10" ]
+    select_cells = [ "11", "28", "10" ]
     nice_colors = [ figure_util.red, figure_util.green, figure_util.blue]
     for cell, color in zip(select_cells, nice_colors):
         opts = {"color": color,

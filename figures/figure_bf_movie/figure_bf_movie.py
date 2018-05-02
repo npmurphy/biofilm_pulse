@@ -43,6 +43,7 @@ ct_path = os.path.join(base_dir, movie , "cell_track.json")
 compiled_trace, cell_tracks = subfig_trace.load_data(comp_path, ct_path)
 compiled_trace["time"] = compiled_trace["time"]/60 # hours
 ax_pulses = subfig_trace.get_figure(ax_pulses, compiled_trace, cell_tracks)
+ax_pulses.set_ylabel("YFP/RFP ratio")
 
 ################
 ## Gradient 
@@ -56,8 +57,10 @@ times = file_df["time"].unique()
 
 plotset = {"linewidth":0.6, "alpha":0.3}
 ax_gradnt = subfig_gradient.get_figure(ax_gradnt, df, file_df, "green_bg_mean", "", "", times, plotset)
-ax_gradnt.legend()
+leg = ax_gradnt.legend()
+ax_gradnt, leg = figure_util.shift_legend(ax_gradnt, leg, xshift=0.1, yshift=0.05)
 ax_gradnt.set_xlim(0, 150) 
+ax_gradnt.set_ylim(0, 2900)
 ax_gradnt.set_xlabel("Distance from air interface (μm)")
 ax_gradnt.set_ylabel("YFP (AU)")
 
@@ -65,28 +68,22 @@ ax_gradnt.set_ylabel("YFP (AU)")
 ## film strip
 ##################
 im = skimage.io.imread(os.path.join(this_dir, "delru_bf10_col2_strip.png"))
-ax_fstrip.imshow(im, 
-        interpolation="bicubic")
-        #interpolation="none")
-    # aximg.text(0.9, 0.98, label, ha="right", va="top", 
-    #             transform=aximg.transAxes, 
-    #             fontsize=plt.rcParams["axes.titlesize"],
-    #             color="white")
+ax_fstrip.imshow(im, interpolation="bicubic")
 ax_fstrip.grid(False)
 ax_fstrip.axis('off')
-    # aximg.text(letter_lab[0], letter_lab[1], letters[i],
-    #              transform=aximg.transAxes,
-    #              verticalalignment="top",
-    #              horizontalalignment="right",
-    #              fontsize=figure_util.letter_font_size)
 
+axes = [ax_exprmt, ax_fstrip, ax_gradnt, ax_pulses]
+axis_ratios = [ (h, w) for h in gs.get_height_ratios() for w in gs.get_width_ratios()]
+for a, l, ratios in zip(axes, figure_util.letters, axis_ratios):
+    w, h = ratios
+    a.text(-0.15*w, 1.0, l, ha="right", va="top", 
+            transform=a.transAxes, 
+            fontsize=figure_util.letter_font_size, 
+            color="black")
 
-filename = os.path.join(this_dir, "bf_movie_main")
+filename = "bf_movie_main"
 width, height = figure_util.get_figsize(figure_util.fig_width_big_pt, wf=1.0, hf=0.5 )
 fig.subplots_adjust(left=0.06, right=0.98, top=0.98, bottom=0.08, hspace=0.25, wspace=0.25)
 
 fig.set_size_inches(width, height)# common.cm2inch(width, height))
-fig.savefig(filename + ".png") #, bbox_inches="tight"  )
-print("request size : ", figure_util.inch2cm((width, height)))
-fig.savefig(filename + ".pdf") #, bbox_inches="tight"  )
-figure_util.print_pdf_size(filename + ".pdf")
+figure_util.save_figures(fig, filename, ["png", "pdf"], base_dir=this_dir )

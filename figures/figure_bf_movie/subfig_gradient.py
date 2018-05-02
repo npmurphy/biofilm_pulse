@@ -39,7 +39,8 @@ def get_figure(ax, df, file_df, chan, xlim, spec, times, plotset):
         error = errors[chan]
         signal = signals[chan]
         #print(signal)
-        color = plt.cm.gist_rainbow(time/t)
+        #color = plt.cm.gist_rainbow(time/t)
+        color = lib.figure_util.all_times_dict[time]
         l = ax.plot(signals.index, signal, label="{0} hours".format(time), color = color)
         l = ax.fill_between(errors.index, signal - error, signal + error, color =color, **plotset)
     return ax
