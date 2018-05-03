@@ -13,139 +13,159 @@
     
 \begin{document}
 
-  \tikzstyle{objective}=[
-  trapezium,
-  inner sep=0.1pt,
-  left color=gray!80!black,
-  right color=gray!20!white,
-  draw, thick]
-  %trapezium stretches,
-  \tikzstyle{dish}=[draw = blue!40!white, line width=1mm]
-  
-  \tikzstyle{labelarrow}=[-latex, ultra thick] 
+\tikzstyle{objective}=[
+trapezium,
+inner sep=0.1pt,
+left color=gray!80!black,
+right color=gray!20!white,
+draw, thick]
 
-  \tikzset{fontscale/.style = {font=\scriptsize\sffamily,}}
-  % r [(0.73568627450980395, 0.26039215686274508, 0.26509803921568614),
-  \definecolor{mblue}{rgb}{0.31686274509803924, 0.483921568627451, 0.62039215686274507}
-  \definecolor{mgreen}{rgb}{0.37647058823529422, 0.60705882352941176, 0.3694117647058824}
-  \definecolor{mgray}{rgb}{0.33333,0.3333,0.33333}
+\tikzstyle{dish}=[draw = blue!40!white, line width=1mm]
+\tikzstyle{labelarrow}=[-latex, ultra thick]
 
-  \newcommand{\drawobjective}[2]{
-    % arugment 1 is some unique ider and #2 is the location
-    \node at #2 
-        [anchor=top side,
-          objective,
-          yshift=-0.3mm,
-          trapezium angle=40,
-          minimum width=3.5mm,
-          minimum height=1mm, draw, ultra thin] (objtip#1) {};
-    \node at (objtip#1.south)
-        [anchor= top side,
-          objective,
-          ultra thin,
-          trapezium angle=70,
-          minimum width=7.5mm,
-          minimum height=4mm] (objbase#1) {};
-  }
+\tikzset{fontscale/.style = {font=\scriptsize\sffamily,}}
+% r [(0.73568627450980395, 0.26039215686274508, 0.26509803921568614),
+\definecolor{mblue}{rgb}{0.31686274509803924, 0.483921568627451, 0.62039215686274507}
+\definecolor{mgreen}{rgb}{0.37647058823529422, 0.60705882352941176, 0.3694117647058824}
+\definecolor{mgray}{rgb}{0.33333,0.3333,0.33333}
 
-  \newcommand{\drawWilcoDish}[2]{
-    \coordinate (centerofglass#1) at #2;
-  
-    %% cover slip
-    \path [draw] ($(centerofglass#1) + (-1, 0)$) --
-	               ($(centerofglass#1) + (+1, 0)$);
-  
-    \coordinate (dishSW#1) at ($(centerofglass#1) + (-2,0)$);
-    \coordinate (dishNW#1) at ($(dishSW#1) + (0, 1.3)$);
-    \coordinate (dishSE#1) at ($(centerofglass#1) + (2,0)$);
-    \coordinate (dishNE#1) at ($(dishSE#1) + (0, 1.3)$);
-    \path[dish] ($(centerofglass#1) + (-1, 0)$) -- (dishSW#1) -- (dishNW#1);
-    \path[dish] ($(centerofglass#1) + (+1,0)$) -- (dishSE#1) -- (dishNE#1);
-    % lid
-    \coordinate (lidNW#1) at ($(dishNW#1) + (-0.15, 0.1)$);
-    \coordinate (lidNE#1) at ($(dishNE#1) +  (0.15, 0.1)$);
-    \path[dish] ($(lidNW#1) + (0, -0.8)$) -- (lidNW#1) -- (lidNE#1) -- ($(lidNE#1) + (0, -0.8)$);
-  }
+\newcommand{\drawobjective}[3]{
+  % arugment 1 is some unique ider and #2 is the location
+  % arugment 3 is the scale
 
+  \pgfmathsetmacro\objtipWidth{7mm * #3}
+  \pgfmathsetmacro\objtipHeight{2mm * #3}
+  \pgfmathsetmacro\objbaseWidth{15mm * #3}
+  \pgfmathsetmacro\objbaseHeight{8mm * #3}
 
-  \begin{tikzpicture}[fontscale]
-    %fig_width_medium_cm = 11.4
-    %\coordinate (end) at (11.25, -2.27);
-    %fig_width_medium_cm = 8cm 
+	\node at #2
+	[anchor=top side,
+		objective,
+		yshift=-0.3mm,
+		trapezium angle=40,
+		minimum width=\objtipWidth,
+    minimum height=\objtipHeight,
+    draw, ultra thin] (objtip#1) {};
+	\node at (objtip#1.south)
+	[anchor= top side,
+		objective,
+		ultra thin,
+		trapezium angle=70,
+		minimum width=\objbaseWidth,
+		minimum height=\objbaseHeight] (objbase#1) {};
+}
 
-    \node (bgimage) [anchor=south west] at (0, 0){\includegraphics{bf_movie_main.pdf}};
-    %\node (bgimage) at (0, 0){\includegraphics{bf_movie_main.pdf}};
-    \coordinate (origin) at ($(bgimage.west) + (1.21cm, 0.35cm)$);
+\newcommand{\drawWilcoDish}[2]{
+	\coordinate (centerofglass#1) at #2;
 
-    %\coordinate (origin) at (0, 0); %$(bgimage.north west) + (3cm, -3cm)$);
-    \node at (origin) {X};
+	%% cover slip
+	\path [draw] ($(centerofglass#1) + (-1, 0)$) --
+	($(centerofglass#1) + (+1, 0)$);
+
+	\coordinate (dishSW#1) at ($(centerofglass#1) + (-2,0)$);
+	\coordinate (dishNW#1) at ($(dishSW#1) + (0, 1.3)$);
+	\coordinate (dishSE#1) at ($(centerofglass#1) + (2,0)$);
+	\coordinate (dishNE#1) at ($(dishSE#1) + (0, 1.3)$);
+	\path[dish] ($(centerofglass#1) + (-1, 0)$) -- (dishSW#1) -- (dishNW#1);
+	\path[dish] ($(centerofglass#1) + (+1,0)$) -- (dishSE#1) -- (dishNE#1);
+	% lid
+	\coordinate (lidNW#1) at ($(dishNW#1) + (-0.15, 0.1)$);
+	\coordinate (lidNE#1) at ($(dishNE#1) +  (0.15, 0.1)$);
+	\path[dish] ($(lidNW#1) + (0, -0.8)$) -- (lidNW#1) -- (lidNE#1) -- ($(lidNE#1) + (0, -0.8)$);
+}
 
 
-    %\begin{scope}[shift={(origin)}, transform canvas={scale=0.5}]
-    \begin{scope}[shift={(origin)}]
-      \coordinate (end) at (5, 5);
-      \draw [step=1.0,red,thin,anchor=north west] (origin) grid (end);
-      
-       %%%%%%%%%%%%%%%%%%%5
-       %%%%  fresh agar
-       %%%%%%%%%%%%%%%%%%5
-       \drawWilcoDish{1}{(3.5, 6)}
-        \node at (centerofglass1)
-        [rectangle,
-         draw,
-          minimum width=1.95cm,
-          minimum height=1cm,
-          anchor =south west,
-          fill=brown!20!white] (fresh_agar) {MSgg Agar};
+\begin{tikzpicture}[fontscale]
+	%fig_width_medium_cm = 11.4
+	%\coordinate (end) at (11.25, -2.27);
+	%fig_width_medium_cm = 8cm 
+	%\node (bgimage) at (0, 0){\includegraphics{bf_movie_main.pdf}};
 
-      %%% drop of cells
-       \node at (fresh_agar.south west)
-              [semicircle,
-              draw,
-            minimum width=0.2cm,
-            minimum height=0.15cm,
-            inner sep = 0pt,
-            anchor =arc end,
-            rotate=90,
-            left color=yellow!50!white,
-            right color=yellow!20!white] (old_agar) {};
-      
+	%\node (bgimage) [anchor=south west] at (0, 0){\includegraphics{bf_movie_main.pdf}};
+	%\coordinate (origin) at ($(bgimage.west) + (1.21cm, 0.35cm)$);
 
-       %%%%%%%%%%%%%%%%%%%5
-       %%%%  Grown biofilm  centerofglass2
-       %%%%%%%%%%%%%%%%%%5
-       \drawWilcoDish{2}{(2.5, 1.5)}
-       \node at (centerofglass2)
-              [rectangle,
-          draw,
-            minimum width=1.95cm,
-            minimum height=1cm,
-            anchor =south west,
-            left color=brown!50!white,
-            right color=brown!20!white] (old_agar) {MSgg Agar};
-  
-        % % biofilm
-        \path[draw=brown, thin, fill=yellow]
-          ($(old_agar.south west) + (0, 0.01)$)
-                        -- ++ (-0.3, 0.0)
-            decorate [decoration={random steps,segment length=0.07cm,amplitude=.03cm}]
-            { -- ++ (0.3, 0.9) -- ++ (+0.0, 0)}
-            -- ($(old_agar.south west) + (0, 0.01)$);
+	\coordinate (origin) at (0, 0); %$(bgimage.north west) + (3cm, -3cm)$);
+	\node at (origin) {X};
 
-       \drawobjective{2}{($(centerofglass2) + (-0.3, 0.1)$) }
-      
-       \draw [->, line width=2mm, >=latex] ($(centerofglass1) + (0, -0.25)$) -- ($(centerofglass2) + (0, 1.5)$);
 
-      \node [anchor=west] (label_biofilm) at ($(lidNW2) + (0, 0.6)$) {Biofilm};
-      \draw [labelarrow] (label_biofilm) to [out=0, in=160] 
-            ($(old_agar.west) + (-0.3, -0.2)$);
-      
-      \node [anchor=west] (label_inocul) at ($(lidNW1) + (0, 0.6)$) {Inoculate};
-      \draw [labelarrow]  (label_inocul) to [out=0, in=160] 
-            ($(fresh_agar.west) + (-0.3, -0.2)$);
-      
+  \pgfmathsetmacro{\myscale}{0.8}
+  \begin{scope}[shift={(origin)}, scale=\myscale]
 
-\end{scope} 
+		%%%%%%%%%%%%%%%%%%%5
+		%%%%  fresh agar
+		%%%%%%%%%%%%%%%%%%5
+    \drawWilcoDish{1}{(3, 4)}
+    \pgfmathsetmacro\agarWidth{1.95cm * \myscale}
+    \pgfmathsetmacro\agarHeight{1cm * \myscale}
+    
+		\node at (centerofglass1)
+		[rectangle,
+      draw,
+      % inner xsep = 27.50,
+      % inner ysep = 10,
+      minimum width=\agarWidth,
+		  minimum height=\agarHeight,
+			anchor =south west,
+			fill=brown!20!white] (fresh_agar) {};
+
+		%%% drop of cells
+		\node at (fresh_agar.south west)
+		[semicircle,
+			draw,
+			minimum width=0.2cm,
+			minimum height=0.15cm,
+			inner sep = 0pt,
+			anchor =arc end,
+			rotate=90,
+			left color=yellow!50!white,
+			right color=yellow!20!white] (old_agar) {};
+
+
+		%%%%%%%%%%%%%%%%%%%5
+		%%%%  Grown biofilm  centerofglass2
+		%%%%%%%%%%%%%%%%%%5
+		\drawWilcoDish{2}{(3, 1.5)}
+		\node at (centerofglass2)
+		[rectangle,
+			draw,
+			minimum width=\agarWidth,
+			minimum height=\agarHeight,
+			anchor =south west,
+			left color=brown!50!white,
+			right color=brown!20!white] (old_agar) {};
+
+		% % biofilm
+		\path[draw=brown, thin, fill=yellow]
+		($(old_agar.south west) + (0, 0.01)$)
+		-- ++ (-0.3, 0.0)
+		decorate [decoration={random steps,segment length=0.07cm,amplitude=.03cm}]
+			{ -- ++ (0.3, 0.9) -- ++ (+0.0, 0)}
+		-- ($(old_agar.south west) + (0, 0.01)$);
+
+		\drawobjective{2}{($(centerofglass2) + (-0.3, 0.0)$) }{\myscale}
+
+		\draw [->, line width=2mm, >=latex] ($(centerofglass1) + (0, -0.25)$) -- ($(centerofglass2) + (0, 1.5)$);
+
+	\end{scope}
+
+  %%%%%%%%%%%%%%%%%
+  %% Labels
+  %%%%%%%%%%%%%%%%% 
+	\begin{scope}[shift={(origin)}]
+    \coordinate (end) at (5, 5);
+
+    \node at (old_agar.center) {MSgg Agar};
+
+		\draw [step=1.0,red,thin,anchor=north west] (origin) grid (end);
+
+		\node [anchor=west] (label_biofilm) at ($(lidNW2) + (0, 0.6)$) {Biofilm};
+		\draw [labelarrow] (label_biofilm) to [out=0, in=160]
+		($(old_agar.west) + (-0.3, -0.2)$);
+
+		\node [anchor=west] (label_inocul) at ($(lidNW1) + (0, 0.6)$) {Inoculate};
+		\draw [labelarrow]  (label_inocul) to [out=0, in=160]
+		($(fresh_agar.west) + (-0.3, -0.2)$);
+	\end{scope}
 
 \end{tikzpicture}
 \end{document}
