@@ -1,4 +1,4 @@
-\documentclass[tikz]{standalone}
+\documentclass[tikz,12pt]{standalone}
 
 \usepackage{tikz}
 \usetikzlibrary{shapes.geometric}
@@ -20,10 +20,9 @@ left color=gray!80!black,
 right color=gray!20!white,
 draw, thick]
 
-\tikzstyle{dish}=[draw = blue!40!white, line width=1mm]
-\tikzstyle{labelarrow}=[-latex, ultra thick]
+\tikzstyle{dish}=[draw = blue!40!white, line width=0.7mm]
 
-\tikzset{fontscale/.style = {font=\scriptsize\sffamily,}}
+\tikzset{fontscale/.style = {font=\tiny\sffamily,}}
 % r [(0.73568627450980395, 0.26039215686274508, 0.26509803921568614),
 \definecolor{mblue}{rgb}{0.31686274509803924, 0.483921568627451, 0.62039215686274507}
 \definecolor{mgreen}{rgb}{0.37647058823529422, 0.60705882352941176, 0.3694117647058824}
@@ -59,15 +58,15 @@ draw, thick]
 	\coordinate (centerofglass#1) at #2;
 
 	%% cover slip
-	\path [draw] ($(centerofglass#1) + (-1, 0)$) --
-	($(centerofglass#1) + (+1, 0)$);
+	\path [draw] ($(centerofglass#1) + (-1.5, 0)$) --
+	($(centerofglass#1) + (+1.5, 0)$);
 
 	\coordinate (dishSW#1) at ($(centerofglass#1) + (-2,0)$);
 	\coordinate (dishNW#1) at ($(dishSW#1) + (0, 1.3)$);
 	\coordinate (dishSE#1) at ($(centerofglass#1) + (2,0)$);
 	\coordinate (dishNE#1) at ($(dishSE#1) + (0, 1.3)$);
-	\path[dish] ($(centerofglass#1) + (-1, 0)$) -- (dishSW#1) -- (dishNW#1);
-	\path[dish] ($(centerofglass#1) + (+1,0)$) -- (dishSE#1) -- (dishNE#1);
+	\path[dish] ($(centerofglass#1) + (-1.5, 0)$) -- (dishSW#1) -- (dishNW#1);
+	\path[dish] ($(centerofglass#1) + (+1.5,0)$) -- (dishSE#1) -- (dishNE#1);
 	% lid
 	\coordinate (lidNW#1) at ($(dishNW#1) + (-0.15, 0.1)$);
 	\coordinate (lidNE#1) at ($(dishNE#1) +  (0.15, 0.1)$);
@@ -77,32 +76,45 @@ draw, thick]
 
 \begin{tikzpicture}[fontscale]
 	%fig_width_medium_cm = 11.4
-	%\coordinate (end) at (11.25, -2.27);
-	%fig_width_medium_cm = 8cm 
-	%\node (bgimage) at (0, 0){\includegraphics{bf_movie_main.pdf}};
+  %fig_width_medium_cm = 8cm 
+  
+	\node (bgimage) [anchor=south west] at (0, 0){\includegraphics{bf_movie_main.pdf}};
+	\coordinate (origin) at ($(bgimage.west) + (1.13cm, 0.35cm)$);
 
-	%\node (bgimage) [anchor=south west] at (0, 0){\includegraphics{bf_movie_main.pdf}};
-	%\coordinate (origin) at ($(bgimage.west) + (1.21cm, 0.35cm)$);
+	%\coordinate (origin) at (0, 0); %$(bgimage.north west) + (3cm, -3cm)$);
+  %\node at (origin) {X};
+  
+  %%% Image Guide Lines
+  \begin{scope}[shift={(origin)}]
+    \coordinate (end) at (4.0, 3.92);
+    %\draw [blue, thin]  (origin) rectangle (end); %border
+    \draw [white, fill=white, ultra thick ]  (origin) rectangle (end);
+    
+    % \draw [step=1.0,red,thin,anchor=north west] (origin) grid (end);
+    % \coordinate (halfway) at ($ (origin) !.5! (end) $);
+    % \draw (origin |- halfway) -- (halfway -| end);
+    % \draw (origin -| halfway) -- (halfway |- end);
 
-	\coordinate (origin) at (0, 0); %$(bgimage.north west) + (3cm, -3cm)$);
-	\node at (origin) {X};
+  \end{scope}
 
 
-  \pgfmathsetmacro{\myscale}{0.8}
+  \pgfmathsetmacro{\myscale}{0.6}
+
+
   \begin{scope}[shift={(origin)}, scale=\myscale]
+
 
 		%%%%%%%%%%%%%%%%%%%5
 		%%%%  fresh agar
 		%%%%%%%%%%%%%%%%%%5
-    \drawWilcoDish{1}{(3, 4)}
+    \drawWilcoDish{1}{(3.6, 4)}
     \pgfmathsetmacro\agarWidth{1.95cm * \myscale}
     \pgfmathsetmacro\agarHeight{1cm * \myscale}
     
 		\node at (centerofglass1)
 		[rectangle,
       draw,
-      % inner xsep = 27.50,
-      % inner ysep = 10,
+      ultra thin,
       minimum width=\agarWidth,
 		  minimum height=\agarHeight,
 			anchor =south west,
@@ -111,7 +123,7 @@ draw, thick]
 		%%% drop of cells
 		\node at (fresh_agar.south west)
 		[semicircle,
-			draw,
+			draw=blue!60!white,
 			minimum width=0.2cm,
 			minimum height=0.15cm,
 			inner sep = 0pt,
@@ -124,10 +136,11 @@ draw, thick]
 		%%%%%%%%%%%%%%%%%%%5
 		%%%%  Grown biofilm  centerofglass2
 		%%%%%%%%%%%%%%%%%%5
-		\drawWilcoDish{2}{(3, 1.5)}
+		\drawWilcoDish{2}{(3.6, 1.15)}
 		\node at (centerofglass2)
 		[rectangle,
-			draw,
+      draw,
+      ultra thin,
 			minimum width=\agarWidth,
 			minimum height=\agarHeight,
 			anchor =south west,
@@ -143,28 +156,40 @@ draw, thick]
 		-- ($(old_agar.south west) + (0, 0.01)$);
 
 		\drawobjective{2}{($(centerofglass2) + (-0.3, 0.0)$) }{\myscale}
+    
+    \draw [->, line width=1mm, >=latex] ($(centerofglass1) + (0, -0.25)$) -- ($(centerofglass2) + (0, 1.5)$);
+    \node [anchor=west] at ($(centerofglass1) + (0.4, -0.7)$) {+ 12 hours};
 
-		\draw [->, line width=2mm, >=latex] ($(centerofglass1) + (0, -0.25)$) -- ($(centerofglass2) + (0, 1.5)$);
 
 	\end{scope}
 
   %%%%%%%%%%%%%%%%%
   %% Labels
   %%%%%%%%%%%%%%%%% 
-	\begin{scope}[shift={(origin)}]
-    \coordinate (end) at (5, 5);
+  \tikzstyle{labelarrow}=[-latex, thick]
+
+  \begin{scope}[shift={(origin)}]
+    
 
     \node at (old_agar.center) {MSgg Agar};
+    \node at (fresh_agar.center) {MSgg Agar};
 
-		\draw [step=1.0,red,thin,anchor=north west] (origin) grid (end);
+		\node [anchor=west] (label_biofilm) at ($(lidNW2) + (-1.0, 0.2)$) {Biofilm};
+		\draw [labelarrow] (label_biofilm) to [out=0, in=160] ($(old_agar.west) + (-0.3, -0.2)$);
 
-		\node [anchor=west] (label_biofilm) at ($(lidNW2) + (0, 0.6)$) {Biofilm};
-		\draw [labelarrow] (label_biofilm) to [out=0, in=160]
-		($(old_agar.west) + (-0.3, -0.2)$);
+		\node [anchor=west] (label_inocul) at ($(lidNW1) + (-1.0, 0.3)$) {Inoculate};
+    \draw [labelarrow]  (label_inocul) to [out=0, in=160] ($(fresh_agar.west) + (-0.25, -0.1)$);
+    
+		\node [anchor=west] (label_objective) at ($(objbase2.center) + (-2.1, 0.0)$) {Objective};
+    \draw [labelarrow]  (label_objective) to (objbase2.center);
+    
 
-		\node [anchor=west] (label_inocul) at ($(lidNW1) + (0, 0.6)$) {Inoculate};
-		\draw [labelarrow]  (label_inocul) to [out=0, in=160]
-		($(fresh_agar.west) + (-0.3, -0.2)$);
+    \node [anchor=west] (label_coverslip) at ($(centerofglass1) + (-2.28, -0.3)$) {Cover slip};
+    \draw [labelarrow]  (label_coverslip) to [out=0, in=250] ($(centerofglass1) + (-0.5, 0)$);
+    
+    %\node [anchor=west] (label_dish) at ($(lidNE1) + (0.3, 0.5)$) {Dish};
+    \node [anchor=west] (label_dish) at ($(lidNE1) + (0.3, 0.1)$) {Dish};
+    \draw [labelarrow]  (label_dish) to (lidNE1);
 	\end{scope}
 
 \end{tikzpicture}
