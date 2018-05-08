@@ -21,3 +21,5 @@ figures/figure_allspore_2xqp_combo/spore_sigb_combo.png
 figures/figure_allspore_2xqp_combo/spore_sigb_combo.pdf
 .vscode/.ropeproject/config.py
 .vscode/.ropeproject/objectdb
+*.png
+*.pdf
