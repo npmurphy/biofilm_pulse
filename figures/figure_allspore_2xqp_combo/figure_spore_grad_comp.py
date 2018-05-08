@@ -61,6 +61,7 @@ width = 700 * 20
 i = files[0]
 spimg_ax = subfig_spore_image.plot_big_image(spimg_ax,
                                         sp_image_basedir + i["Path"],
+                                        this_dir, # cache path.
                                         ((i["y"], i["y"] + height),
                                         (i["x"], i["x"] + width)), 
                                         (height, width),
