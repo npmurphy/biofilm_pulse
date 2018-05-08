@@ -40,7 +40,7 @@ def plot_small_image(ax, path, slice_it, target_height_width):
     return ax
 
 
-def plot_big_image(ax, path, slice_it, target_height_width, fl_range, vertical=True, scalebar=True):
+def plot_big_image(ax, path, cache_path, slice_it, target_height_width, fl_range, vertical=True, scalebar=True):
     imname = os.path.splitext(os.path.basename(path))[0]
     imdir = os.path.dirname(path)
     impattern = os.path.join(imdir, imname, imname + "_{0}.tiff")
@@ -49,7 +49,7 @@ def plot_big_image(ax, path, slice_it, target_height_width, fl_range, vertical=T
 
     imchans = []
     for ch in ["cr", "cg"]:
-        cachename = imname + "_{0}_".format(ch) + cordstr 
+        cachename = os.path.join(cache_path, imname + "_{0}_".format(ch) + cordstr )
         if os.path.exists(cachename):
             print("using cached image ", cachename )
             im = skimage.io.imread(cachename)
