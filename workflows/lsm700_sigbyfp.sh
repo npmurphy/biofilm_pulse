@@ -72,19 +72,31 @@ do
     python giant63_tighten_bfmask.py --lsm_file ${f} --make_backup --make_new_bfmask --single_slice
 done
 #split images into color channels
+
+basedir=proc_data/slice63x_sigb_yfp/images/
 #for f in `ls ${basedir}/${ldir}/SigB_72Hrs/*center_1*.tiff`; 
+ldir=August_2015_data
+ldir=July_2015_optimization_experiments
+ldir=March_2015
+ldir=May_2015_old_new_compar
+
 for f in `ls ${basedir}/${ldir}/*/*.tiff`; 
 do
     echo ${f};
     # python split_channels.py -f $f;
     # python giant63_mask_maker.py --classic63x -l ${f};
     #python giant63_distmap.py --filled edgemask  --magnification 63  -f  ${f};
-    #python giant63_split_cellquant.py -f ${f} --subtract_values_file ${outdir}/bg_values.json --subtract_names autofluor background bleedthrough;
-    python giant63_split_cellquant.py -f ${f} --subtract_values_file ${outdir}/bg_values_redo.json --subtract_names raw bg autobg autobgbleed;
+    python bin/giant63_split_cellquant.py -f ${f} \
+        --subtract_values_file ${bgvalues}.json \
+        --subtract_red raw bg autofluor \
+        --subtract_green raw bg autofluor bleedthrough;
 done 
 
-f=${basedir}/"images/August_2015_data/2xQP_48Hrs/2xQP_48hrs_center_5_240615_sect_stitched.tiff"
-python giant63_split_cellquant.py -f ${f} --subtract_values_file ${outdir}/bg_values_redo.json --subtract_names raw bg autobg autobgbleed;
+f=${basedir}/"August_2015_data/2xQP_48Hrs/2xQP_48hrs_center_5_240615_sect_stitched.tiff"
+python bin/giant63_split_cellquant.py -f ${f} \
+        --subtract_values_file ${bgvalues}.json \
+        --subtract_red raw bg autofluor \
+        --subtract_green raw bg autofluor bleedthrough;
 
 #basedir="/Volumes/data/TeamJL/Niall/biofilm_slice/slice63x_analysis/"
 python giant63_simple_agregate.py \
