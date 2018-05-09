@@ -48,8 +48,9 @@ python bin/mask_maker.py --remove_cr_from_mat_path --mask_name background --remo
 
 
 ## Compute the BG values
+outputdir="datasets/LSM700_63x_sigb/"
 
-bgvalues="datasets/LSM700_63x_sigb/bg_values"
+bgvalues="${outputdir}/bg_values"
 # background and RFP only 
 #filesBG=`find "proc_data/slice63x_bg_subtract/November_2014/63x_optimization" -name "*.lsm" -not -path "*/10x/*"`
 filesBG=`find "${bgdir}" -name "*.lsm" ! -name "SigB*"`
@@ -73,6 +74,7 @@ do
 done
 #split images into color channels
 
+bgvalues="datasets/LSM700_63x_sigb/bg_values"
 basedir=proc_data/slice63x_sigb_yfp/images/
 #for f in `ls ${basedir}/${ldir}/SigB_72Hrs/*center_1*.tiff`; 
 ldir=August_2015_data
@@ -99,12 +101,15 @@ python bin/giant63_split_cellquant.py -f ${f} \
         --subtract_green raw bg autofluor bleedthrough;
 
 #basedir="/Volumes/data/TeamJL/Niall/biofilm_slice/slice63x_analysis/"
-python giant63_simple_agregate.py \
-    -db ${basedir}/file_list.tsv \
-    -o ${outdir}/bgsubv2_maxnorm_fixlab.h5 \
+outputdir="datasets/LSM700_63x_sigb/"
+python bin/giant63_simple_agregate.py \
+    -db ${basedir}/../file_list.tsv \
+    --bad_db ${basedir}/../baddata_filelist.tsv \
+    -o ${outputdir}/single_cell_data.h5 \
     --data cells \
-    --remove_from_path ../data/bio_film_data/data_local_cache/slice63x_sigb_yfp/\
-    -f ${basedir}/images/**/*.tsv
+    --remove_from_path ${basedir} \
+    -f ${basedir}/**/*.tsv
+    
 
     #-o ${outdir}/lh1segment_data.h5 \
     #-o ${outdir}/lh1segment_bgsub_data.h5 \
