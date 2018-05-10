@@ -133,7 +133,7 @@ def main():
             strain_df = cell_df[cell_df["global_file_id"].isin(fids)]
         
         dset = time, location, strain
-        plot_args = {"color":color, "min_max":"std", "mode_mean": False}
+        plot_args = {"color":color, "max_min":"std", "mode_mean": False}
         tbins = gbins
         if "red" in chan:
             tbins = rbins

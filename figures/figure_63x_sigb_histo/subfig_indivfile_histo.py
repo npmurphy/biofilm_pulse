@@ -53,7 +53,7 @@ def get_figure(ax, df, column, inbins, slice_info, dset, percentile, use_cache, 
 
     if "max_min" not in kwargs:
         kwargs["max_min"] = "indiv"
-    if kwargs["min_max"] == "std":
+    if kwargs["max_min"] == "std":
         min_stdiv = histo_all - np.std(indiv_hists, axis=0)
         max_stdiv = histo_all + np.std(indiv_hists, axis=0)
         ax.fill_between(cbins, max_stdiv, min_stdiv, color=kwargs["color"], alpha=0.3)
