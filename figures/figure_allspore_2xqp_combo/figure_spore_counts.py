@@ -1,20 +1,20 @@
 import os.path
 import lib.filedb
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
+#import matplotlib.gridspec as gridspec
 import subfig_spore_count_gradient
 #import subfig_spore_image       
 
 import lib.figure_util 
 lib.figure_util.apply_style()
-#from figure_util import dpi
 
-fig = plt.figure()
-gs = gridspec.GridSpec(3, 1, height_ratios=[0.4, 0.3, 0.3])
+fig, cellcount_ax = plt.subplots(1,1)
 
-spimg_ax = plt.subplot(gs[0])
-spcount_ax = plt.subplot(gs[1])
-cellcount_ax = plt.subplot(gs[2])
+#fig = plt.figure()
+#gs = gridspec.GridSpec(3, 1, height_ratios=[0.4, 0.3, 0.3])
+# spimg_ax = plt.subplot(gs[0])s
+# spcount_ax = plt.subplot(gs[1])
+# cellcount_ax = plt.subplot(gs[2])
 
 ylabel_cord = (-0.07, 0.5)
 
@@ -27,23 +27,22 @@ cachefile = os.path.join(base, "spore_cell_counts.mat")
 # file_df = lib.filedb.get_filedb(base + "file_list.tsv")
 
 ##
-spimg_ax = subfig_spore_count_gradient.get_figure(spimg_ax, cachefile,  sspb_strains, "totalcounts")
-spimg_ax.set_ylabel("Total biofilm mass")
-#spcount_ax.set_ylim(0, 0.0003)
-spimg_ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
-spimg_ax.get_yaxis().set_label_coords(*ylabel_cord)
-leg = spimg_ax.legend()
+#spimg_ax = subfig_spore_count_gradient.get_figure(spimg_ax, cachefile,  sspb_strains, "totalcounts")
+#spimg_ax.set_ylabel("Total biofilm mass")
+##spcount_ax.set_ylim(0, 0.0003)
+#spimg_ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+#spimg_ax.get_yaxis().set_label_coords(*ylabel_cord)
 
 ###########
 ## Spore density
 #spcount_ax = subfig_cell_count_gradient.get_figure(spcount_ax, datadir, file_df, sspb_strains, "spore")
 
-spcount_ax = subfig_spore_count_gradient.get_figure(spcount_ax,cachefile,  sspb_strains, "sporecounts")
-spcount_ax.set_ylabel("Spore counts")
-#spcount_ax.set_ylim(0, 0.0003)
-spcount_ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
-spcount_ax.get_yaxis().set_label_coords(*ylabel_cord)
-leg = spcount_ax.legend()
+#spcount_ax = subfig_spore_count_gradient.get_figure(spcount_ax,cachefile,  sspb_strains, "sporecounts")
+#spcount_ax.set_ylabel("Spore counts")
+##spcount_ax.set_ylim(0, 0.0003)
+#spcount_ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+#spcount_ax.get_yaxis().set_label_coords(*ylabel_cord)
+#leg = spcount_ax.legend()
 
 ###########
 ## cell density
@@ -54,9 +53,11 @@ cellcount_ax.get_yaxis().set_label_coords(*ylabel_cord)
 #cellcount_ax.set_ylim(0, 0.00175)
 cellcount_ax.set_ylabel("Cell counts")
 cellcount_ax.set_xlabel("Distance from top of biofilm (μm)")
+leg = cellcount_ax.legend()
+cellcount_ax.set_xlim(0, 140)
 
-for a in [spcount_ax, cellcount_ax]:
-    a.set_xlim(0, 140)
+# for a in [spcount_ax, cellcount_ax]:
+#     a.set_xlim(0, 140)
 
 ########
 ## Spore image
@@ -77,12 +78,12 @@ for a in [spcount_ax, cellcount_ax]:
 #                                         (i["x"], i["x"] + width)), 
 #                                         (height, width),
 #                                         i, vertical=False, scalebar=True)
-letter_lab = (-0.10, 0.98)
-for l, a in zip(lib.figure_util.letters, [spimg_ax, spcount_ax, cellcount_ax]):
-    a.text(letter_lab[0], letter_lab[1], l, transform=a.transAxes, fontsize=lib.figure_util.letter_font_size)
+# letter_lab = (-0.10, 0.98)
+# for l, a in zip(lib.figure_util.letters, [spimg_ax, spcount_ax, cellcount_ax]):
+#     a.text(letter_lab[0], letter_lab[1], l, transform=a.transAxes, fontsize=lib.figure_util.letter_font_size)
 
 filename = "spore_count_compare"
-width, height = lib.figure_util.get_figsize(lib.figure_util.fig_width_small_pt, wf=1.0, hf=1.1 )
+width, height = lib.figure_util.get_figsize(lib.figure_util.fig_width_small_pt, wf=1.0, hf=0.4 )
 fig.subplots_adjust(left=0.1, right=0.95, top=0.98, bottom=0.09, hspace=0.35) #, wspace=0.25)
 fig.set_size_inches(width, height)
 
