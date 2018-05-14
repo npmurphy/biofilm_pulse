@@ -23,3 +23,5 @@ python analysis/summarize_cell_spore_counts.py \
     --spore_db datasets/LSM700_63x_sspb_giant/autocor_sporerem_data.h5 \
     --cell_db  datasets/LSM700_63x_sspb_giant/autocor_sporerem_data.h5 \
     --out_file  datasets/LSM700_63x_sspb_giant/spore_cell_counts.mat 
+    --area_cache  datasets/LSM700_63x_sspb_giant/distance_bin_areas.mat 
+    --data_files_to_recompute_area_cache  proc_data/spores_63xbig

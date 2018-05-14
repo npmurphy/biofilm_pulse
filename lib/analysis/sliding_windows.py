@@ -177,7 +177,7 @@ def sliding_window_indivfiles_min_samples(cell_df, depth_info, window_width, cha
     rad = window_width/2
     distances = np.arange(min_d + rad, max_d-rad, step)
     slider = [ (d-rad, d+rad) for d in distances]
-    keys = [("mean", np.mean),  ("std", np.std) ]
+    #keys = [("mean", np.mean),  ("std", np.std) ]
     print(cell_df.columns)
     fileids = cell_df["global_file_id"].unique()
     
@@ -225,3 +225,29 @@ def sliding_window_counts(spore_df, cell_df, depth_info, window_width):
         result[0, i] = len(cut_df_s)
         result[1, i] = len(cut_df_c)
     return distances, result, ["spore", "cell"]
+
+#import time
+def sliding_window_pixel_counts(distmap, depth_info, window_width):
+    (min_d, max_d, step) = depth_info
+    rad = window_width / 2
+    distances = np.arange(min_d +rad, max_d-rad, step)
+    slider = [ (d-rad, d+rad) for d in distances]
+    result = np.zeros((1, len(slider)))
+    for i, (sd, ed) in enumerate(slider):
+        
+        #t0 = time.time()
+        # this was 10x faster than the where method
+        px = np.count_nonzero((distmap>sd) & (distmap<=ed))
+        #t1 = time.time()
+        # print("CNZ", t1 - t0)
+        # print(px)
+        result[0, i] = px
+        
+        # t0 = time.time()
+        # locs = np.where((distmap>sd) & (distmap<=ed))
+        # px2 = len(locs[0])
+        # t1 = time.time()
+        # print("Where", t1 - t0)
+        # print(px2)
+
+    return distances, result, ["pixel_areas"]

@@ -10,7 +10,7 @@ import lib.filedb as filedb
 
 import argparse
 
-from lib.analysis.sliding_windows import sliding_window_counts
+from lib.analysis.sliding_windows import sliding_window_counts, sliding_window_pixel_counts
 
 def get_file(df, fid):
     return df[df["global_file_id"]==fid]
@@ -46,7 +46,28 @@ def cache_cell_spore_ratio(file_df, spore_df, cell_df, st, min_sample_size):
         good_rows = np.count_nonzero(data_array, axis=0)
         result[name + "_sem"] = np.nanstd(data_array, axis=0) / np.sqrt(good_rows)
 
+
     return result
+
+def get_pixel_counts(file_df, fid, depth_info, window_width, datadir):
+    this_file = file_df[file_df.index == fid]
+    filename = this_file["name"].values[0]
+    batch = this_file["dirname"].values[0]
+
+    print("loading distmap", batch, filename)
+    path_to_distmap = os.path.join(datadir, batch, filename, filename + "_distmap.mat")
+    distmap = scipy.io.loadmat(path_to_distmap)["distmap_masked"].astype(np.float32)
+    print("loaded")
+    distance, px_counts, _ = sliding_window_pixel_counts(distmap, depth_info, window_width)
+    _ = distance
+    return px_counts
+
+
+def cache_pixel_area(file_df, output_file, datadir): 
+    step_freq = 0.25
+    window = 2.0
+    pixel_areas = { "file_{0}".format(fid): get_pixel_counts(file_df, fid, (2, 140, step_freq), window, datadir) for fid in file_df.index} 
+    scipy.io.savemat(output_file, pixel_areas)
 
 
 def main():
@@ -54,6 +75,8 @@ def main():
     parser.add_argument("--file_db")
     parser.add_argument("--spore_db")
     parser.add_argument("--cell_db")
+    parser.add_argument("--area_cache")
+    parser.add_argument("--data_files_to_recompute_area_cache", type=str) 
     parser.add_argument("--out_file")
     args = parser.parse_args()
 
@@ -64,14 +87,16 @@ def main():
     file_df = file_df[~((file_df["name"] == "JLB077_48hrs_center_1_1") & 
                         (file_df["dirname"] == "Batch1"))]
 
-    #spore_df = pd.read_hdf(base + "autocor_sporerem_data.h5", "spores")
+
+    if args.data_files_to_recompute_area_cache: 
+        cache_pixel_area(file_df, args.area_cache, args.data_files_to_recompute_area_cache)
+        return 0
+
     print("loading the hd5 files")
     spore_df = pd.read_hdf(args.spore_db, "spores")
     cell_df = pd.read_hdf(args.cell_db, "cells")
     cell_df = cell_df[~cell_df["spore_overlap"]].copy() # remove cells that overlap spores
     print("ready to work")
-    # cell_df = cell_df[cell_df["distance"]>2].copy()
-    # spore_df = spore_df[spore_df["distance"]>2].copy()
 
     sspb_strains = [('JLB077', "WT"   ),
                     ('JLB117', "2xQP" ),
@@ -83,7 +108,6 @@ def main():
     # 100 is just a big enough number. 
     data = { strain : cache_cell_spore_ratio( file_df, spore_df, cell_df, strain, 100) for strain, _ in sspb_strains}
     datad = { s + "_" + k : v for (s, d) in data.items() for (k, v) in d.items()}
-    #datad = { k: v for d in data for k, v in d.items() }
     print("saving to: ",  args.out_file)
     scipy.io.savemat(args.out_file, datad)
 

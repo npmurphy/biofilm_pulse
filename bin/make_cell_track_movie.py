@@ -10,8 +10,8 @@ import pandas as pd
 import skimage.io
 import skimage.morphology
 
-from processing.cell_tracking import cell_dimensions
-from processing.cell_tracking.track_data import TrackData
+from lib.cell_tracking import cell_dimensions
+from lib.cell_tracking.track_data import TrackData
 
 def get_ellipse_params(cell_data):
     #fr = df[df["frame"] == frame].to_dict(orient="records")[0]
@@ -29,8 +29,8 @@ def get_image(image_pattern, frame, channels):
     #images = [ skimage.filters.gaussian(im, sigma=3, preserve_range=True).astype(np.uint16) for im in images]
     #images = [ skimage.filters.gaussian(im, sigma=3) for im in images]
     rescales = {
-        "r": (0, 30000),
-        "g": (0, 40000),
+        "00": (0, 9000),
+        "01": (0, 5000),
         "b": (0, 6897) }
 
     for ch, i in zip(channels, range(len(images))):
@@ -44,6 +44,7 @@ def get_image(image_pattern, frame, channels):
     return imx
 
 def make_movie(df, td, image_pattern, output_pattern, channels, cell):
+    cell = str(cell)
     cell_lin = td.get_cell_lineage(cell)
     print("lineage", cell_lin)
     celldf = df[df["cell_id"].isin(cell_lin)].sort_values(by=["cell_id", "frame"]).copy()
@@ -64,11 +65,18 @@ def make_movie(df, td, image_pattern, output_pattern, channels, cell):
     aximg = plt.subplot(gs[0])
     axplt = plt.subplot(gs[1])
     axdif = plt.subplot(gs[2])
-    axes = [aximg, axplt, axdif]
-    artists = [None, None, None] 
+    #axes = [aximg, axplt, axdif]
+    artists = [None, None, None, None] 
+    aximg.spines['top'].set_visible(True)
+    aximg.spines['bottom'].set_visible(True)
+    aximg.spines['left'].set_visible(True)
+    aximg.spines['right'].set_visible(True)
+    aximg.axes.get_xaxis().set_ticks([])
+    aximg.axes.get_yaxis().set_ticks([])
+
 
     #channels = ["r", "g", "b"]
-    color_look = {"r":"red", "g":"green", "b":"blue"}
+    color_look = {"00":"red", "01":"green", "b":"blue"}
 
     for i in range(start, end):
         print(i)
@@ -78,11 +86,12 @@ def make_movie(df, td, image_pattern, output_pattern, channels, cell):
         cell = cell_data["cell_id"]
         print("cuurent cell", cell)
         print("cell:", cell_data)
+
         
         current_image = get_image(image_pattern, i, channels) 
         current_ellipse = get_ellipse_params(cell_data)
-        #center = current_ellipse[0]
-        window = 100
+        center = current_ellipse[0]
+        window = 150
         if artists[0] is None:
             print("no image making one")
             artists[0] = aximg.imshow(current_image)
@@ -91,6 +100,8 @@ def make_movie(df, td, image_pattern, output_pattern, channels, cell):
         else:
             print("updating image")
             artists[0].set_data(current_image)
+            aximg.set_xlim(center[0]-window, center[0]+window)
+            aximg.set_ylim(center[1]+window, center[1]-window)
             #aximg.draw_artist(artists[0])
 
         print(artists) 
@@ -98,6 +109,8 @@ def make_movie(df, td, image_pattern, output_pattern, channels, cell):
             print("adding ellipse")
             artists[1] = Ellipse(*current_ellipse, edgecolor="white", alpha=0.5, facecolor="none")
             aximg.add_patch(artists[1])
+            artists[1] = cell_dimensions.set_mplellipse_props(artists[1], *current_ellipse)
+            fig.canvas.draw_idle()
         elif cell_data["state"] == 0:
             print("removing ellipse")
             if artists[1] is not None:
@@ -109,11 +122,13 @@ def make_movie(df, td, image_pattern, output_pattern, channels, cell):
             print("changing ellipse")
             artists[1] = cell_dimensions.set_mplellipse_props(artists[1], *current_ellipse)
             aximg.draw_artist(artists[1])
-
-        time = (i*10)/60
+        print(cell_data)
+        time = cell_data["time"]/60
         if artists[2] is not None:
             artists[2].remove()
+            artists[3].remove()
         artists[2] = axplt.axvspan(time-0.1, time+0.1, color="grey", alpha=0.4) 
+        artists[3] = axdif.axvspan(time-0.1, time+0.1, color="grey", alpha=0.4) 
         
         #for ax, art in zip(axes, artists):
         #    ax.draw_artist(art)
@@ -126,9 +141,10 @@ def make_movie(df, td, image_pattern, output_pattern, channels, cell):
 
         for chan in channels:
             color = color_look[chan]
-            axplt.plot((celldf["frame"]*10)/60, celldf[chan], color=color, linestyle="-", marker=".")
+            axplt.plot((celldf["time"])/60, celldf[color], color=color, linestyle="-", marker="")
+        axdif.plot((celldf["time"])/60, celldf["length"], color="black", linestyle="-", marker="")
 
-        axplt.set_xlabel("hours")
+        axplt.set_xlabel("Hours from inoculation")
 
         # axplt.set_ylim(bottom=0)
         # axplt.plot(cell_data["frame"], cell_data["red"], color="blue", linestyle="-", marker="*")
@@ -157,7 +173,7 @@ def main():
     df = pd.read_csv(arguments.dataset, sep="\t")
     #df["rg"] = df["g"]/df["r"]
     #df["rb"] = df["b"]/df["r"]
-    td = TrackData(arguments.treedata)
+    td = TrackData(arguments.trackdata)
 
     try:
         os.mkdir(os.path.dirname(arguments.output_pattern))

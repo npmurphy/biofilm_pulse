@@ -82,7 +82,8 @@ cellcount_ax.set_xlim(0, 140)
 # for l, a in zip(lib.figure_util.letters, [spimg_ax, spcount_ax, cellcount_ax]):
 #     a.text(letter_lab[0], letter_lab[1], l, transform=a.transAxes, fontsize=lib.figure_util.letter_font_size)
 
-filename = "spore_count_compare"
+#filename = "spore_count_compare"
+filename = "spore_grad_compare"
 width, height = lib.figure_util.get_figsize(lib.figure_util.fig_width_small_pt, wf=1.0, hf=0.4 )
 fig.subplots_adjust(left=0.1, right=0.95, top=0.98, bottom=0.09, hspace=0.35) #, wspace=0.25)
 fig.set_size_inches(width, height)
