@@ -1,0 +1,18 @@
+wt_sigar_sigby
+mean: 1.96
+std: 0.93
+CV: 2.11
+Moment skew: 0.79
+Pearson mode skew: -0.15
+Number of files: 24
+Cells: 4231
+------------------------
+2xqp_sigar_sigby
+mean: 3.50
+std: 1.38
+CV: 2.53
+Moment skew: 0.31
+Pearson mode skew: 0.29
+Number of files: 7
+Cells: 1349
+------------------------

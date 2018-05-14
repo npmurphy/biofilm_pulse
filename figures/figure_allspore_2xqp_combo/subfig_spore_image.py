@@ -1,5 +1,5 @@
 import os.path
-import sys
+# import sys
 
 import matplotlib.pyplot as plt
 #import matplotlib.ticker as mticker
@@ -7,9 +7,9 @@ import numpy as np
 import skimage.io
 import skimage.exposure
 
-from PIL import Image
-from PIL import ImageFont
-from PIL import ImageDraw 
+# from PIL import Image
+# from PIL import ImageFont
+# from PIL import ImageDraw 
 
 #from data.bio_film_data.sixtythree_analysis import PX_TO_UM_LSM700_GIANT as PX_TO_UM
 from lib.resolutions import PX_TO_UM_LSM700_GIANT as PX_TO_UM
