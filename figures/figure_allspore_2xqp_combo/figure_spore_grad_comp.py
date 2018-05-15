@@ -9,12 +9,16 @@ import lib.figure_util as figure_util
 figure_util.apply_style()
 #from figure_util import dpi
 
-fig = plt.figure()
-gs = gridspec.GridSpec(3, 1, height_ratios=[0.4, 0.3, 0.3])
+#fig = plt.figure()
+# gs = gridspec.GridSpec(3, 1, height_ratios=[0.4, 0.3, 0.3])
 
-spimg_ax = plt.subplot(gs[0])
-spcount_ax = plt.subplot(gs[1])
-cellcount_ax = plt.subplot(gs[2])
+# spimg_ax = plt.subplot(gs[0])
+# spcount_ax = plt.subplot(gs[1])
+# cellcount_ax = plt.subplot(gs[2])
+fig, ax = plt.subplots(2,1)
+
+spcount_ax = ax[0]
+cellcount_ax = ax[1]
 
 ylabel_cord = (-0.07, 0.5)
 
@@ -49,28 +53,28 @@ for a in [spcount_ax, cellcount_ax]:
 ########
 ## Spore image
 ########
-sp_image_basedir = os.path.join(this_dir, "../../proc_data/spores_63xbig/")
+# sp_image_basedir = os.path.join(this_dir, "../../proc_data/spores_63xbig/")
 
-files = [{"Path": "Batch3/JLB118_48hrs_center_7_1.lsm", "x": 1832 * 20, "y": 227 *20, 
-        "cr_min":0, 
-        "cr_max":10000, 
-        "cg_min":2000,
-        "cg_max":(2**14), }]
-height = 260 * 20 
-width = 700 * 20
-i = files[0]
-spimg_ax = subfig_spore_image.plot_big_image(spimg_ax,
-                                        sp_image_basedir + i["Path"],
-                                        this_dir, # cache path.
-                                        ((i["y"], i["y"] + height),
-                                        (i["x"], i["x"] + width)), 
-                                        (height, width),
-                                        i, vertical=False, scalebar=True)
-letter_lab = (-0.10, 0.98)
-for l, a in zip(figure_util.letters, [spimg_ax, spcount_ax, cellcount_ax]):
-    a.text(letter_lab[0], letter_lab[1], l, transform=a.transAxes, fontsize=figure_util.letter_font_size)
+# files = [{"Path": "Batch3/JLB118_48hrs_center_7_1.lsm", "x": 1832 * 20, "y": 227 *20, 
+#         "cr_min":0, 
+#         "cr_max":10000, 
+#         "cg_min":2000,
+#         "cg_max":(2**14), }]
+# height = 260 * 20 
+# width = 700 * 20
+# i = files[0]
+# spimg_ax = subfig_spore_image.plot_big_image(spimg_ax,
+#                                         sp_image_basedir + i["Path"],
+#                                         this_dir, # cache path.
+#                                         ((i["y"], i["y"] + height),
+#                                         (i["x"], i["x"] + width)), 
+#                                         (height, width),
+#                                         i, vertical=False, scalebar=True)
+# letter_lab = (-0.10, 0.98)
+# for l, a in zip(figure_util.letters, [spimg_ax, spcount_ax, cellcount_ax]):
+#     a.text(letter_lab[0], letter_lab[1], l, transform=a.transAxes, fontsize=figure_util.letter_font_size)
 
-filename = "spore_grad_compare"
+filename = "spore_grad_density_compare"
 width, height = figure_util.get_figsize(figure_util.fig_width_small_pt, wf=1.0, hf=1.1 )
 fig.subplots_adjust(left=0.1, right=0.95, top=0.98, bottom=0.09, hspace=0.35) #, wspace=0.25)
 

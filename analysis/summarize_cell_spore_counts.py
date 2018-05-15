@@ -16,30 +16,38 @@ def get_file(df, fid):
     return df[df["global_file_id"]==fid]
 
 
-def cache_cell_spore_ratio(file_df, spore_df, cell_df, st, min_sample_size): 
+def cache_cell_spore_ratio(file_df, spore_df, cell_df, distance_cache, st, min_sample_size): 
     st_files = file_df.index[(file_df.strain == st)]
     data_frames = [ (get_file(spore_df, fid), get_file(cell_df, fid)) for fid in st_files]
+    distances = [ distance_cache["file_{0}".format(fid)][0,:] for fid in st_files]
     step_freq = 0.25
     window = 2.0
     sp_counts = [ sliding_window_counts(spdf, cldf, (2, 140, step_freq), window) for spdf, cldf in data_frames]
     spore_counts = [ t[0,:] for d, t, n in sp_counts ]
+    cell_counts = [ t[1,:] for d, t, n in sp_counts ]
+
+    area_norm_spore_counts = [ s/d for s, d in zip(spore_counts, distances) ] 
+    area_norm_cell_counts = [ c/d for c, d in zip(cell_counts, distances) ] 
     sp_ratios = [ t[0,:]/(t[0,:] + t[1,:]) for d, t, n in sp_counts ]
     total_counts = [ t[0,:] + t[1,:] for d, t, n in sp_counts ]
     cdists = sp_counts[0][0]
     join_array = np.vstack(sp_ratios)
     sporecount_array = np.vstack(spore_counts)
-    cellcount_array = total_counts - sporecount_array
+    cellcount_array = total_counts - sporecount_array # could just use cell_counts
     count_array = np.vstack(total_counts)
     count_array[count_array<min_sample_size] = 0
     result = {"dists": cdists,
               "totalcounts": count_array,
               "eachimgcounts": total_counts # not sure why I have this when I have the counts. 
               }
+    norm_spore = np.vstack(area_norm_spore_counts)
+
     for name, data_array in [ ("sporeratio", join_array),
                               ("sporecounts", sporecount_array), 
+                              ("spore_count_area_scaled", norm_spore),
+                              ("cell_count_area_scaled", np.vstack(area_norm_cell_counts)),
                               ("cellcounts", cellcount_array),
                               ("totalcounts", count_array)]:
-                
         data_array[count_array<min_sample_size] = np.nan
         result[name + "_mean"] = np.nanmean(data_array, axis=0)
         result[name + "_std"] = np.nanstd(data_array, axis=0) 
@@ -90,12 +98,15 @@ def main():
 
     if args.data_files_to_recompute_area_cache: 
         cache_pixel_area(file_df, args.area_cache, args.data_files_to_recompute_area_cache)
+        print("done caching pixel witdths, exiting, run again with out the data_files_to_recompute_area_cache flag")
         return 0
 
     print("loading the hd5 files")
     spore_df = pd.read_hdf(args.spore_db, "spores")
     cell_df = pd.read_hdf(args.cell_db, "cells")
     cell_df = cell_df[~cell_df["spore_overlap"]].copy() # remove cells that overlap spores
+    distance_cache = scipy.io.loadmat(args.area_cache)
+    
     print("ready to work")
 
     sspb_strains = [('JLB077', "WT"   ),
@@ -106,7 +117,7 @@ def main():
     # to ignore this we are using 100 as a minimum sample size. 
     # 10 does the job, 500, 100 look good at the top but introduce more artifacts later. 
     # 100 is just a big enough number. 
-    data = { strain : cache_cell_spore_ratio( file_df, spore_df, cell_df, strain, 100) for strain, _ in sspb_strains}
+    data = { strain : cache_cell_spore_ratio( file_df, spore_df, cell_df, distance_cache, strain, 100) for strain, _ in sspb_strains}
     datad = { s + "_" + k : v for (s, d) in data.items() for (k, v) in d.items()}
     print("saving to: ",  args.out_file)
     scipy.io.savemat(args.out_file, datad)

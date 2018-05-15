@@ -162,3 +162,11 @@ def draw_scale_bar(img, r, c, scale_length, thickness, legend, fontsize = 40):
     draw.text((c, r+thickness), legend, (255, 255, 255), font=smallfont)
     img = np.array(pilim) 
     return img
+
+def annotate_image(img, r, c, legend, fontsize = 40):
+    pilim = Image.fromarray(img)
+    draw = ImageDraw.Draw(pilim)
+    smallfont = ImageFont.truetype("Arial", fontsize)
+    draw.text((c, r), legend, (255, 255, 255), font=smallfont)
+    img = np.array(pilim) 
+    return img

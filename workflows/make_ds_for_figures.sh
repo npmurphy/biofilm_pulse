@@ -18,10 +18,25 @@ python analysis/kd_density_cacher.py \
 
 # Make the cell and spore count db
 #/Users/npm33/bf_pulse/analysis/.py
+
+### First run with flag
+#    --data_files_to_recompute_area_cache  proc_data/spores_63xbig
+#  to cache the numbers of pixels in each bin. 
+#  then run again with just the 
+#    --area_cache  datasets/LSM700_63x_sspb_giant/distance_bin_areas.mat \
+#  flag to compute the scaled spore and cell counts. 
 python analysis/summarize_cell_spore_counts.py \
     --file_db  datasets/LSM700_63x_sspb_giant/file_list.tsv \
     --spore_db datasets/LSM700_63x_sspb_giant/autocor_sporerem_data.h5 \
     --cell_db  datasets/LSM700_63x_sspb_giant/autocor_sporerem_data.h5 \
-    --out_file  datasets/LSM700_63x_sspb_giant/spore_cell_counts.mat 
-    --area_cache  datasets/LSM700_63x_sspb_giant/distance_bin_areas.mat 
+    --out_file  datasets/LSM700_63x_sspb_giant/spore_cell_counts.mat \
+    --area_cache  datasets/LSM700_63x_sspb_giant/distance_bin_areas.mat \
     --data_files_to_recompute_area_cache  proc_data/spores_63xbig
+
+python analysis/summarize_cell_spore_counts.py \
+    --file_db  datasets/LSM700_63x_sspb_giant/file_list.tsv \
+    --spore_db datasets/LSM700_63x_sspb_giant/autocor_sporerem_data.h5 \
+    --cell_db  datasets/LSM700_63x_sspb_giant/autocor_sporerem_data.h5 \
+    --out_file  datasets/LSM700_63x_sspb_giant/spore_cell_counts.mat \
+    --area_cache  datasets/LSM700_63x_sspb_giant/distance_bin_areas.mat 
+

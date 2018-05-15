@@ -24,8 +24,8 @@ def get_figure(ax, cache_path, sspb_strains, chan):
             return spore_data[strain + "_" + val].flatten()
         color = figure_util.strain_color[strain]
         spcounts = g(chan +"_mean")
-        spcounts[spcounts<1] = np.nan
-
+        #spcounts[spcounts<1] = np.nan
+        #print(spcounts)
         ax.plot(g("dists"), spcounts, color=color, label=name) 
         ax.fill_between(g("dists"),
                         spcounts - g(chan + "_sem"), 

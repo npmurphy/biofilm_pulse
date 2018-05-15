@@ -13,6 +13,10 @@ import skimage.morphology
 from lib.cell_tracking import cell_dimensions
 from lib.cell_tracking.track_data import TrackData
 
+from lib import figure_util, resolutions
+
+show_length = False
+
 def get_ellipse_params(cell_data):
     #fr = df[df["frame"] == frame].to_dict(orient="records")[0]
     return (cell_data["col"], cell_data["row"]), cell_data["length"], cell_data["width"], cell_data["angle"]
@@ -43,6 +47,20 @@ def get_image(image_pattern, frame, channels):
     imx = np.dstack(images)
     return imx
 
+def annotate_image(image, time, center, window):
+    center = tuple((int(c) for c in center))
+    small = image[center[1]-window:center[1]+window,
+                  center[0]-window:center[0]+window]
+    micro = 5
+    scale = micro / resolutions.PX_TO_UM_IPHOX_100x_1p5zoom
+    legend = "{0} μm".format(micro)
+    fontsize = 15
+    small = figure_util.draw_scale_bar(small, 10, 10, scale, 10, legend, fontsize=fontsize)
+    time_str = "{0:02d}:{1:02d}".format(int(time//60), int(time%60))
+    small = figure_util.annotate_image(small, small.shape[0]-20, small.shape[1] - 40, time_str, fontsize=fontsize )
+    return small
+
+
 def make_movie(df, td, image_pattern, output_pattern, channels, cell):
     cell = str(cell)
     cell_lin = td.get_cell_lineage(cell)
@@ -61,10 +79,13 @@ def make_movie(df, td, image_pattern, output_pattern, channels, cell):
         
     fig =  plt.figure()
     fig.set_size_inches(10,10)
-    gs = gridspec.GridSpec(3, 1, height_ratios=[1, 0.25, 0.25])
+    if show_length:
+        gs = gridspec.GridSpec(3, 1, height_ratios=[1, 0.25, 0.25])
+        axdif = plt.subplot(gs[2])
+    else: 
+        gs = gridspec.GridSpec(2, 1, height_ratios=[1, 0.25])
     aximg = plt.subplot(gs[0])
     axplt = plt.subplot(gs[1])
-    axdif = plt.subplot(gs[2])
     #axes = [aximg, axplt, axdif]
     artists = [None, None, None, None] 
     aximg.spines['top'].set_visible(True)
@@ -82,26 +103,29 @@ def make_movie(df, td, image_pattern, output_pattern, channels, cell):
         print(i)
         all_cell_data = just_living[just_living["frame"] == i].to_dict(orient="records")
         print(all_cell_data)
+
         cell_data = just_living[just_living["frame"] == i].to_dict(orient="records")[0] 
         cell = cell_data["cell_id"]
         print("cuurent cell", cell)
         print("cell:", cell_data)
-
+        time = cell_data["time"]
+        window = 150
         
         current_image = get_image(image_pattern, i, channels) 
         current_ellipse = get_ellipse_params(cell_data)
         center = current_ellipse[0]
-        window = 150
+        annotated = annotate_image(current_image, time, center, window)
+        current_ellipse = tuple([ (window, window)] + list(current_ellipse[1:]))
         if artists[0] is None:
             print("no image making one")
-            artists[0] = aximg.imshow(current_image)
-            aximg.set_xlim(center[0]-window, center[0]+window)
-            aximg.set_ylim(center[1]+window, center[1]-window)
+            artists[0] = aximg.imshow(annotated)
+            # aximg.set_xlim(center[0]-window, center[0]+window)
+            # aximg.set_ylim(center[1]+window, center[1]-window)
         else:
             print("updating image")
-            artists[0].set_data(current_image)
-            aximg.set_xlim(center[0]-window, center[0]+window)
-            aximg.set_ylim(center[1]+window, center[1]-window)
+            artists[0].set_data(annotated)
+            # aximg.set_xlim(center[0]-window, center[0]+window)
+            # aximg.set_ylim(center[1]+window, center[1]-window)
             #aximg.draw_artist(artists[0])
 
         print(artists) 
@@ -122,13 +146,16 @@ def make_movie(df, td, image_pattern, output_pattern, channels, cell):
             print("changing ellipse")
             artists[1] = cell_dimensions.set_mplellipse_props(artists[1], *current_ellipse)
             aximg.draw_artist(artists[1])
-        print(cell_data)
-        time = cell_data["time"]/60
         if artists[2] is not None:
             artists[2].remove()
-            artists[3].remove()
-        artists[2] = axplt.axvspan(time-0.1, time+0.1, color="grey", alpha=0.4) 
-        artists[3] = axdif.axvspan(time-0.1, time+0.1, color="grey", alpha=0.4) 
+            try:
+                artists[3].remove()
+            except AttributeError as e:
+                pass
+        htime = time / 60
+        artists[2] = axplt.axvspan(htime-0.1, htime+0.1, color="grey", alpha=0.4)
+        if show_length: 
+            artists[3] = axdif.axvspan(htime-0.1, htime+0.1, color="grey", alpha=0.4) 
         
         #for ax, art in zip(axes, artists):
         #    ax.draw_artist(art)
@@ -142,9 +169,11 @@ def make_movie(df, td, image_pattern, output_pattern, channels, cell):
         for chan in channels:
             color = color_look[chan]
             axplt.plot((celldf["time"])/60, celldf[color], color=color, linestyle="-", marker="")
-        axdif.plot((celldf["time"])/60, celldf["length"], color="black", linestyle="-", marker="")
+        if show_length:
+            axdif.plot((celldf["time"])/60, celldf["length"], color="black", linestyle="-", marker="")
 
         axplt.set_xlabel("Hours from inoculation")
+        axplt.set_ylabel("Fluorescence (AU)")
 
         # axplt.set_ylim(bottom=0)
         # axplt.plot(cell_data["frame"], cell_data["red"], color="blue", linestyle="-", marker="*")

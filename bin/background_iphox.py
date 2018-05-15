@@ -13,7 +13,7 @@ def main():
     pa = parser.parse_args()
 
     channels = {"red": "cr", "green": "cg"}
-    result = {} 
+    #result = {} 
     for directory in pa.directories: 
         chan_means = { k: [] for k in channels.keys() }
         for channel, extension in channels.items():
