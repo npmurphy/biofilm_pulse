@@ -16,10 +16,29 @@ python bin/make_cell_track_movie.py \
     #11 28 10
      #--cokmpileddata ${basedir}/${dataset}/${lookat}/compiled.tsv \
 
-ffmpeg -start_number 38 -i datasets/movie_1/frame_%03d.png datasets/movie1.mpg
+python bin/make_cell_track_movie.py \
+    --dataset ${basedir}/${dataset}/${lookat}/compiled.tsv \
+    --trackdata ${basedir}/${dataset}/${lookat}/cell_track.json \
+    --image_pattern ${basedir}/${dataset}/${lookat}/${cpattern} \
+    --output_pattern "datasets/movie_1_simp/frame_{0:03d}.png" \
+    --simple_only \
+    --cell 11 \
+    --channels 00 01
 
-ffmpeg -start_number 38 -i datasets/movie_1/frame_%03d.png -c:v libx264 -pix_fmt yuv420p datasets/movie1.mp4
+##ffmpeg -start_number 38 -i datasets/movie_1/frame_%03d.png datasets/movie1.mpg
 
+#ffmpeg -start_number 38 -i datasets/movie_1/frame_%03d.png -c:v libx264 -pix_fmt yuv420p datasets/movie1.mp4
+ffmpeg -start_number 38 \
+       -i datasets/movie_1/frame_%03d.png \
+       -r 25 \
+       -f mpeg -vcodec mpeg1video -b:v 5000k -y 
+       datasets/movie1_2.mpg
+
+ffmpeg -start_number 38 \
+       -i datasets/movie_1_simp/frame_%03d.png \
+       -r 25 \
+       -f mpeg -vcodec mpeg1video -b:v 5000k -y 
+       datasets/movie1_simp.mpg
 
 ##############
 ## 20x Movie
@@ -40,4 +59,12 @@ python bin/make_simple_movie.py \
 
 ffmpeg -start_number 0 -i datasets/movie_20x/frame_%03d.png datasets/movie_20x.mpg
 
-ffmpeg -start_number 38 -i datasets/movie_20x/frame_%03d.png -c:v libx264 -pix_fmt yuv420p datasets/movie_20x.mp4
+ffmpeg -start_number 0 -i datasets/movie_20x/frame_%03d.png -c:v libx264 -pix_fmt yuv420p datasets/movie_20x.mp4
+
+# 288 is 6 hours
+ffmpeg -start_number 0 \
+       -i datasets/movie_20x/frame_%03d.png \
+       -vframes 288 \
+       -r 25 \
+       -f mpeg -vcodec mpeg1video -b:v 5000k -y \
+       datasets/movie20x_2.mpg

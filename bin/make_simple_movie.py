@@ -53,7 +53,6 @@ def make_movie(start, end, image_pattern, output_pattern, channels):
 
     for i in range(start, end):
         print("frame {0}".format(i))
-        window = 150
         
         current_image = get_image(image_pattern, i, channels)
         small = current_image[:, 380:]

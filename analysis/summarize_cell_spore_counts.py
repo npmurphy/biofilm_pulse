@@ -1,7 +1,5 @@
 import os.path
 
-import matplotlib
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import scipy.io
@@ -30,6 +28,7 @@ def cache_cell_spore_ratio(file_df, spore_df, cell_df, distance_cache, st, min_s
     area_norm_cell_counts = [ c/d for c, d in zip(cell_counts, distances) ] 
     sp_ratios = [ t[0,:]/(t[0,:] + t[1,:]) for d, t, n in sp_counts ]
     total_counts = [ t[0,:] + t[1,:] for d, t, n in sp_counts ]
+    area_norm_total_counts = [ t/d for t,d in zip(total_counts, distances)]
     cdists = sp_counts[0][0]
     join_array = np.vstack(sp_ratios)
     sporecount_array = np.vstack(spore_counts)
@@ -46,6 +45,7 @@ def cache_cell_spore_ratio(file_df, spore_df, cell_df, distance_cache, st, min_s
                               ("sporecounts", sporecount_array), 
                               ("spore_count_area_scaled", norm_spore),
                               ("cell_count_area_scaled", np.vstack(area_norm_cell_counts)),
+                              ("total_count_area_scaled", np.vstack(area_norm_total_counts)),
                               ("cellcounts", cellcount_array),
                               ("totalcounts", count_array)]:
         data_array[count_array<min_sample_size] = np.nan

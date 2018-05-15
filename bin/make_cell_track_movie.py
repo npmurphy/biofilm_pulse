@@ -60,6 +60,40 @@ def annotate_image(image, time, center, window):
     small = figure_util.annotate_image(small, small.shape[0]-20, small.shape[1] - 40, time_str, fontsize=fontsize )
     return small
 
+def make_simple_movie(df, td, image_pattern, output_pattern, channels, cell):
+    cell = str(cell)
+    cell_lin = td.get_cell_lineage(cell)
+    print("lineage", cell_lin)
+    celldf = df[df["cell_id"].isin(cell_lin)].sort_values(by=["cell_id", "frame"]).copy()
+
+    just_living = celldf[celldf["state"]>0]
+    start = just_living["frame"].min()
+    print("st", start)
+    end = just_living["frame"].max()
+
+    cell_data = just_living[just_living["frame"] == start].to_dict(orient="records")[0]
+    center = (cell_data["col"], cell_data["row"])
+
+    print("Center is",center)
+
+    for i in range(start, end):
+        print(i)
+        all_cell_data = just_living[just_living["frame"] == i].to_dict(orient="records")
+        print(all_cell_data)
+
+        cell_data = just_living[just_living["frame"] == i].to_dict(orient="records")[0] 
+        cell = cell_data["cell_id"]
+        print("cuurent cell", cell)
+        print("cell:", cell_data)
+        time = cell_data["time"]
+        window = 170
+        
+        current_image = get_image(image_pattern, i, channels) 
+        current_ellipse = get_ellipse_params(cell_data)
+        center = current_ellipse[0]
+        annotated = annotate_image(current_image, time, center, window)
+        skimage.io.imsave(output_pattern.format(i), annotated)
+        
 
 def make_movie(df, td, image_pattern, output_pattern, channels, cell):
     cell = str(cell)
@@ -194,6 +228,7 @@ def main():
     parser.add_argument('-t', "--trackdata", type=str)
     parser.add_argument('-i', "--image_pattern", type=str)
     parser.add_argument('-o', "--output_pattern", type=str)
+    parser.add_argument('--simple_only', action="store_true", default=False)
     parser.add_argument('-c', "--cell", type=int)
     parser.add_argument('--channels', nargs="+", type=str, default=["r", "g"])
     arguments = parser.parse_args()
@@ -209,8 +244,13 @@ def main():
     except FileExistsError as e:
         pass
 
-    make_movie(df, td, arguments.image_pattern, arguments.output_pattern,
-                 arguments.channels, arguments.cell)
+    if arguments.simple_only:
+        make_simple_movie(df, td, arguments.image_pattern, arguments.output_pattern,
+                            arguments.channels, arguments.cell)
+    
+    else:
+        make_movie(df, td, arguments.image_pattern, arguments.output_pattern,
+                    arguments.channels, arguments.cell)
 
 
 if __name__ == '__main__':
