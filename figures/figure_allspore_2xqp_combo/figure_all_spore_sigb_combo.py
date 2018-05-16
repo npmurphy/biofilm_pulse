@@ -82,12 +82,14 @@ spfile_df = spfile_df[~((spfile_df["name"] == "JLB077_48hrs_center_1_1") &
                         (spfile_df["dirname"] == "Batch1"))]
 spindividual = pd.read_csv(os.path.join(spbase,"spore_cell_individual.tsv"), sep="\t",index_col="index" )
 
+spchan = "fraction_spores"
+#spchan = "area_norm_spore_counts"
 for strain in sspb_strains: 
-    spgrad_ax = subfig_spore_count_gradient.get_figure(spgrad_ax, spfile_df, spindividual, strain, "area_norm_spore_counts", 100)
+    spgrad_ax = subfig_spore_count_gradient.get_figure(spgrad_ax, spfile_df, spindividual, strain, spchan, 100)
 
-spgrad_ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
-spgrad_ax.set_ylim(0, 0.00031)
-spgrad_ax.set_ylabel("Spore density")
+#spgrad_ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+spgrad_ax.set_ylim(0, 0.25)
+spgrad_ax.set_ylabel("Spore/cell ratio")
 leg = spgrad_ax.legend()
 
 
