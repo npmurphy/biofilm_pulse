@@ -1,9 +1,8 @@
 import os.path
 import lib.filedb as filedb
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
 import subfig_density_gradient
-import subfig_spore_image       
+#import subfig_spore_image       
 
 import lib.figure_util as figure_util
 figure_util.apply_style()
@@ -11,6 +10,7 @@ figure_util.apply_style()
 
 #fig = plt.figure()
 # gs = gridspec.GridSpec(3, 1, height_ratios=[0.4, 0.3, 0.3])
+#import matplotlib.gridspec as gridspec
 
 # spimg_ax = plt.subplot(gs[0])
 # spcount_ax = plt.subplot(gs[1])
@@ -28,6 +28,8 @@ this_dir = os.path.dirname(__file__)
 base = os.path.join(this_dir, "../../datasets/LSM700_63x_sspb_giant/")
 datadir = os.path.join(base, "kd_spore_cell")
 file_df = filedb.get_filedb(base + "file_list.tsv")
+
+
 
 ###########
 ## Spore density

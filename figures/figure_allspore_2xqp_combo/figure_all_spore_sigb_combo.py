@@ -74,20 +74,21 @@ sbgrad_ax = subfig_sigb_grad.get_figure(sbgrad_ax, tenx_file_df, tenx_gradient_d
 #######
 # spore gradient
 # #############
-sspb_strains = [ (st, figure_util.strain_label[st]) for st in ['JLB077', 'JLB117', 'JLB118']]
+sspb_strains = ['JLB077', 'JLB117'] #, 'JLB118']
 spbase = os.path.join(this_dir, "../../datasets/LSM700_63x_sspb_giant/")
-sp_grad_file = os.path.join(spbase, "spore_cell_counts.mat")
-spfile_df = filedb.get_filedb(spbase + "file_list.tsv")
-spgrad_ax = subfig_spore_count_gradient.get_figure(spgrad_ax, sp_grad_file, sspb_strains, "sporecounts" )
-#spgrad_ax = subfig_density_gradient.get_figure(spgrad_ax, spdatadir, spfile_df, sspb_strains, "spore")
-#spcount_ax = subfig_density_gradient.get_figure(spcount_ax, datadir, file_df, sspb_strains, "spore")
-spgrad_ax.set_ylabel("Spore counts")
-leg = spgrad_ax.legend(loc="upper right")
-#spgrad_ax.set_ylim(0, 0.0003)
+
+spfile_df = filedb.get_filedb(os.path.join(spbase,  "file_list.tsv"))
+spfile_df = spfile_df[~((spfile_df["name"] == "JLB077_48hrs_center_1_1") & 
+                        (spfile_df["dirname"] == "Batch1"))]
+spindividual = pd.read_csv(os.path.join(spbase,"spore_cell_individual.tsv"), sep="\t",index_col="index" )
+
+for strain in sspb_strains: 
+    spgrad_ax = subfig_spore_count_gradient.get_figure(spgrad_ax, spfile_df, spindividual, strain, "area_norm_spore_counts", 100)
+
 spgrad_ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
-spgrad_ax.set_xlim(0, 150)
-spgrad_ax.set_ylim(0, 800)
-spgrad_ax.set_xlabel("Distance from top of biofilm (μm)")
+spgrad_ax.set_ylim(0, 0.00031)
+spgrad_ax.set_ylabel("Spore density")
+leg = spgrad_ax.legend()
 
 
 ################
