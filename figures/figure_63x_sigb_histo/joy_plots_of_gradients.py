@@ -21,7 +21,7 @@ def get_strain_result(file_df, cell_df, time, location, strain_num, chan, max_va
     df = cell_df[cell_df["global_file_id"].isin(fids)]
 
     distance_samples = (2.5, 140, 6) # start,stop,spacing
-    width = 1.
+    width = 2.
     distances, bins, distrib, stats = sliding_window_histos_with_stats(df, distance_samples,
                                      width, chan, 100, valbinmax=max_val,
                                      blur=0, percentile=percentile, calc_stats=stats_to_compute)
