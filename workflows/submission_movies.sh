@@ -37,7 +37,7 @@ ffmpeg -start_number 38 \
 ffmpeg -start_number 38 \
        -i datasets/movie_1_simp/frame_%03d.png \
        -r 25 \
-       -f mpeg -vcodec mpeg1video -b:v 5000k -y 
+       -f mpeg -vcodec mpeg1video -b:v 5000k -y \
        datasets/movie1_simp.mpg
 
 ##############
