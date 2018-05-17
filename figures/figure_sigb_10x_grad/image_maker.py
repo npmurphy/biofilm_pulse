@@ -25,13 +25,13 @@ for i, (strain, imgpath, slice_it) in enumerate(biofilm_images):
     im = np.dstack([imr, img, np.zeros_like(imr)])
     slice_r, slice_c = slice_it
     im = im[slice_r[0]:slice_r[1], slice_c[0]:slice_c[1], :]
-    im = np.rot90(im)
+    #im = np.rot90(im)
 
     if strain == "wt_sigar_sigby":
-        sbl = 25 # scale bar in um
+        sbl = 100 # scale bar in um
         height, width, _ = im.shape
         #height - 50 
-        im = lib.figure_util.draw_scale_bar(im, height-200, 50, sbl/PX_TO_UM, 14, "{0}μm".format(sbl)) 
+        im = lib.figure_util.draw_scale_bar(im, height-100, 400, sbl/PX_TO_UM, 14, "{0}μm".format(sbl)) 
 
     outpath = os.path.join(this_dir, "images", os.path.splitext(imgpath)[0] + ".jpg")
     print(outpath)
