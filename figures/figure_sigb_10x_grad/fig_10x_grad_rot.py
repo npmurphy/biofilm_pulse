@@ -21,7 +21,7 @@ strain_map, des_strain_map = strainmap.load()
 letter_lab = (0.05, 0.95)
 
 fig = plt.figure()
-grid = gs.GridSpec(3, 2, width_ratios=[3,1.1])
+grid = gs.GridSpec(3, 2, width_ratios=[3,1.1])#, height_ratios=[1.0, 0.8])
 grid.update(left=0.0000000, right=0.97, bottom=0.1, top=0.98, hspace=0.04, wspace=0.2)
 #grid.update(hspace=0.05)
 
@@ -76,7 +76,7 @@ ax.set_xlim(0.09, 0.29)
 ax.set_ylim(150, 0)
 ax.set_ylabel("Distance from top of biofilm (μm)")
 ax.set_xlabel("YFP/RFP ratio")
-ax.text(-0.03, letter_lab[1], letters[3], ha="right", va="top", transform=ax.transAxes, fontsize=figure_util.letter_font_size)
+ax.text(-0.25, 1.0, letters[3], ha="right", va="top", transform=ax.transAxes, fontsize=figure_util.letter_font_size)
 
 filename = os.path.join(this_dir, "fig_10x_grad")
 width, height = figure_util.get_figsize(figure_util.fig_width_small_pt, wf=1.0, hf=0.8 )

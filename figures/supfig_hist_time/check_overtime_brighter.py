@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 from lib import figure_util, filedb
-from lib.analysis.sliding_windows import sliding_window_distribution
+#from lib.analysis.sliding_windows import sliding_window_distribution
 from lib.figure_util import timecolor
 
 figure_util.apply_style()
@@ -20,7 +20,6 @@ def get_density_mass(files, alldf, time, chan, bins, st_stp, strain="jlb021"):
     vals, bins = np.histogram(inzone[chan], bins=bins)   # not using density, but dividing by n. 
     xbins = bins[:-1] + (bins[1] - bins[0])/2
     return xbins, vals/n
-
 
 
 # In[23]:
@@ -66,6 +65,16 @@ def make_figure():
         artist = [ plt.Line2D((0,1),(0,0), color=timecolor[t]) for t in times]
         labels = [ "{0} hours".format(t) for t in times]
         ax[0, 0].legend(artist, labels)
+
+        #letter_lab = (-0.13, 0.98)
+        for a, l in zip(ax.flatten(), figure_util.letters):
+            a.annotate(l, xy=(0,0),
+                        xytext=(-0.19, 1.05),  
+                        textcoords='axes fraction',
+                        #arrowprops=dict(facecolor='black', shrink=0.05),
+                        horizontalalignment='center', verticalalignment='center',
+                        fontsize=figure_util.letter_font_size, color="black"
+                        )
 
         width, height = figure_util.get_figsize(figure_util.fig_width_big_pt, wf=1.0, hf=0.4 )
         filename = "supfig_histo_time_{0}".format(fname)
