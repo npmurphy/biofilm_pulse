@@ -10,7 +10,7 @@ import lib.figure_util as figure_util
 
 
 
-def get_figure(ax, file_df, gradient_df):
+def get_figure(ax, file_df, gradient_df, strain_des):
     time = 48.0
     location = "center"
     strain_map, des_strain_map = strainmap.load()
@@ -23,7 +23,7 @@ def get_figure(ax, file_df, gradient_df):
     # 2xqp_sigby      jlb095
     # delsigb_sigby   jlb098
     #fig.figimage(skimage.io.imread("10x_delqp_48_image_crop.jpg"))
-    for c, (strain) in enumerate(["wt_sigar_sigby","2xqp_sigar_sigby"]): # , ,"delsigb_sigby"]
+    for c, (strain) in enumerate(strain_des): # , ,"delsigb_sigby"]
         
         fids = file_df[(file_df["time"] == time) &
                         (file_df["location"] == location) &

@@ -7,9 +7,12 @@ import lib.figure_util as figure_util
 
 
 
-def get_figure(ax, file_df, gradient_data, strain, chan, min_sample_size=None):
+def get_figure(ax, file_df, gradient_data, strain, chan, min_sample_size=None, kwargs={}):
     distances = gradient_data["distance"].values
-    color = figure_util.strain_color[strain]
+    if "color" not in kwargs:
+        color = figure_util.strain_color[strain]
+    else:
+        color = kwargs["color"]
     label = figure_util.strain_label[strain]
 
     st_files = file_df.index[(file_df.strain == strain)]

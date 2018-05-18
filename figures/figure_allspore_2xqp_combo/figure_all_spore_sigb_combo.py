@@ -4,13 +4,13 @@ import os.path
 import lib.filedb as filedb
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
-import subfig_spoiid_vs_sigb_raw_cor
+#import subfig_spoiid_vs_sigb_raw_cor
 import subfig_sigb_grad
 #import subfig_density_gradient
 import subfig_spore_count_gradient
 #import subfig_histograms
 from figures.figure_63x_sigb_histo import subfig_indivfile_histo
-import subfig_spoiid_image
+#import subfig_spoiid_image
 import subfig_spore_image       
 #import subfig_spoiid_vs_sigb_isolines             
 from lib import strainmap
@@ -22,13 +22,13 @@ import matplotlib.ticker as mpt
 
 fig = plt.figure()
 #gs = gridspec.GridSpec(3, 4, width_ratio=[0])
-gs = gridspec.GridSpec(3, 3, width_ratios=[0.3, 0.35, 0.35])
+gs = gridspec.GridSpec(2, 3, width_ratios=[0.3, 0.35, 0.35])
 
 sbgrad_ax = plt.subplot(gs[1, 0])
 spgrad_ax = plt.subplot(gs[0, 0])
-corr_ax = plt.subplot(gs[2, 1])
-spimg_ax = plt.subplot(gs[2, 2])
-hist_ax = plt.subplot(gs[2, 0])
+#corr_ax = plt.subplot(gs[2, 1])
+#spimg_ax = plt.subplot(gs[2, 2])
+#hist_ax = plt.subplot(gs[2, 0])
 wtspr_ax = plt.subplot(gs[:2, 1])
 x2spr_ax = plt.subplot(gs[:2, 2])
 
@@ -51,13 +51,13 @@ cell_df = pd.read_hdf(basedir + "rsiga_ysigb_cspoiid_redoedgedata.h5", "cells")
 # Ignore first 2 um (only done for consistency)
 cell_df = cell_df[cell_df["distance"] > 2].copy()
 
-corr_ax, corr_cb = subfig_spoiid_vs_sigb_raw_cor.get_figure(corr_ax, file_df, cell_df)
-#corr_ax, corr_cb, cont_cb = subfig_spoiid_vs_sigb_isolines.get_figure(corr_ax, file_df, cell_df)
-cbar = fig.colorbar(corr_cb, ax=corr_ax)
-#cbar.add_lines()#corr_cb)
-cbar.ax.set_ylabel('Number of cells', rotation=270) 
-print("orig pad  = ", cbar.ax.yaxis.labelpad)
-cbar.ax.yaxis.labelpad = 10
+# corr_ax, corr_cb = subfig_spoiid_vs_sigb_raw_cor.get_figure(corr_ax, file_df, cell_df)
+# #corr_ax, corr_cb, cont_cb = subfig_spoiid_vs_sigb_isolines.get_figure(corr_ax, file_df, cell_df)
+# cbar = fig.colorbar(corr_cb, ax=corr_ax)
+# #cbar.add_lines()#corr_cb)
+# cbar.ax.set_ylabel('Number of cells', rotation=270) 
+# print("orig pad  = ", cbar.ax.yaxis.labelpad)
+# cbar.ax.yaxis.labelpad = 10
 
 ###########
 ## 10x sigb grad
@@ -68,7 +68,7 @@ tenx_gradient_df = pd.read_hdf(os.path.join(tenx_basepath, "gradient_data.h5"), 
 print(tenx_gradient_df.columns)
 tenx_gradient_df["ratio"] = tenx_gradient_df["green_bg_mean"]/tenx_gradient_df["red_bg_mean"]
 tenx_file_df = filedb.get_filedb(os.path.join(tenx_basepath, "filedb.tsv"))
-sbgrad_ax = subfig_sigb_grad.get_figure(sbgrad_ax, tenx_file_df, tenx_gradient_df)
+sbgrad_ax = subfig_sigb_grad.get_figure(sbgrad_ax, tenx_file_df, tenx_gradient_df, ["wt_sigar_sigby","2xqp_sigar_sigby"])
 
 
 #######
@@ -96,6 +96,7 @@ leg = spgrad_ax.legend()
 ################
 ## Histogram
 ################
+"""
 USE_CACHE_PLOTS = True
 #USE_CACHE_PLOTS = False
 histo_basedir = os.path.join(this_dir, "../../datasets/LSM700_63x_sigb/")
@@ -149,13 +150,7 @@ hist_ax.set_ylim(0, 4)
 #leg = hist_ax.legend(loc="center right")
 hist_ax.set_xlabel("Mean normalised cell fluoresence")
 hist_ax.set_ylabel("Percentage of cells")
-
-
-################
-## SpoIID image
-################
-spoiid_base = os.path.join(this_dir, "../../proc_data/fp3_unmixing/rsiga_ysigb_cspoiid/")
-spimg_ax = subfig_spoiid_image.get_figure(spimg_ax, spoiid_base, this_dir) 
+"""
 
 ########
 ## Spore images
@@ -184,7 +179,7 @@ for i, ax in zip(files, [wtspr_ax, x2spr_ax]):
                                            (height, width),
                                            i)
 letter_lab = (-0.14, 1.0)
-axes = [spgrad_ax, sbgrad_ax, hist_ax, wtspr_ax, x2spr_ax, corr_ax, spimg_ax] 
+axes = [spgrad_ax, sbgrad_ax, wtspr_ax, x2spr_ax]#, hist_ax, corr_ax, spimg_ax] 
 for a, l in zip(axes, figure_util.letters):
     a.text(letter_lab[0], letter_lab[1], l, 
             verticalalignment="top",
@@ -193,21 +188,8 @@ for a, l in zip(axes, figure_util.letters):
     a.yaxis.set_major_locator(mpt.MaxNLocator(nbins=4, prune='upper'))
 
 
-# # remove the top tick label when the letter gets in the way
-# for a in [sbgrad_ax, spgrad_ax]:
-#     yticks = a.yaxis.get_minor_ticks()
-#     #ticklabs = a.yaxis.get_ticklabels()
-#     #ticklabs = a.get_yticks()#.tolist()
-#     #ticklabs[-1] = ''
-#     #a.set_yticklabels(ticklabs)
-#     #print([ t.get_text() for t in ticklabs])
-#     #ticklabs[-1].visible = False
-#     #ticklabs[-1].label1On = False
-#     yticks[-1].label1.set_visible(False)
-
-
 filename = "spore_sigb_combo"
-width, height = figure_util.get_figsize(figure_util.fig_width_big_pt, wf=1.0, hf=0.9 )
+width, height = figure_util.get_figsize(figure_util.fig_width_big_pt, wf=1.0, hf=0.5 )
 fig.set_size_inches(width, height)# common.cm2inch(width, height))
 fig.subplots_adjust(left=0.08, right=0.98, top=0.98, bottom=0.06, hspace=0.25, wspace=0.25)
 figure_util.save_figures(fig, filename, ["png", "pdf"], this_dir)
