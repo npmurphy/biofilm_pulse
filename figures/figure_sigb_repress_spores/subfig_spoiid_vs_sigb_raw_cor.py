@@ -26,7 +26,7 @@ def get_figure(ax, file_df, cell_df):
 
     gs = 100
     cfpmax = 11 
-    yfpmax = 6 
+    yfpmax = 4 
     kwargs = {"gridsize":gs, 
                 #"marginals":True, 
                 "extent":[0, yfpmax, 0, cfpmax], 
@@ -34,17 +34,15 @@ def get_figure(ax, file_df, cell_df):
                 "norm": matplotlib.colors.LogNorm(), 
                 "cmap": plt.get_cmap("plasma")
             }
-    # ax[0].hexbin(timsct[red_chan], timsct[blu_chan], **kwargs)
-    # ax[0].set_title("RFP-σA vs CFP-spoiid")
-    # ax[0].set_ylabel("CFP")
-    # ax[0].set_xlabel("RFP")
-    # #ax[0].colorbar()
-    # ax[1].hexbin(timsct[red_chan], timsct[grn_chan], **kwargs) 
-    # ax[1].set_title("RFP-σA vs YFP-σB")
-    # ax[1].set_ylabel("RFP")
-    # ax[1].set_xlabel("YFP")
+
+    green_bins = np.linspace(0.5, yfpmax, 11)
+    green_x = green_bins[1:] - (green_bins[1] - green_bins[0])
+    cfp_trend = timsct.groupby(pd.cut(timsct[grn_chan], green_bins)).mean()
+    print(timsct.groupby(pd.cut(timsct[grn_chan], green_bins)).count()[grn_chan].values)
     print("Cell N:", len(timsct) )
     hb = ax.hexbin(timsct[grn_chan], timsct[blu_chan], **kwargs)
+    ax.plot(green_x, cfp_trend[blu_chan].values, marker=".", linestyle="-", color="black")
+
     #ax.set_title("vs PsigB-YFP")
     ax.set_xlabel("Mean normalised P$_{sigB}$-YFP")
     ax.set_ylabel("Mean normalised P$_{spoIID}$-CFP")

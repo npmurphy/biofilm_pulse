@@ -1,0 +1,69 @@
+\documentclass[tikz,crop]{standalone}
+\usepackage{tikz} 
+\usepackage{graphicx}
+%\usepackage{amssymb}
+\usepackage{amsmath}
+\usetikzlibrary{positioning}
+\usetikzlibrary{calc}
+\usetikzlibrary{arrows}
+
+\begin{document}
+  \tikzset{fontscale/.style = {font=\scriptsize\sffamily,}}
+  % r [(0.73568627450980395, 0.26039215686274508, 0.26509803921568614),
+  \definecolor{mblue}{rgb}{0.31686274509803924, 0.483921568627451, 0.62039215686274507}
+  \definecolor{mgreen}{rgb}{0.37647058823529422, 0.60705882352941176, 0.3694117647058824}
+  \definecolor{mgray}{rgb}{0.33333,0.3333,0.33333}
+
+  \begin{tikzpicture}[thick,>=stealth',fontscale]
+    %fig_width_medium_cm = 11.4
+    %\coordinate (origin) at (6.61, -0.35);
+    %\coordinate (end) at (11.25, -2.27);
+    %fig_width_medium_cm = 8cm 
+    \node (bgimage) [anchor=north west] at (0, 0){\includegraphics{model_summary_figure.pdf}};
+    \coordinate (origin) at (bgimage.north west);% 4, -0.35);
+    \coordinate (end) at (8, -2.27);
+
+    \draw [step=1.0,red,thin,anchor=north west] (origin) grid (end);
+    \begin{scope}[shift={(origin)}]
+      \coordinate (bottomright) at (4.65, -1.933);
+      \path let \p1 = (bottomright) in coordinate (topright) at (\x1,0);
+      \path let \p1 = (bottomright) in coordinate (bottomleft) at (0,\y1);
+      \coordinate (halfwidth) at ($ (0,0) !.5! (topright) $);
+      \path let \p1 = (halfwidth) in coordinate (ESpos) at (\x1,-0.2);
+
+      % this hides the black border the matplot lib makes
+      %\fill ($(0,0)-(0.1,-0.1)$) [fill=white] rectangle ($(bottomright)+(0.1,-0.1)$);
+      
+      \coordinate (bally) at (0, -0.9);
+      \coordinate (Ax) at ($ (0,0) !.1! (topright) $);
+      \coordinate (Bx) at ($ (0,0) !.9! (topright) $);
+
+      % the |- notation takes the x bit of the left and y bit of right
+      \node at (Ax |- bally) [circle, name=A, fill=mblue] {A};
+      \node at (Bx |- bally) [circle, name=B, fill=mgreen] {B};
+
+      \node [below=0.4cm of A, name = spore, shape=rectangle, rounded corners=3pt, fill=mblue ] {Spore};
+
+
+      
+      \node at (ESpos) [name=ES] {Energy Stress};
+      \path (ES.west) edge [draw, ->, bend right, draw=mgray] (A); 
+      \path (ES.east) edge [draw, ->, bend left, draw=mgray] (B); 
+      \path (A) edge [draw, ->, draw=mgray] (spore);
+      \path (B) edge [draw, -|, bend left, draw=mgray] (A); 
+
+
+
+    \end{scope}
+    
+
+%   %\node at ($ (ss_sim.north west) + (labshift) $) {(a)};
+%   \node (wt_bf_im) [anchor=north west] at (0, 0){\includegraphics[width=4cm]  {10x_sigb_48_image_crop.jpg}};
+%   \node (dru_bf_im) [anchor=north west] at (0, -2){\includegraphics[width=4cm]{10x_delru_48_image_crop.jpg}};
+%   \node (dqp_bf_im) [anchor=north west] at (0, -4){\includegraphics[width=4cm]{10x_delqp_48_image_crop.jpg}};
+%   \node (wt_bf_gd) [anchor=north west] at (4, 0){\includegraphics[width=4cm]  {10x_sigb_48.pdf}};
+%   \node (dru_bf_gd) [anchor=north west] at (4, -2){\includegraphics[width=4cm]{10x_delru_48.pdf}};
+%   \node (dqp_bf_gd) [anchor=north west] at (4, -4){\includegraphics[width=4cm]{10x_delqp_48.pdf}};
+
+  \end{tikzpicture}
+\end{document}

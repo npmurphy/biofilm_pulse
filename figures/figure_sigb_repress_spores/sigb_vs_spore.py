@@ -44,31 +44,35 @@ cell_df = pd.read_hdf(basedir + "rsiga_ysigb_cspoiid_redoedgedata.h5", "cells")
 # Ignore first 2 um (only done for consistency)
 cell_df = cell_df[cell_df["distance"] > 2].copy()
 
-# corr_ax, corr_cb = subfig_spoiid_vs_sigb_raw_cor.get_figure(corr_ax, file_df, cell_df)
+corr_ax, corr_cb = subfig_spoiid_vs_sigb_raw_cor.get_figure(corr_ax, file_df, cell_df)
 # #corr_ax, corr_cb, cont_cb = subfig_spoiid_vs_sigb_isolines.get_figure(corr_ax, file_df, cell_df)
-# cbar = fig.colorbar(corr_cb, ax=corr_ax)
+cbar = fig.colorbar(corr_cb, ax=corr_ax)
 # #cbar.add_lines()#corr_cb)
-# cbar.ax.set_ylabel('Number of cells', rotation=270) 
+cbar.ax.set_ylabel('Number of cells', rotation=270) 
 # print("orig pad  = ", cbar.ax.yaxis.labelpad)
-# cbar.ax.yaxis.labelpad = 10
+cbar.ax.yaxis.labelpad = 10
 
 #cfp_thresh = 3000
-cfp_thresh = 2000
-time = 48
-location = "center"
-fids = file_df[(file_df["time"] == time) & (file_df["location"] == location)].index
-green_bins = np.linspace(0, 50000, 100)
-green_x = green_bins[1:] - (green_bins[1] - green_bins[0])
+# cfp_thresh = 2000
+# time = 48
+# location = "center"
+# fids = file_df[(file_df["time"] == time) & (file_df["location"] == location)].index
+# green_bins = np.linspace(0, 50000, 100)
+# green_x = green_bins[1:] - (green_bins[1] - green_bins[0])
 
-timsct = cell_df[cell_df["global_file_id"].isin(fids)].copy()
-timsct["one"] = 1
-timsct["gthn"] = (timsct["mean_blue"] > cfp_thresh).values
-counts = timsct.groupby(pd.cut(timsct["mean_green"], green_bins)).sum()
-corr_ax.plot(green_x, counts["gthn"]/counts["one"], label=str(cfp_thresh))
-corr_ax.set_xlim(green_bins[0], green_bins[-1])
-corr_ax.set_ylabel("% of cells with P$_{spoIID}$-CFP over threshold")
-corr_ax.set_xlabel("P$_{\sigma^B}$-YFP")
-corr_ax.set_ylim(0, 1.0)
+
+
+# timsct = cell_df[cell_df["global_file_id"].isin(fids)].copy()
+# timsct["one"] = 1
+# timsct["gthn"] = (timsct["mean_blue"] > cfp_thresh).values
+# counts = timsct.groupby(pd.cut(timsct["mean_green"], green_bins)).sum()
+# corr_ax.plot(green_x, counts["gthn"]/counts["one"], label=str(cfp_thresh))
+# count_ax = corr_ax.twinx()
+# count_ax.plot(green_x, counts["one"],color="blue")
+# corr_ax.set_xlim(green_bins[0], green_bins[-1])
+# corr_ax.set_ylabel("% of cells with P$_{spoIID}$-CFP over threshold")
+# corr_ax.set_xlabel("P$_{\sigma^B}$-YFP")
+# corr_ax.set_ylim(0, 1.0)
 
 #plt.legend()
 
@@ -112,10 +116,9 @@ sb_grad_ax.set_xlabel("Distance from air interface (μm)")
 
 #spgrad_ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
 #spgrad_ax.set_ylim(0, 0.25)
-sp_grad_ax.set_ylabel("Spore/cell ratio")
+sp_grad_ax.set_ylabel("Spore/cell ratio", rotation=270)
 #sb_grad_ax.set_ylabel("YFP/RFP")
 leg = sp_grad_ax.legend()
-
 
 
 ################
@@ -125,9 +128,8 @@ spoiid_base = os.path.join(this_dir, "../../proc_data/fp3_unmixing/rsiga_ysigb_c
 spimg_ax = subfig_spoiid_image.get_figure(spimg_ax, spoiid_base, this_dir) 
 
 
-
 filename = "sigb_vs_spores"
 width, height = figure_util.get_figsize(figure_util.fig_width_small_pt, wf=1.0, hf=1.0 )
 fig.set_size_inches(width, height)# common.cm2inch(width, height))
-fig.subplots_adjust(left=0.10, right=0.9, top=0.98, bottom=0.1, hspace=0.35, wspace=0.2)
+fig.subplots_adjust(left=0.10, right=0.9, top=0.98, bottom=0.1, hspace=0.25, wspace=0.3)
 figure_util.save_figures(fig, filename, ["png", "pdf"], this_dir)
