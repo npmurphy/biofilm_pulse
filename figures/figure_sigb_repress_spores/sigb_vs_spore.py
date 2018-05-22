@@ -22,7 +22,7 @@ figure_util.apply_style()
 
 fig = plt.figure()
 #fig, ax = plt.subplots(1,3)
-gs = gridspec.GridSpec(2, 2, width_ratios=[1,0.8])
+gs = gridspec.GridSpec(2, 2, width_ratios=[0.7,1.0])
 #gs = gridspec.GridSpec(3, 3, width_ratios=[0.3, 0.35, 0.35])
 
 # spimg_ax = plt.subplot(ax[0])
@@ -78,7 +78,7 @@ cbar.ax.yaxis.labelpad = 10
 
 
 ###########
-## 10x sigb grad
+## 63x sigb grad
 ###########
 normalisation = [#("unnormed", (0, 8e3), "P$_{sigB}$-YFP (AU)"), 
                     ("ratio", (0, 1), "YFP/RFP Ratio")]
@@ -86,9 +86,10 @@ spec = "jlb021"
 this_dir = os.path.join(os.path.dirname(__file__))
 base = os.path.join(this_dir, "../../datasets/LSM700_63x_sigb/gradients")
 
-plotset = {"linewidth":0.5, "alpha":0.3, "color":figure_util.green}
+#plotset = {"linewidth":0.5, "alpha":0.3, "color":figure_util.green}
+plotset = {"alpha":0.3, "color":figure_util.green, "label":"SigB"}
 for n, (norm, ylim, ylabel) in enumerate(normalisation):
-    args = (sb_grad_ax, base, norm, ylim, "quantile75", spec, [48], plotset)
+    args = (sb_grad_ax, base, norm, ylim, "sem", spec, [48], plotset)
     sb_grad_ax = subfig_plot_grad_errors.get_figure(*args)
 
 # tenx_basepath = os.path.join(this_dir, "../../datasets/LSM780_10x_sigb/")
@@ -97,7 +98,7 @@ for n, (norm, ylim, ylabel) in enumerate(normalisation):
 # tenx_gradient_df["ratio"] = tenx_gradient_df["green_bg_mean"]/tenx_gradient_df["red_bg_mean"]
 # tenx_file_df = filedb.get_filedb(os.path.join(tenx_basepath, "filedb.tsv"))
 # sb_grad_ax = subfig_sigb_grad.get_figure(sb_grad_ax, tenx_file_df, tenx_gradient_df, ["wt_sigar_sigby"])
-sb_grad_ax.set_ylabel("YFP/RFP Ratio")
+sb_grad_ax.set_ylabel("YFP/RFP Ratio", color=figure_util.green)
 sb_grad_ax.set_ylim(0,0.4)
 sb_grad_ax.set_xlim(0,140)
 sp_grad_ax = sb_grad_ax.twinx()
@@ -110,15 +111,22 @@ spfile_df = spfile_df[~((spfile_df["name"] == "JLB077_48hrs_center_1_1") &
 spindividual = pd.read_csv(os.path.join(spbase,"spore_cell_individual.tsv"), sep="\t",index_col="index" )
 spchan = "fraction_spores"
 for strain in sspb_strains: 
-    sb_grad_ax = subfig_spore_count_gradient.get_figure(sp_grad_ax, spfile_df, spindividual, strain, spchan, 100, {"color":figure_util.blue})
-    
-sb_grad_ax.set_xlabel("Distance from air interface (μm)")
+    sp_grad_ax = subfig_spore_count_gradient.get_figure(sp_grad_ax, spfile_df, spindividual, strain, spchan, 100, {"color":figure_util.blue})
 
-#spgrad_ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
-#spgrad_ax.set_ylim(0, 0.25)
-sp_grad_ax.set_ylabel("Spore/cell ratio", rotation=270)
-#sb_grad_ax.set_ylabel("YFP/RFP")
-leg = sp_grad_ax.legend()
+lines, labels = [], []
+for a in [sb_grad_ax, sp_grad_ax]:
+    ln, lb = a.get_legend_handles_labels()
+    lines += ln
+    labels += lb
+
+# lines, labels = zip(*[ 
+# print(labels)
+# print(type(lines))
+# print(lines[0])
+leg = sb_grad_ax.legend(lines, labels)
+sp_grad_ax.spines['right'].set_visible(True)
+sb_grad_ax.set_xlabel("Distance from air interface (μm)")
+sp_grad_ax.set_ylabel("Spore/cell ratio", rotation=270, color=figure_util.blue)
 
 
 ################
