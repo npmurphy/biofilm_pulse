@@ -43,8 +43,11 @@ def get_figure(ax, name, impath, roi, chans, FP_max_min, slicel, add_scale_bar=F
             images[c] = np.zeros(rois, dtype=np.uint8)
     
     img = np.dstack(images)
-    img[outline == True, :] = [ 255, 255, 255]
-    img[edge == True, :] = [ 255, 255, 0]
+    # img[outline == True, :] = [ 255, 255, 255]
+    # img[edge == True, :] = [ 255, 255, 0]
+    img[outline, :] = [ 255, 255, 255]
+    img[edge, :] = [ 255, 255, 0]
+    img = np.rot90(img, 3)
     if add_scale_bar:
         img = draw_scale_bar(img, 400, 350, (5/PX_TO_UM), 20, "5μm")
     ax.imshow(img, interpolation="none", aspect=1)
