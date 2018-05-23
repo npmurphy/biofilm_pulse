@@ -87,7 +87,7 @@ this_dir = os.path.join(os.path.dirname(__file__))
 base = os.path.join(this_dir, "../../datasets/LSM700_63x_sigb/gradients")
 
 #plotset = {"linewidth":0.5, "alpha":0.3, "color":figure_util.green}
-plotset = {"alpha":0.3, "color":figure_util.green, "label":"SigB"}
+plotset = {"alpha":0.3, "color":figure_util.green, "label":"WT " + figure_util.strain_label["JLB021"]}
 for n, (norm, ylim, ylabel) in enumerate(normalisation):
     args = (sb_grad_ax, base, norm, ylim, "sem", spec, [48], plotset)
     sb_grad_ax = subfig_plot_grad_errors.get_figure(*args)
@@ -110,8 +110,9 @@ spfile_df = spfile_df[~((spfile_df["name"] == "JLB077_48hrs_center_1_1") &
                         (spfile_df["dirname"] == "Batch1"))]
 spindividual = pd.read_csv(os.path.join(spbase,"spore_cell_individual.tsv"), sep="\t",index_col="index" )
 spchan = "fraction_spores"
+spkw = {"color":figure_util.blue, "label": "WT Spores"}
 for strain in sspb_strains: 
-    sp_grad_ax = subfig_spore_count_gradient.get_figure(sp_grad_ax, spfile_df, spindividual, strain, spchan, 100, {"color":figure_util.blue})
+    sp_grad_ax = subfig_spore_count_gradient.get_figure(sp_grad_ax, spfile_df, spindividual, strain, spchan, 100, spkw) 
 
 lines, labels = [], []
 for a in [sb_grad_ax, sp_grad_ax]:

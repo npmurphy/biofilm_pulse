@@ -13,7 +13,12 @@ def get_figure(ax, file_df, gradient_data, strain, chan, min_sample_size=None, k
         color = figure_util.strain_color[strain]
     else:
         color = kwargs["color"]
-    label = figure_util.strain_label[strain]
+
+    if "label" not in kwargs:
+        label = figure_util.strain_label[strain]
+    else:
+        label = kwargs["label"]
+
 
     st_files = file_df.index[(file_df.strain == strain)]
     data_columns = ["file_{0}_{1}".format(s, chan) for s in st_files ]

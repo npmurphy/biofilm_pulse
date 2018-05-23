@@ -68,13 +68,16 @@ def make_indivfile_histogram(df, column, inbins, slice_info, percentages=False, 
     maxi = histo_of_all.argmax()
     modeval = bins[maxi]
     mskewval = scipy.stats.skew(in_range[column], bias=False)
+    mskurosisval = scipy.stats.kurtosis(in_range[column], bias=False)
+
     pskewval = (meanval - modeval)/stdval
     if print_out_stats:
         print("mean: {0:0.2f}".format(meanval))
         print("std: {0:0.2f}".format(stdval))
         print("CV: {0:0.2f}".format(cvval))
         print("Moment skew: {0:0.2f}".format(mskewval))
-        print("Pearson mode skew: {0:0.2f}".format(pskewval))
+        #print("Pearson mode skew: {0:0.2f}".format(pskewval))
+        print("Kurtosis {0:0.2f}".format(mskurosisval))
         print("Number of files: {0}".format(num_files))
         print("Cells: {0}".format(len(in_range)))
         print("------------------------")

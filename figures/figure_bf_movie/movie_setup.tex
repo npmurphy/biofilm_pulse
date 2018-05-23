@@ -20,7 +20,7 @@ left color=gray!80!black,
 right color=gray!20!white,
 draw, thick]
 
-\tikzstyle{dish}=[draw = blue!40!white, line width=0.7mm]
+\tikzstyle{dish}=[draw = blue!40!white, line width=0.5mm]
 
 \tikzset{fontscale/.style = {font=\tiny\sffamily,}}
 % r [(0.73568627450980395, 0.26039215686274508, 0.26509803921568614),
@@ -79,14 +79,14 @@ draw, thick]
   %fig_width_medium_cm = 8cm 
   
 	\node (bgimage) [anchor=south west] at (0, 0){\includegraphics{bf_movie_main.pdf}};
-	\coordinate (origin) at ($(bgimage.west) + (1.13cm, 0.35cm)$);
+	\coordinate (origin) at ($(bgimage.west) + (0.93cm, 2.30cm)$);
 
 	%\coordinate (origin) at (0, 0); %$(bgimage.north west) + (3cm, -3cm)$);
   %\node at (origin) {X};
   
   %%% Image Guide Lines
   \begin{scope}[shift={(origin)}]
-    \coordinate (end) at (4.0, 3.92);
+    \coordinate (end) at (2.80, 2.92);
     %\draw [blue, thin]  (origin) rectangle (end); %border
     \draw [white, fill=white, ultra thick ]  (origin) rectangle (end);
     
@@ -98,7 +98,7 @@ draw, thick]
   \end{scope}
 
 
-  \pgfmathsetmacro{\myscale}{0.6}
+  \pgfmathsetmacro{\myscale}{0.5}
 
 
   \begin{scope}[shift={(origin)}, scale=\myscale]
@@ -107,7 +107,7 @@ draw, thick]
 		%%%%%%%%%%%%%%%%%%%5
 		%%%%  fresh agar
 		%%%%%%%%%%%%%%%%%%5
-    \drawWilcoDish{1}{(3.6, 4)}
+    \drawWilcoDish{1}{(2.8, 4)}
     \pgfmathsetmacro\agarWidth{1.95cm * \myscale}
     \pgfmathsetmacro\agarHeight{1cm * \myscale}
     
@@ -136,7 +136,7 @@ draw, thick]
 		%%%%%%%%%%%%%%%%%%%5
 		%%%%  Grown biofilm  centerofglass2
 		%%%%%%%%%%%%%%%%%%5
-		\drawWilcoDish{2}{(3.6, 1.15)}
+		\drawWilcoDish{2}{(2.8, 1.15)}
 		\node at (centerofglass2)
 		[rectangle,
       draw,
@@ -158,7 +158,7 @@ draw, thick]
 		\drawobjective{2}{($(centerofglass2) + (-0.3, 0.0)$) }{\myscale}
     
     \draw [->, line width=1mm, >=latex] ($(centerofglass1) + (0, -0.25)$) -- ($(centerofglass2) + (0, 1.5)$);
-    \node [anchor=west] at ($(centerofglass1) + (0.4, -0.7)$) {+ 12 hours};
+    \node [anchor=west] at ($(centerofglass1) + (0.25, -0.7)$) {+ 12 hours};
 
 
 	\end{scope}
@@ -169,27 +169,28 @@ draw, thick]
   \tikzstyle{labelarrow}=[-latex, thick]
 
   \begin{scope}[shift={(origin)}]
-    
-
-    \node at (old_agar.center) {MSgg Agar};
-    \node at (fresh_agar.center) {MSgg Agar};
-
-		\node [anchor=west] (label_biofilm) at ($(lidNW2) + (-1.0, 0.2)$) {Biofilm};
-		\draw [labelarrow] (label_biofilm) to [out=0, in=160] ($(old_agar.west) + (-0.3, -0.2)$);
-
-		\node [anchor=west] (label_inocul) at ($(lidNW1) + (-1.0, 0.3)$) {Inoculum};
-    \draw [labelarrow]  (label_inocul) to [out=0, in=160] ($(fresh_agar.west) + (-0.25, -0.1)$);
-    
-		\node [anchor=west] (label_objective) at ($(objbase2.center) + (-2.1, 0.0)$) {Objective};
+	
+	\node [anchor=west] (label_inocul) at ($(lidNW1) + (-1.3,-0.3)$) {Inoculum};
+    \draw [labelarrow]  (label_inocul) to [out=0, in=160] ($(fresh_agar.west) + (-0.15, -0.0)$);
+	
+	\node [anchor=west] (label_coverslip) at ($(label_inocul.west) + (0, -0.8)$) {Cover slip};
+    \draw [labelarrow]  (label_coverslip) to [out=0, in=250] ($(centerofglass1) + (-0.4, 0)$);
+	
+	\node [anchor=west] (label_dish) at ($(label_coverslip.west) + (0, -0.5)$) {Dish};
+    \draw [labelarrow]  (label_dish) to (lidNW2);
+	
+	\node [anchor=west] (label_biofilm) at ($(label_dish.west) + (0, -0.5)$) {Biofilm};
+	\draw [labelarrow] (label_biofilm) to [out=0, in=170] ($(old_agar.west) + (-0.1, -0.08)$);
+	
+	\node [anchor=west] (label_objective) at ($(label_biofilm.west) + (0, -0.5)$) {Objective};
     \draw [labelarrow]  (label_objective) to (objbase2.center);
     
+	\node [anchor=west] (label_agarnew) at ($(old_agar.south west) + (0, -0.8)$) {MSgg Agar};
+	\draw [labelarrow] (label_agarnew) to ($(old_agar.center) + (0.1, -0.0)$);
+	
 
-    \node [anchor=west] (label_coverslip) at ($(centerofglass1) + (-2.28, -0.3)$) {Cover slip};
-    \draw [labelarrow]  (label_coverslip) to [out=0, in=250] ($(centerofglass1) + (-0.5, 0)$);
-    
-    %\node [anchor=west] (label_dish) at ($(lidNE1) + (0.3, 0.5)$) {Dish};
-    \node [anchor=west] (label_dish) at ($(lidNE1) + (0.3, 0.1)$) {Dish};
-    \draw [labelarrow]  (label_dish) to (lidNE1);
+    %\node at (old_agar.center) {MSgg Agar};
+    %\node at (fresh_agar.center) {MSgg Agar};
 	\end{scope}
 
 \end{tikzpicture}

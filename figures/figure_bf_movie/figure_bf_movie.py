@@ -22,13 +22,20 @@ fig = plt.figure()
 #gs = gridspec.GridSpec(2, 2, width_ratios=[0.3, 0.7], height_ratios=[0.55, 0.45])
 
 # Making less wide 
-width, height = figure_util.cm2inch(14, 8.87)
-gs = gridspec.GridSpec(2, 2, width_ratios=[0.35, 0.65], height_ratios=[0.55, 0.45])
+#width, height = figure_util.cm2inch(14, 8.87)
+outer_gs = gridspec.GridSpec(2, 2, 
+                            height_ratios=[1, 2.2],
+                            hspace=0.18, wspace=0.25,
+                            width_ratios=[0.7, 1])
+pic_trace_gs  = gridspec.GridSpecFromSubplotSpec(2, 1, 
+                                  height_ratios=[2, 1],
+                                  subplot_spec = outer_gs[1,:],
+                                  hspace=0.03)
 
-ax_exprmt = plt.subplot(gs[0, 0])
-ax_fstrip = plt.subplot(gs[0, 1])
-ax_gradnt = plt.subplot(gs[1, 0])
-ax_pulses = plt.subplot(gs[1, 1])
+ax_exprmt = plt.subplot(outer_gs[0, 0])
+ax_gradnt = plt.subplot(outer_gs[0, 1])
+ax_fstrip = plt.subplot(pic_trace_gs[0, :])
+ax_pulses = plt.subplot(pic_trace_gs[1, :])
 
 ################
 ## experiment figure
@@ -51,7 +58,8 @@ compiled_trace, cell_tracks = subfig_trace.load_data(comp_path, ct_path)
 compiled_trace["time"] = compiled_trace["time"]/60 # hours
 ax_pulses = subfig_trace.get_figure(ax_pulses, compiled_trace, cell_tracks)
 ax_pulses.set_ylabel("YFP/RFP ratio")
-ax_pulses.set_xlim(right=96)
+ax_pulses.set_xlim(20, right=96)
+ax_pulses.set_ylim(0,1.1)
 
 ################
 ## Gradient 
@@ -66,7 +74,9 @@ times = file_df["time"].unique()
 plotset = {"linewidth":0.6, "alpha":0.3}
 ax_gradnt = subfig_gradient.get_figure(ax_gradnt, df, file_df, "green_bg_mean", "", "", times, plotset)
 leg = ax_gradnt.legend()
-ax_gradnt, leg = figure_util.shift_legend(ax_gradnt, leg, xshift=0.1, yshift=0.05)
+ax_gradnt, leg = figure_util.shift_legend(ax_gradnt, leg, xshift=0.04, yshift=0.10)
+ax_gradnt.ticklabel_format(style='sci',scilimits=(1,3),axis='both')
+#ax_gradnt.xaxis.major.formatter._useMathText = True
 ax_gradnt.set_xlim(0, 150) 
 ax_gradnt.set_ylim(0, 2900)
 ax_gradnt.set_xlabel("Distance from air interface (μm)")
@@ -80,18 +90,27 @@ ax_fstrip.imshow(im, interpolation="bicubic")
 ax_fstrip.grid(False)
 ax_fstrip.axis('off')
 
-axes = [ax_exprmt, ax_fstrip, ax_gradnt, ax_pulses]
-axis_ratios = [ (h, w) for h in gs.get_height_ratios() for w in gs.get_width_ratios()]
-for a, l, ratios in zip(axes, figure_util.letters, axis_ratios):
-    w, h = ratios
-    a.text(-0.15*w, 1.0, l, ha="right", va="top", 
+axes = [( -0.11, ax_exprmt),
+        ( -0.11, ax_gradnt),
+        ( -0.06, ax_fstrip),
+        ( -0.06, ax_pulses)]
+for (xp, a), l in zip(axes, figure_util.letters):
+    a.text( xp, 1.0, l, ha="right", va="top", 
             transform=a.transAxes, 
             fontsize=figure_util.letter_font_size, 
             color="black")
+#axis_ratios = [ (h, w) for h in gs.get_height_ratios() for w in gs.get_width_ratios()]
+# for a, l, ratios in zip(axes, figure_util.letters, axis_ratios):
+#     w, h = ratios
+#     a.text(-0.15*w, 1.0, l, ha="right", va="top", 
+#             transform=a.transAxes, 
+#             fontsize=figure_util.letter_font_size, 
+#             color="black")
 
 filename = "bf_movie_main"
 #width, height = figure_util.get_figsize(figure_util.fig_width_big_pt, wf=1.0, hf=0.5 )
-fig.subplots_adjust(left=0.07, right=0.99, top=0.98, bottom=0.08, hspace=0.25, wspace=0.25)
+width, height = figure_util.get_figsize(figure_util.fig_width_small_pt, wf=1.0, hf=1.3 )
+fig.subplots_adjust(left=0.095, right=0.97, top=0.97, bottom=0.06)#, hspace=0.25, wspace=0.25)
 
 fig.set_size_inches(width, height)# common.cm2inch(width, height))
 figure_util.save_figures(fig, filename, ["png", "pdf"], base_dir=this_dir )
