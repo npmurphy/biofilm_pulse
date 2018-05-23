@@ -179,7 +179,7 @@ def main():
                 label = curve_score_methods[k][0]
                 sm = plt.cm.ScalarMappable(cmap=plt.cm.plasma, norm=plt.Normalize(vmin=0, vmax=max_val))
                 sm._A = []
-                cb = plt.colorbar(sm, cax=cbax)#, fig=fig)
+                plt.colorbar(sm, cax=cbax)#, fig=fig)
                 cbax.set_ylabel(label, rotation=-90, labelpad=8)
 
     #max_val = m 
