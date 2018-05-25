@@ -1,0 +1,4 @@
+RFP_only YFP fluor mean (after BG subtraction) = 9.6431
+RED_bg_mean= 175.7778
+YFP_bg_mean = 227.6111
+
