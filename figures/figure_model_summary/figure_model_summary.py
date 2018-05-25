@@ -1,7 +1,5 @@
 import pandas as pd
-import numpy as np
 import os.path
-import filedb
 import matplotlib.pyplot as plt
 #import matplotlib.gridspec as gridspec
 from glob import glob
@@ -10,11 +8,12 @@ import subfig_spore_gradient
 import simulation_processor
 import subfig_traces
 #import subfig_network
-import svgutils.compose as sc
+#import svgutils.compose as sc
 
-plt.style.use('../figstyle.mpl')
-import figure_util
-from figure_util import dpi
+from lib import figure_util
+figure_util.apply_style()
+
+this_dir = os.path.dirname(__file__)
 
 fig, all_axes = plt.subplots(4, 1)
 #all_axes = np.atleast_2d(all_axes)
@@ -36,14 +35,14 @@ network_ax.spines['right'].set_visible(True)
 network_ax.axes.get_xaxis().set_ticks([])
 network_ax.axes.get_yaxis().set_ticks([])
 
-runf = "../../algo/luna/final_sweeps/"
+runf = os.path.join(this_dir, "../../datasets/model_results/movethresh3/")
 
-pulse_wt_info = glob(runf + "movethresh3/bfsim_b_qp|*pscale_a=0.7*,pscale_b=0.25*.tsv")[0]
-pulse_2x_info = glob(runf + "movethresh3/bfsim_b_qp|*pscale_a=0.7*,pscale_b=0.5*.tsv")[0]
-bistb_wt_info = glob(runf + "movethresh3/bfsim_b_qp|*pscale_a=3.6*,pscale_b=2.0*.tsv")[0]
-bistb_2x_info = glob(runf + "movethresh3/bfsim_b_qp|*pscale_a=3.6*,pscale_b=4.0*.tsv")[0]
+pulse_wt_info = glob(runf + "bfsim_b_qp|*pscale_a=0.7*,pscale_b=0.25*.tsv")[0]
+pulse_2x_info = glob(runf + "bfsim_b_qp|*pscale_a=0.7*,pscale_b=0.5*.tsv")[0]
+# bistb_wt_info = glob(runf + "movethresh3/bfsim_b_qp|*pscale_a=3.6*,pscale_b=2.0*.tsv")[0]
+# bistb_2x_info = glob(runf + "movethresh3/bfsim_b_qp|*pscale_a=3.6*,pscale_b=4.0*.tsv")[0]
 
-trace_wt_pulse = glob(runf + "movethresh3/bfsim_b_trace_seed16222|*pscale_a=0.7*,pscale_b=0.25*.tsv")[0]
+trace_wt_pulse = glob(runf + "bfsim_b_trace_seed16222|*pscale_a=0.7*,pscale_b=0.25*.tsv")[0]
 
 pulse_wt_df = simulation_processor.get_dataset(pulse_wt_info, max_distance=140.0,  spore_time_hours=0.5)
 pulse_2x_df = simulation_processor.get_dataset(pulse_2x_info, max_distance=140.0,  spore_time_hours=0.5)
@@ -77,14 +76,11 @@ for a, l in zip(all_axes, figure_util.letters):
             va="top", ha="right", fontsize=figure_util.letter_font_size)
 
 filename = "model_summary_figure"
-width, height = figure_util.get_figsize(figure_util.fig_width_medium_pt, wf=1.0, hf=1.0 )
-#fig.subplots_adjust(left=0.08, right=0.98, top=0.98, bottom=0.06, hspace=0.25, wspace=0.25)
-fig.set_size_inches(width, height)# common.cm2inch(width, height))
-fig.tight_layout()
+width, height = figure_util.get_figsize(figure_util.fig_width_small_pt, wf=1.0, hf=1.0 )
+fig.set_size_inches(width, height)
+fig.subplots_adjust(left=0.10, right=0.98, top=0.98, bottom=0.10, hspace=0.20, wspace=0.10)
 print("request size : ", figure_util.inch2cm((width, height)))
-fig.savefig(filename + ".pdf") #, bbox_inches="tight"  )
-fig.savefig(filename + ".png") #, bbox_inches="tight"  )
-
+figure_util.save_figures(fig, filename, ["png", "pdf"], this_dir)
 # Tikz is easier
 # fig.savefig(filename + ".svg") #, bbox_inches="tight"  )
 
@@ -92,6 +88,3 @@ fig.savefig(filename + ".png") #, bbox_inches="tight"  )
 #             sc.Panel(sc.SVG(filename+".svg")),
 #             sc.Panel(sc.SVG("network.svg")).move(10,10)
 #             ).save("figure_combine.svg")
-
-
-figure_util.print_pdf_size(filename + ".pdf")

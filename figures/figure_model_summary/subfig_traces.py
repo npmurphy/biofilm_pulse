@@ -2,8 +2,8 @@ import os.path
 import pandas as pd
 import matplotlib.pyplot as plt
 from glob import glob
-import figure_util
-plt.style.use('../figstyle.mpl')
+from lib import figure_util
+#plt.style.use('../figstyle.mpl')
 
 def get_figure(ax, df):
     a = ax.plot(df["Time"]/3600, df["A"], color=figure_util.blue, label="A")

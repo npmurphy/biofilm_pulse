@@ -6,11 +6,11 @@ import matplotlib.ticker as mticker
 import numpy as np
 from matplotlib import gridspec
 
-import figure_util
+from lib import figure_util
 import simulation_processor
-from figure_util import dpi
+#from figure_util import dpi
 
-plt.style.use('../figstyle.mpl')
+#plt.style.use('../figstyle.mpl')
 
 
 def plot_spore(ax, biofilm_df, **kwargs):
