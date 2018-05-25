@@ -24,8 +24,8 @@ def plot_sigb(ax, biofilm_df, **kwargs):
     return ax, sigbd
 
 def get_figure(ax, wt_df, x2_df, **kwargs):
-    ax, wtp = plot_sigb(ax, wt_df, color=figure_util.strain_color["JLB077"], label="WT")
-    ax, x2p = plot_sigb(ax, x2_df, color=figure_util.strain_color["JLB117"], label="2xQP")
+    ax, wtp = plot_sigb(ax, wt_df, color=figure_util.strain_color["JLB077"], label="B")
+    ax, x2p = plot_sigb(ax, x2_df, color=figure_util.strain_color["JLB117"], label="2 $\times$ B")
     ax.set_ylim(bottom=0)
     ax.set_xlim(left=0)
     ax.legend()
