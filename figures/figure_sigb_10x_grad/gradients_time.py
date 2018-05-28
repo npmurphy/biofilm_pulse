@@ -4,6 +4,7 @@ import matplotlib.ticker as mticker
 import numpy as np
 import pandas as pd
 import scipy.io
+import os
 from string import ascii_uppercase
 
 from lib import strainmap
@@ -13,8 +14,9 @@ from lib import filedb
 #plt.style.use('../figstyle.mpl')
 
 from lib import figure_util
-base = "../../datasets/biofilm_cryoslice/LSM780_10x_sigb/"
-gradient_df = pd.read_hdf(base + "bgsubex72_neoerodesummary.h5", "data")
+this_dir = os.path.dirname(__file__)
+base = os.path.join(this_dir, "../../datasets/LSM780_10x_sigb/")
+gradient_df = pd.read_hdf(base + "gradient_data.h5")
 gradient_df["ratio"] = gradient_df["green_bg_mean"]/gradient_df["red_bg_mean"]
 
 
@@ -117,9 +119,5 @@ width, height = figure_util.get_figsize(figure_util.fig_width_medium_pt, wf=1.0,
 fig.set_size_inches(width, height)# common.cm2inch(width, height))
 fig.tight_layout()
 print("request size : ", figure_util.inch2cm((width, height)))
-fig.savefig(filename + ".pdf", dpi=300) 
-fig.savefig(filename + ".png", dpi=300) 
-fig.clear()
-plt.close(fig)
-figure_util.print_pdf_size(filename+".pdf")
+figure_util.save_figures(fig, filename, ["pdf", "png"], this_dir)
 
