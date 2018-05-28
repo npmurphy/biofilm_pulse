@@ -34,7 +34,8 @@ def plot_curves(ax, mean_color, distances, x_range, histograms, stats, color_sta
     curves_no = histograms.shape[1]
     scale = 250.
     #max_val = stats[color_stat][2].max()
-    scale_val = stats[color_stat][1]
+    min_scale_val = stats[color_stat][1][0]
+    scale_val = stats[color_stat][1][1]
 
     max_cval = 0
     for i in range(0, curves_no):
@@ -56,7 +57,7 @@ def plot_curves(ax, mean_color, distances, x_range, histograms, stats, color_sta
         #curve_color = cmap((stat_val + scale_val)/(2*scale_val))
         #cmap = plt.get_cmap("plasma")
         cmap = plt.get_cmap("viridis")
-        curve_color = cmap(stat_val/scale_val)
+        curve_color = cmap((stat_val-min_scale_val)/(scale_val-min_scale_val))
        
         #if pearson_mm_skew > max_pskew:
         #    max_pskew = pearson_mm_skew

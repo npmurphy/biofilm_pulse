@@ -17,40 +17,40 @@ figure_util.apply_style()
 def main():
     curve_score_methods = {
         "std": ("Standard deviation",
-               1.5,  
+               (0.0, 1.0), #1.5,  
                lambda d, h, b: np.std(d)), 
         "mean": ("Mean", 
-               4.0,
+               (0.0, 4.0),
                lambda d, h, b: np.mean(d)),
         "cv": ("Coefficient of variation", 
-               1.2,
+               (0.3, 0.8),
                lambda d, h, b: scipy.stats.variation(d)),
-        "skew": ("modern skew", 
-               3.0,
-               lambda d, h, b: scipy.stats.skew(d)),
+        # "skew": ("modern skew", 
+        #        0.0, 3.0,
+        #        lambda d, h, b: scipy.stats.skew(d)),
         "skew_normed": ("Skew", 
-               2.9,
+               (0.0, 2.9),
                lambda d, h, b: scipy.stats.skew(d, bias=False)),
-        "mode": ("Mode", 
-               3.5,
-               lambda d, h, b: b[h.argmax()]),
-        "num": ("# cells", 
-               2000,
-               lambda d, h, b: len(d)),
-        "pearson_mode_mean": ("pearson Mode mean", 
-                1.2, 
-                joy_plots_of_gradients.pearson_mode_mean_skew),
-        "non_parameteric_skew": ("Non parameteric", 
-                0.4, 
-                joy_plots_of_gradients.non_parametric_skew),
+        # "mode": ("Mode", 
+        #        0.0, 3.5,
+        #        lambda d, h, b: b[h.argmax()]),
+        # "num": ("# cells", 
+        #        0.0, 2000,
+        #        lambda d, h, b: len(d)),
+        # "pearson_mode_mean": ("pearson Mode mean", 
+        #         0.0, 1.2, 
+        #         joy_plots_of_gradients.pearson_mode_mean_skew),
+        # "non_parameteric_skew": ("Non parameteric", 
+        #         0.0, 0.4, 
+        #         joy_plots_of_gradients.non_parametric_skew),
         "kurtosis": ("Kurtosis", 
-                8.0, 
+                (0.0, 8.0), 
                lambda d, h, b: scipy.stats.kurtosis(d))
     }
 
     plot_colors = [ #"mean",
-                    "std",
-                    #"cv",
+                    #"std",
+                    "cv",
                     #"skew",
                     #"num",
                     #"skew_normed",
@@ -75,13 +75,17 @@ def main():
     file_df = filedb.get_filedb(os.path.join(basedir, "file_list.tsv"))
     strain_map, des_strain_map = strainmap.load()
 
+    #cbar_mins = {0: 0.5, 1:0.0}
+
     percentile = 0#99#    
     # green_chan = "meannorm_green"
     # red_chan = "meannorm_red"
-    green_chan = "green_raw_bg_meannorm"
-    red_chan = "red_raw_bg_meannorm"
     rmax = 6.5
     gmax = 6.5 #0.4
+    green_chan = "green_raw_bg_mean"
+    red_chan = "red_raw_bg_mean"
+    rmax = 50000
+    gmax = 10000
     strains = [ ("wt_sigar_sigby", red_chan, rmax, "WT\n P$_{sigA}$-RFP"), 
                 ("wt_sigar_sigby", green_chan,    gmax,  "WT\n P$_{sigB}$-YFP"),
                 ("delqp_sigar_sigby", green_chan, gmax,  "ΔrsbQP\n P$_{sigB}$-YFP"),
@@ -100,9 +104,10 @@ def main():
             if c == len(strains)-1:
                 posn = ax[r,c].get_position()
                 cbax = fig.add_axes([posn.x0 + posn.width + 0.0005, posn.y0, 0.015, posn.height])
-                max_zval = curve_score_methods[k][1]
                 label = curve_score_methods[k][0]
-                sm = plt.cm.ScalarMappable(cmap=plt.get_cmap("viridis"), norm=plt.Normalize(vmin=0, vmax=max_zval))
+                min_zval = curve_score_methods[k][1][0]
+                max_zval = curve_score_methods[k][1][1]
+                sm = plt.cm.ScalarMappable(cmap=plt.get_cmap("viridis"), norm=plt.Normalize(vmin=min_zval, vmax=max_zval))
                 sm._A = []
                 _ = plt.colorbar(sm, cax=cbax)#, fig=fig)
                 cbax.set_ylabel(label, rotation=-90, labelpad=8)

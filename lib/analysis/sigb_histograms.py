@@ -64,7 +64,7 @@ def make_indivfile_histogram(df, column, inbins, slice_info, percentages=False, 
     histo_of_all, bins = np.histogram(in_range[column].values, inbins, normed=(not percentages))
     meanval = in_range[column].mean()
     stdval =  in_range[column].std()
-    cvval = meanval/stdval
+    cvval = stdval/meanval
     maxi = histo_of_all.argmax()
     modeval = bins[maxi]
     mskewval = scipy.stats.skew(in_range[column], bias=False)
