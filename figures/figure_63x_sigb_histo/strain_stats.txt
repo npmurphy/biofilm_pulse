@@ -1,41 +1,37 @@
 -----------
 WT P$_{sigA}$-RFP
-mean: 1.19
-std: 0.42
-CV: 2.81
-Moment skew: 0.12
-Pearson mode skew: -0.07
-Kurtosis -0.11
+mean: 10059.97
+std: 3649.21
+CV: 0.36
+Moment skew: 0.07
+Kurtosis -0.30
 Number of files: 24
 Cells: 4231
 ------------------------
 WT P$_{sigB}$-YFP
-mean: 1.96
-std: 0.93
-CV: 2.11
-Moment skew: 0.79
-Pearson mode skew: -0.15
-Kurtosis 1.23
+mean: 2293.82
+std: 1119.93
+CV: 0.49
+Moment skew: 0.65
+Kurtosis 0.48
 Number of files: 24
 Cells: 4231
 ------------------------
 ΔrsbQP P$_{sigB}$-YFP
-mean: 1.51
-std: 0.67
-CV: 2.27
-Moment skew: 0.47
-Pearson mode skew: 0.18
-Kurtosis 0.49
+mean: 1774.01
+std: 1055.88
+CV: 0.60
+Moment skew: 0.98
+Kurtosis 1.17
 Number of files: 16
 Cells: 2481
 ------------------------
 ΔrsbRU P$_{sigB}$-YFP
-mean: 2.61
-std: 1.16
-CV: 2.24
-Moment skew: 0.58
-Pearson mode skew: 0.37
-Kurtosis 0.37
+mean: 3143.22
+std: 1569.68
+CV: 0.50
+Moment skew: 0.80
+Kurtosis 0.71
 Number of files: 18
 Cells: 3268
 ------------------------

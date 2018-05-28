@@ -1,7 +1,7 @@
 import pandas as pd
 import os.path
 import matplotlib.pyplot as plt
-#import matplotlib.gridspec as gridspec
+import matplotlib.gridspec as gridspec
 from glob import glob
 import subfig_sig_pulse_gradient
 import subfig_spore_gradient
@@ -15,15 +15,20 @@ figure_util.apply_style()
 
 this_dir = os.path.dirname(__file__)
 
-fig, all_axes = plt.subplots(4, 1)
-#all_axes = np.atleast_2d(all_axes)
 
-network_ax = all_axes[0]
-apulse_ax = all_axes[1]
-sigb_pulse_ax = all_axes[2]
-spor_pulse_ax = all_axes[3]
-# sigb_bistb_ax = all_axes[1, 2] 
-# spor_bistb_ax = all_axes[1, 3] 
+fig = plt.figure()
+outer_gs = gridspec.GridSpec(3, 2, wspace=0.30, hspace=0.3)# , widthight_ratios=[0.7, 0.3])
+grad_gs  = gridspec.GridSpecFromSubplotSpec(2, 1, 
+                                  height_ratios=[1,1],
+                                  subplot_spec = outer_gs[1:3,:],
+                                  hspace=0.03)
+
+network_ax = plt.subplot(outer_gs[0, 0])
+apulse_ax = plt.subplot(outer_gs[0,1])
+sigb_pulse_ax  = plt.subplot(grad_gs[0])
+spor_pulse_ax  = plt.subplot(grad_gs[1])
+
+all_axes = [network_ax, apulse_ax, sigb_pulse_ax, spor_pulse_ax]
 
 #################
 ## Network drawing 
@@ -56,6 +61,7 @@ apulse_ax.set_xlabel("Hours (simulated)")
 apulse_ax.set_ylabel("Species counts")
 
 sigb_pulse_ax, sb_p_plots = subfig_sig_pulse_gradient.get_figure(sigb_pulse_ax, pulse_wt_df, pulse_2x_df)
+sigb_pulse_ax.xaxis.labelpad = -20
 sigb_pulse_ax.set_ylabel("Mean final $B$ value")
 #sigb_pulse_ax.set_xlabel("Distance from top of biofilm (simulated)")
 #sigb_bistb_ax, sb_b_plots = subfig_sig_pulse_gradient.get_figure(sigb_bistb_ax, bistb_wt_df, bistb_2x_df)
@@ -63,22 +69,32 @@ sigb_pulse_ax.set_ylabel("Mean final $B$ value")
 #     a.set_ylim(top = 40)
 
 spor_pulse_ax, sp_p_plots = subfig_spore_gradient.get_figure(spor_pulse_ax, pulse_wt_df, pulse_2x_df)
-spor_pulse_ax.set_ylabel("% spores")
+lines, labels = spor_pulse_ax.get_legend_handles_labels()
+spor_pulse_ax.legend(lines, ["$s_B$", "2 $\\times s_B$"])
+spor_pulse_ax.set_ylabel("Fraction of spores")
 spor_pulse_ax.set_xlabel("Distance top of biofilm (simulated)")
 #spor_bistb_ax, sp_b_plots = subfig_spore_gradient.get_figure(spor_bistb_ax, bistb_wt_df, bistb_2x_df)
 
+ylabelx = -0.06
+
 # for a in [ spor_pulse_ax, spor_bistb_ax]:
 #     a.set_ylim(top = 0.5)
-letter_pos = (-0.075, 1.0)
-for a, l in zip(all_axes, figure_util.letters):
-    a.text(*letter_pos, l,
+top_pos = (-0.18, 1.0)
+bot_pos = (-0.08, 1.0)
+for a, l, p in zip(all_axes, figure_util.letters, [top_pos, top_pos, bot_pos, bot_pos]):
+    a.text(*p, l,
             transform=a.transAxes,
             va="top", ha="right", fontsize=figure_util.letter_font_size)
+    
+for a in all_axes[2:]:
+    a.yaxis.set_label_coords(ylabelx, 0.5)
+
+all_axes[-2].tick_params(labelbottom='off')    
 
 filename = "model_summary_figure"
 width, height = figure_util.get_figsize(figure_util.fig_width_small_pt, wf=1.0, hf=1.0 )
 fig.set_size_inches(width, height)
-fig.subplots_adjust(left=0.10, right=0.98, top=0.98, bottom=0.10, hspace=0.20, wspace=0.10)
+fig.subplots_adjust(left=0.12, right=0.98, top=0.98, bottom=0.10, hspace=0.20, wspace=0.20)
 print("request size : ", figure_util.inch2cm((width, height)))
 figure_util.save_figures(fig, filename, ["png", "pdf"], this_dir)
 # Tikz is easier
