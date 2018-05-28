@@ -11,6 +11,9 @@ elif [ "$machine" = "slpc187" ]
   rsync -ravh raw_data/ "/Volumes/Seagate Backup Plus Drive/raw_data"
   rsync -ravh proc_data/ "/Volumes/Seagate Backup Plus Drive/proc_data"
   rsync -ravh datasets/ "/Volumes/Seagate Backup Plus Drive/datasets"
+  
+  
+  rsync -ravh "/Volumes/data/TeamJL/" "/Volumes/Seagate Backup Plus Drive/datasets" datasets/ 
 else
   echo $machine
 fi

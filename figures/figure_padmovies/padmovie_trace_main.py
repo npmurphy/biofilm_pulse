@@ -52,7 +52,7 @@ def make_histogram(ax, dat_dict, chan, color):
     nbins = np.arange(-10, 240, width)
     bar_width = ((nbins[1] - nbins[0]) ) * 0.8
     counts, bins = np.histogram(fp, nbins)
-    print("strain:", strain, chan,  "Skew:", scipy.stats.skew(fp))
+    print("strain:", strain, chan,  "Skew:", scipy.stats.skew(fp), "CV:", scipy.stats.variation(fp), "mean", fp.mean())
 
     scaled = (counts / len(fp)) * 100
     ax.bar(bins[:-1], scaled, color=color, width=bar_width )
