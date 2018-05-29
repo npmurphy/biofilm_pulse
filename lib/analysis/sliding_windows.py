@@ -117,7 +117,7 @@ def sliding_window_distribution(cell_df, depth_info, window_width, channel, perc
     return (distances, distribu.T,
             dict([ (n, i) for (i, n) in enumerate(keys)]))
 
-def sliding_window_errors(cell_df, depth_info, window_width, channel, error_methods):
+def sliding_window_errors(cell_df, depth_info, window_width, channel, error_methods, cuttoff=100):
     (min_d, max_d, step) = depth_info
     rad = window_width/2
     distances = np.arange(min_d + rad, max_d-rad, step)
@@ -133,6 +133,8 @@ def sliding_window_errors(cell_df, depth_info, window_width, channel, error_meth
 
     for i, (sd, ed) in enumerate(slider):
         cut_df = cell_df[(cell_df["distance"]>sd) & (cell_df["distance"]<=ed)]
+        if len(cut_df) < cuttoff: 
+            cut_df[channel] = np.nan 
         statvals["mean"][i] = cut_df[channel].mean()
         statvals["median"][i] = cut_df[channel].median()
         if "std" in error_methods:
@@ -149,7 +151,7 @@ def sliding_window_errors(cell_df, depth_info, window_width, channel, error_meth
             statvals["up_" + label][i] = cut_df[channel].quantile(q=quant)
     return statvals
 
-def sliding_window_indivfiles(cell_df, depth_info, window_width, channel):
+def sliding_window_indivfiles(cell_df, depth_info, window_width, channel, cuttoff=20):
     (min_d, max_d, step) = depth_info
     rad = window_width/2
     distances = np.arange(min_d + rad, max_d-rad, step)
@@ -165,7 +167,7 @@ def sliding_window_indivfiles(cell_df, depth_info, window_width, channel):
         for i, (sd, ed) in enumerate(slider):
             cut_df = filedf[(filedf["distance"]>sd) & (filedf["distance"]<=ed)] 
             for k, func in keys:
-                if len(cut_df) > 0: 
+                if len(cut_df) > cuttoff: 
                     results[k][f, i] = func(cut_df[channel].values)
                 else:
                     results[k][f, i] = np.nan

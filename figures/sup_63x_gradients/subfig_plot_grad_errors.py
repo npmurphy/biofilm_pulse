@@ -23,7 +23,8 @@ def get_figure(ax, basedir, dataset, xlim, error, species, times, kwargs):
         df = pd.read_csv(os.path.join(basedir,"{3}_{0}_{1}_{2}.tsv".format(dataset, species, time, ds_tag)), sep="\t")
         df = df[df["distance"] > 2]
         if "color" not in kwargs:
-            kwargs["color"]=timecolor[time]
+            fb_kw["color"]=timecolor[time]
+            pl_kw["color"]=timecolor[time]
         if error == "sem":
             df["up_" + error] = df[main_line] + df[error]
             df["dn_" + error] = df[main_line] - df[error]
