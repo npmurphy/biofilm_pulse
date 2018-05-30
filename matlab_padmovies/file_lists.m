@@ -15,7 +15,7 @@ all_delRU_list = [ %make_schitz('2015-10-29', 'sigB_biofilmpad6-O001_2', 25 )
     make_schitz('2015-11-03', 'sigB_biofilmfinal-DelRU_3', 21:38)
     make_schitz('2015-11-03', 'sigB_biofilmfinal-DelRU_4', 1:41) % SKIPED not steady (bright cells, left alone)
     make_schitz('2015-11-03', 'sigB_biofilmfinal-DelRU_5', 21:36) % SKIPED not steady
-    make_schitz('2015-11-03', 'sigB_biofilmfinal-DelRU_10' , 1:40) % (ignoreing bright cell)
+    make_schitz('2015-11-03', 'sigB_biofilmfinal-DelRU_10' , 1:40) % (ignoreing bright cell) % small, doesnt pulse much
 ];
 
 delRU_low_mean = [

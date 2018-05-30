@@ -19,8 +19,8 @@ title(Rhandle, [ strain_name ' : RFP']);
 
 [R_cells, Y_cells, R_cells_mn, Y_cells_mn, report] = good_sections_of_movies(strain_list, 3, 15, 1400);
 
-savename = [ '/home/nmurphy/work/projects/stochastic/paper/pulsecompete/figure_padmovies/data/' file_name '.mat'];
-reportname = [ '/home/nmurphy/work/projects/stochastic/paper/pulsecompete/figure_padmovies/data/' file_name '.txt'];
+savename = [ '/media/nmurphy/BF_Data_Orange/datasets/padmovies_brightfield/hists/' file_name '.mat'];
+reportname = [ '/media/nmurphy/BF_Data_Orange/datasets/padmovies_brightfield/hists/' file_name '.txt'];
 
 vars = { 'R_cells', 'Y_cells', 'R_cells_mn', 'Y_cells_mn'};
 save(savename, vars{:}); 

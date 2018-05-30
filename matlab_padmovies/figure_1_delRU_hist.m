@@ -36,7 +36,7 @@ yfp_blank = 9.6431;
 %saveas(fg, '/home/nmurphy/work/projects/stochastic/paper/figure1/delru_hist.pdf', 'pdf')
 %my_pdf_save(fg, '/home/nmurphy/work/projects/stochastic/paper/figure1/sigb_hist.pdf', width,height,fontsize );
 
-[fg, ~,~] = figure_1_hist(delSigB_list, 'Δσ^B', 'DSB', 10);
-%saveas(fg, '/home/nmurphy/work/projects/stochastic/paper/figure1/delru_hist.pdf', 'pdf')
-%my_pdf_save(fg, '/home/nmurphy/work/projects/stochastic/paper/figure1/delsigb_hist.pdf', width, height,fontsize);
+% [fg, ~,~] = figure_1_hist(delSigB_list, 'Δσ^B', 'DSB', 10);
+% %saveas(fg, '/home/nmurphy/work/projects/stochastic/paper/figure1/delru_hist.pdf', 'pdf')
+% %my_pdf_save(fg, '/home/nmurphy/work/projects/stochastic/paper/figure1/delsigb_hist.pdf', width, height,fontsize);
 

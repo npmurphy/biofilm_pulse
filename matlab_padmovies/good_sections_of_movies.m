@@ -18,6 +18,8 @@ for s = 1:length(schnitz_list)
     [ Ymeans, Rmeans] = snapcompress_frames(good_frames, st);
     Ycells = [ Ycells Ymeans];
     Rcells = [ Rcells Rmeans];
+    disp(sprintf('Mean %f', nanmean(Ycells)));
+    disp(sprintf('STD %f', nanstd(Ycells)));
     YcellsMeanNorm = [ YcellsMeanNorm (Ymeans/mean(Ymeans))];
     RcellsMeanNorm = [ RcellsMeanNorm (Rmeans/mean(Rmeans))];
 
