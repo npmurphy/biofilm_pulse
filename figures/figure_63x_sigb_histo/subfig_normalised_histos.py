@@ -32,6 +32,19 @@ def plot_strain_histos(ax, df, fileids, view_chan, norm_chan, slice_st, slice_en
     ax.plot(xbins, yvals, **kwargs)
     return ax 
 
+def plot_strain_fileindiv_histos(ax, df, fileids, view_chan, norm_chan, slice_st, slice_end, bins, kwargs):
+    newchan = view_chan +"_slicenorm"
+    slice_meaned = histo_slice_mean_norm(df, fileids, view_chan, norm_chan, slice_st, slice_end)
+    xbins = bins[1:] - ((bins[1]-bins[0])/2)
+    print("mean", slice_meaned[newchan].mean())
+    print("std", slice_meaned[newchan].std())
+
+    print("cv scipy", scipy.stats.variation(slice_meaned[newchan]))
+    print("cv man", slice_meaned[newchan].std()/slice_meaned[newchan].mean())
+    print("skew man", slice_meaned[newchan].skew())
+    yvals,_ = np.histogram(slice_meaned[newchan].values, bins=bins, density=True)
+    ax.plot(xbins, yvals, **kwargs)
+    return ax 
 
 def get_data_subset(df, file_df, list_of_histos, time, location, output_path):
     strain_dfs = [] 
