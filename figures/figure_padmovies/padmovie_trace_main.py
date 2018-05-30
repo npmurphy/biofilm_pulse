@@ -11,6 +11,8 @@ from lib import figure_util
 import matplotlib.gridspec as gs
 import matplotlib as mpl
 import os
+import pandas as pd
+import subfig_traces
 
 figure_util.apply_style()
 
@@ -18,11 +20,11 @@ this_dir = os.path.dirname(__file__)
 
 figall = plt.figure()
 
-gridmain = gs.GridSpec(5, 2,
-             height_ratios=[3.5, 1, 1, 1, 1])
+gridmain = gs.GridSpec(2, 1,
+             height_ratios=[2.5, 4], hspace=0.05)
 gridtracehist = gs.GridSpecFromSubplotSpec(4, 2,
                     width_ratios=[0.5, 0.5],
-                    subplot_spec=gridmain[1:5,0:2], wspace=0.35)
+                    subplot_spec=gridmain[1,0], wspace=0.35)
 
 aximg = plt.subplot(gridmain[0, 0:2])
 #movie = skimage.io.imread("sigB_biofilmpad6-O001_3_1_strip.png")
@@ -63,8 +65,9 @@ minutes_per_frame = 15
 histticker = mticker.MaxNLocator(nbins=4)
 
 # Histograms 
+histobasedir = os.path.join(this_dir, "../../datasets/padmovies_brightfield/hists/")
 for i, (strain, dat_file, color, chan, xlim) in enumerate(plots_st):
-    dat = scipy.io.loadmat(os.path.join(this_dir, "data", dat_file+".mat"))
+    dat = scipy.io.loadmat(os.path.join(histobasedir, dat_file+".mat"))
     ylim = 30
 
     #for j, chan in enumerate(["R_cells", "Y_cells"]):
@@ -86,53 +89,34 @@ for i, (strain, dat_file, color, chan, xlim) in enumerate(plots_st):
         axall[i, 1].set_xticklabels([])
 
 
-tracestrains = [ ("WT", "wt", 10, "R")
-                ,("WT", "wt", 10, "Y")
-                ,("ΔrsbRU", "delru", 10, "Y")
-                ,("ΔrsbQP", "delqp", 10, "Y")]
+
+##################
+## Traces 
+##################
+basedir = os.path.join(this_dir, "../../datasets/padmovies_brightfield/traces/")
+frames = 21
+strains = [ ("sigb",  "MR", "WT",     frames, [83, 134, 198, 112]),
+            ("sigb",  "MY", "WT",     frames, [83, 134, 198, 112]),
+            ("delru", "MY", "ΔrsbRU", frames, [57, 74, 137,  101] ),
+            ("delqp", "MY", "ΔrsbQP", frames, [91, 71, 89, 65])]
+
+bg_style= {"linewidth":0.25, "alpha":0.4, "color":"gray", "label":'_nolegend_'}
+hl_style= {"linewidth":1, "alpha":1.}
 
 traceticker = mticker.MaxNLocator(nbins=3)
-selected = {"wt": [1,2,3], #,4,5,6,7],
-            "delru": [1,2,3], #,4,5,6,7,8,9,10,11],
-            "delqp": [1,2,3], #,4,5,6,7,8,9,10],
-             }
 
-for i, (strain, fname, xstart, chan) in enumerate(tracestrains): 
-    filename_pattern = os.path.join(this_dir, "data", fname)
-    for df in glob.glob(filename_pattern + "_*_" + chan + ".mat"):
-        print(df)
-        dat = scipy.io.loadmat(df)
-        #print(dat.keys())
-        y = dat["yout"][0][0][0] 
-        x = (dat["xout"][0][0][0].astype(float) * minutes_per_frame)/60
-        xstarttime = (xstart*minutes_per_frame)/60
-        axall[i, 0].plot(x, y, linewidth=0.5, color="gray")
-        #re.match(df, os."")
-        #axall[i, 0].plot(x, y, linewidth=1.0, color="gray")
-        fnum = int(df.replace(filename_pattern, "").replace("_"+chan+".mat", "").replace("_", ""))
-        if fnum in selected[fname]:
-            axall[i, 0].plot(x, y, linewidth=1.0)
-            
-
-
-    #endtime=10
-    endtime = (31 * minutes_per_frame)/60
-    xstarttime = (15 * minutes_per_frame)/60
-    axall[i, 0].set_xlim(left=xstarttime, right=endtime)
-    if i == 0:
-        ylim = 320
-    elif i in [2,3]:
-        ylim = 200
-    elif i == 1:
-        ylim=300
-    axall[i, 0].set_ylim(0, ylim)
-    title = "P$_{sigA}$-RFP" if chan == "R" else "P$_{sigB}$-YFP"
-    title = "P$_{sigA}$-RFP" if chan == "R" else "P$_{sigB}$-YFP"
-    axall[i, 0].set_title(strain + " " + title, y=0.6)
+for i, (filen, chan, label, frames_include, hlcells) in enumerate(strains):
+    df = pd.read_csv(os.path.join(basedir, filen + ".tsv"), sep="\t", )
+    axall[i,0] = subfig_traces.get_figure(axall[i,0], df, chan, hlcells, frames_include, bg_style, hl_style )
+    axall[i,0].set_ylim(0,290)
+    axall[i,0].set_xlim(0,5.25)
+    # title = "P$_{sigA}$-RFP" if chan == "R" else "P$_{sigB}$-YFP"
+    # title = "P$_{sigA}$-RFP" if chan == "R" else "P$_{sigB}$-YFP"
+    # axall[i, 0].set_title(label + " " + title, y=0.6)
     if i < 3:
         axall[i, 0].set_xticklabels([])
     axall[i, 0].yaxis.set_major_locator(traceticker)
-    ytticks = axall[i, 0].yaxis.get_major_ticks()
+    #ytticks = axall[i, 0].yaxis.get_major_ticks()
     #ytticks[-2].label1On=False
 
 for a in axall.flatten():
@@ -172,7 +156,7 @@ for a, l in zip(axall[:,0].flatten(), figure_util.letters[1:5]):
     a.text(-0.36, 1., l, transform=a.transAxes, **letter_settings)
 
 for a, l in zip(axall[:,1].flatten(), figure_util.letters[5:]):
-    a.text(-0.34, 1., l,  transform=a.transAxes, **letter_settings)
+    a.text(-0.30, 1., l,  transform=a.transAxes, **letter_settings)
     ##a.annotate(l, xy=(0,0), xytext=(-0.1, 1.), **letter_settings)
 
 
@@ -183,8 +167,8 @@ figall.set_size_inches(width, height)
 figall.subplots_adjust(left=0.15,
                        right=0.99,
                        top=1.0,
-                       bottom=0.1, 
-                       hspace=0.1)
+                       bottom=0.1) 
+                       #hspace=0.05)
 
 print("request size : ", figure_util.inch2cm((width, height)))
 figure_util.save_figures(figall, filename, ["png", "pdf"], this_dir)

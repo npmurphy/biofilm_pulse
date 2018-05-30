@@ -1,39 +1,49 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import os
+import numpy as np
+from lib import figure_util
 
 def get_figure(ax, df, chan, chosen_traces, frames_include, bg_style, ch_style):
     max_frame = df["frames"].max()
     start_frame = max_frame - frames_include
-    df = df[df["frames"] > start_frame]
-    
+    df = df[df["frames"] >= start_frame].copy()
+    df["frames"] = df["frames"] - start_frame
     df["time"] = (df["frames"]*15)/60
+    
+    nice_colors = [ figure_util.red, figure_util.green, figure_util.blue, figure_util.yellow]
+
     for cell in df["cells"].unique():
         this_cell = df[df["cells"] == cell]
-        print(cell)
-        style = ch_style if cell in chosen_traces else bg_style
-        ax.plot(this_cell["time"], this_cell[chan], **style)
+        ax.plot(this_cell["time"], this_cell[chan], **bg_style)
+    for cell, color in zip(chosen_traces, nice_colors):
+        ch_style.update({"label": str(cell), 
+                         "color":color})
+        this_cell = df[df["cells"] == cell]
+        ax.plot(this_cell["time"], this_cell[chan], **ch_style)
     return ax
 
 
 def main():
     this_dir = os.path.dirname(__file__)
     basedir = os.path.join(this_dir, "../../datasets/padmovies_brightfield/traces/")
-    frames = 25
-    strains = [ ("sigb",  "MR", frames),
-                ("sigb",  "MY", frames),
-                ("delru", "MY", frames),
-                ("delqp", "MY", frames)]
+    frames = 21
+    strains = [ ("sigb",  "MR", frames, [83, 134, 198, 112]),
+                ("sigb",  "MY", frames, [83, 134, 198, 112]),
+                ("delru", "MY", frames, [57, 74, 137,  101] ),
+                ("delqp", "MY", frames, [91, 71, 89, 65])]
     fig, ax = plt.subplots(len(strains), 1)
+    ax = np.atleast_1d(ax)
 
-    bg_style= {"linewidth":0.5}#, "color":gray}
-    bg_style= {"linewidth":1}
+    bg_style= {"linewidth":0.5, "alpha":0.4, "color":"gray", "label":'_nolegend_'}
+    hl_style= {"linewidth":2, "alpha":1.0}
 
-    for i, (filen, chan, frames_include) in enumerate(strains):
+    for i, (filen, chan, frames_include, hlcells) in enumerate(strains):
         df = pd.read_csv(os.path.join(basedir, filen + ".tsv"), sep="\t", )
-        print(df.head())
-        ax[i] = get_figure(ax[i], df, chan, [], frames_include, bg_style, bg_style )
-        ax[i].set_ylim(0,250)
+        ax[i] = get_figure(ax[i], df, chan, hlcells, frames_include, bg_style, hl_style )
+        ax[i].set_ylim(0,300)
+        ax[i].set_xlim(0,5.25)
+        #ax[i].legend()
     plt.show()
 
 
