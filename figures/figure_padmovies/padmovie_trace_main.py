@@ -96,19 +96,19 @@ for i, (strain, dat_file, color, chan, xlim) in enumerate(plots_st):
 basedir = os.path.join(this_dir, "../../datasets/padmovies_brightfield/traces/")
 frames = 21
 strains = [ ("sigb",  "MR", "WT",     frames, [83, 134, 198, 112]),
-            ("sigb",  "MY", "WT",     frames, [83, 134, 198, 112]),
-            ("delru", "MY", "ΔrsbRU", frames, [57, 74, 137,  101] ),
+            ("sigb",  "MY", "WT",     frames, [83, 134,112, 198]),
+            ("delru", "MY", "ΔrsbRU", frames, [57, 74,  105, 101] ),
             ("delqp", "MY", "ΔrsbQP", frames, [91, 71, 89, 65])]
 
 bg_style= {"linewidth":0.25, "alpha":0.4, "color":"gray", "label":'_nolegend_'}
 hl_style= {"linewidth":1, "alpha":1.}
 
-traceticker = mticker.MaxNLocator(nbins=3)
+traceticker = mticker.MaxNLocator(nbins=2)
 
 for i, (filen, chan, label, frames_include, hlcells) in enumerate(strains):
     df = pd.read_csv(os.path.join(basedir, filen + ".tsv"), sep="\t", )
     axall[i,0] = subfig_traces.get_figure(axall[i,0], df, chan, hlcells, frames_include, bg_style, hl_style )
-    axall[i,0].set_ylim(0,290)
+    axall[i,0].set_ylim(0,240)
     axall[i,0].set_xlim(0,5.25)
     # title = "P$_{sigA}$-RFP" if chan == "R" else "P$_{sigB}$-YFP"
     # title = "P$_{sigA}$-RFP" if chan == "R" else "P$_{sigB}$-YFP"
