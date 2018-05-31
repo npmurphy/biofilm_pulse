@@ -26,9 +26,9 @@ spor_ax = subfig_spore_seg.get_figure(spor_ax, "../figure_allspore_2xqp_combo/")
 
 letter_lab = (-0.10, 0.98)
 #for a, l in zip(axes, letters):
-bigi_ax.text(letter_lab[0]/2.1, letter_lab[1], "a", transform=bigi_ax.transAxes, fontsize=figure_util.letter_font_size)
-cell_ax.text(letter_lab[0], letter_lab[1], "b", transform=cell_ax.transAxes, fontsize=figure_util.letter_font_size)
-spor_ax.text(letter_lab[0], letter_lab[1], "c", transform=spor_ax.transAxes, fontsize=figure_util.letter_font_size)
+bigi_ax.text(letter_lab[0]/2.1, letter_lab[1], "A", transform=bigi_ax.transAxes, fontsize=figure_util.letter_font_size)
+cell_ax.text(letter_lab[0], letter_lab[1], "B", transform=cell_ax.transAxes, fontsize=figure_util.letter_font_size)
+spor_ax.text(letter_lab[0], letter_lab[1], "C", transform=spor_ax.transAxes, fontsize=figure_util.letter_font_size)
 bigi_ax.set_title("Biofilm segmentation")
 spor_ax.set_title("Single spore segmentation")
 cell_ax.set_title("Single cell segmentation")

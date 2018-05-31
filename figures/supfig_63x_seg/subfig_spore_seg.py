@@ -8,10 +8,13 @@ import skimage.morphology
 #import figure_util
 from lib.cmaps import cmrand
 #import filedb
+from lib import figure_util
 from lib.cell_segmenter import laphat_segment_v1
 
 this_dir = os.path.dirname(__file__)
-plt.style.use(os.path.join(this_dir, '../../figures/figstyle.mpl'))
+
+figure_util.apply_style()
+#plt.style.use(os.path.join(this_dir, '../../figures/figstyle.mpl'))
 
 
 # put in figure utils? 
