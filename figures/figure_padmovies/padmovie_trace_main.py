@@ -61,13 +61,13 @@ for i, (filen, chan, strainnum, xmax, bins) in enumerate(strains):
     h_style= {"width": ((nbins[1] - nbins[0]) ) * 0.8,
                 "alpha":1.0,
                 "color":figure_util.strain_color[strainnum]}
+    strain = figure_util.strain_label[strainnum]
+    print(strain)
     axall[i,1] = subfig_hists.get_figure(axall[i,1], df, chan, bins, h_style )
     axall[i,1].set_ylim(0, 30)
     axall[i,1].set_xlim(-10, xmax)
 
     reporter = "P$_{sigA}$-RFP" if chan == "R_cells" else "P$_{sigB}$-YFP"
-    strain = figure_util.strain_label[strainnum]
-    print(strain)
     axall[i, 1].set_title("{0}: {1}".format(strain, reporter), y=0.6)
     axall[i, 1].yaxis.set_major_locator(histticker)
     yticks = axall[i, 1].yaxis.get_major_ticks()

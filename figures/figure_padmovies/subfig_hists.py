@@ -3,12 +3,19 @@ import pandas as pd
 import os
 import numpy as np
 from lib import figure_util
+import scipy.stats
 
 def get_statistics(df, chan):
-    
     means = df.groupby("Number").mean()[chan]
-    print(means)
-    print("STD", means.std())
+    stds = df.groupby("Number").std()[chan]
+    #print(means)
+    print("N:", len(df))
+    print("means of means:", means.mean())
+    print("STD of means", means.std())
+    print("CV of set", scipy.stats.variation(df[chan].values))
+    print("mean CVs", (stds/means).mean())
+    print("std of CVs", (stds/means).std())
+    print("-------------")
 
 def get_figure(ax, df, chan, bins, hstyle):
     print(chan)
@@ -18,7 +25,6 @@ def get_figure(ax, df, chan, bins, hstyle):
 
     ycounts, xpos = np.histogram(df[chan].values, bins=bins)
     yvals = (ycounts/len(df)) * 100
-    print(np.sum(yvals))
     ax.bar(xbins, yvals, **hstyle)
     return ax
 

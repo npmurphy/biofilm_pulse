@@ -3,6 +3,7 @@ if [ "$machine" = "nmurphy-laptop" ]
   then
   #rsync -arvh ~/SLCU/teamJL/Niall/biofilm_datasets/biofilm_cryoslice/LSM780_10x_sigb ./datasets/biofilm_cryoslice/
   rsync -ravh "/home/nmurphy/SLCU/teamJL/Niall/bfpulse_paper_data/datasets" "/media/nmurphy/BF_Data_Orange/"
+  rsync -ravh "/home/nmurphy/SLCU/teamJL/Niall/bfpulse_paper_data/proc_data" "/media/nmurphy/BF_Data_Orange/"
 
   #--delete
 elif [ "$machine" = "slpc187" ]
