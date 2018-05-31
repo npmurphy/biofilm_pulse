@@ -34,16 +34,30 @@ def plot_strain_histos(ax, df, fileids, view_chan, norm_chan, slice_st, slice_en
 
 def plot_strain_fileindiv_histos(ax, df, fileids, view_chan, norm_chan, slice_st, slice_end, bins, kwargs):
     newchan = view_chan +"_slicenorm"
-    slice_meaned = histo_slice_mean_norm(df, fileids, view_chan, norm_chan, slice_st, slice_end)
     xbins = bins[1:] - ((bins[1]-bins[0])/2)
-    print("mean", slice_meaned[newchan].mean())
-    print("std", slice_meaned[newchan].std())
+    slice_meaned = histo_slice_mean_norm(df, fileids, view_chan, norm_chan, slice_st, slice_end)
+    histos = np.zeros((len(fileids),len(xbins)))
+    for f, fid in enumerate(fileids):
+        image_vals = slice_meaned.loc[slice_meaned["global_file_id"] == fid, newchan]
+        n = len(image_vals)
+        ycounts, _ = np.histogram(image_vals.values, bins=bins)
+        histos[f,:] = (ycounts/n) * 100
 
-    print("cv scipy", scipy.stats.variation(slice_meaned[newchan]))
-    print("cv man", slice_meaned[newchan].std()/slice_meaned[newchan].mean())
-    print("skew man", slice_meaned[newchan].skew())
-    yvals,_ = np.histogram(slice_meaned[newchan].values, bins=bins, density=True)
-    ax.plot(xbins, yvals, **kwargs)
+    histo_mean = histos.mean(axis=0)
+    hist_std = histos.std(axis=0)
+    # print("mean", slice_meaned[newchan].mean())
+    # print("std", slice_meaned[newchan].std())
+
+    # print("cv scipy", scipy.stats.variation(slice_meaned[newchan]))
+    # print("cv man", slice_meaned[newchan].std()/slice_meaned[newchan].mean())
+    # print("skew man", slice_meaned[newchan].skew())
+    plot_args = kwargs.copy()
+    plot_args["alpha"] = 1.0
+    error_args = kwargs.copy()
+    error_args["label"] = "_nolegend_"
+    #error_args["label"] = "_nolegend_"
+    ax.plot(xbins, histo_mean, **plot_args)
+    ax.fill_between(xbins, histo_mean + hist_std, histo_mean - hist_std, **error_args)
     return ax 
 
 def get_data_subset(df, file_df, list_of_histos, time, location, output_path):
@@ -64,9 +78,11 @@ def get_figure(cell_df, file_df, axes, time, location, list_of_histos):
         fids = file_df[(file_df["time"] == time) &
                         (file_df["location"] == location) &
                         (file_df["strain"] == des_strain_map[strain])].index
-        opts = {"color":color, "label":label}
+        opts = {"color":color, "label":label, "alpha":0.4}
         print(strain)
-        axes[i] = plot_strain_histos(axes[i], cell_df, fids, look_chan, norm_chan, slicested[0], slicested[1], lookbins, opts)
+        
+        axes[i] = plot_strain_fileindiv_histos(axes[i], cell_df, fids, look_chan, norm_chan, slicested[0], slicested[1], lookbins, opts)
+        #axes[i] = plot_strain_histos(axes[i], cell_df, fids, look_chan, norm_chan, slicested[0], slicested[1], lookbins, opts)
     return axes
 
 def main():
