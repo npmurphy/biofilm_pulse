@@ -4,7 +4,10 @@ run file_lists.m
 base = '/home/nmurphy/SLCU/teamJL/Niall/bfpulse_paper_data/datasets/padmovies_brightfield/traces/';
 
 yfp_blank = 9.6431; 
-[all_list.yfpOffset]=deal(yfp_blank);
+[sigB_list.yfpOffset]=deal(yfp_blank);
+[delRU_list.yfpOffset]=deal(yfp_blank);
+%[delSigB_list.yfpOffset]=deal(yfp_blank);
+[delQP_list.yfpOffset]=deal(yfp_blank);
 
 p_delRU = delRU_list(5); 
 p_delQP = delQP_list(8);

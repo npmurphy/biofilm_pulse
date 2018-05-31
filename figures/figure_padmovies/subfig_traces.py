@@ -15,10 +15,6 @@ def get_figure(ax, df, chan, chosen_traces, frames_include, bg_style, ch_style):
 
     for cell in df["cells"].unique():
         this_cell = df[df["cells"] == cell]
-
-        if np.any((this_cell["time"]<4)&(this_cell["time"]>3)&(this_cell[chan]>158)):
-            print(cell)
-        
         ax.plot(this_cell["time"], this_cell[chan], **bg_style)
     for cell, color in zip(chosen_traces, nice_colors):
         ch_style.update({"label": str(cell), 
