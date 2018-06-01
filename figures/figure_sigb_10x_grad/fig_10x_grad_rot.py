@@ -70,7 +70,7 @@ for c, strain in enumerate(data_plots):
 
 leg = ax.legend(loc="lower right")
 leg.get_frame().set_alpha(1.0)
-ax, leg = figure_util.shift_legend(ax, leg, yshift=0.06)
+ax, leg = figure_util.shift_legend(ax, leg, yshift=0.06,xshift=0.05)
 
 ax.set_xlim(0.09, 0.29)
 ax.set_ylim(150, 0)
