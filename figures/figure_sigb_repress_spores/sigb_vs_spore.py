@@ -131,7 +131,7 @@ for a in [sb_grad_ax, sp_grad_ax]:
 leg = sb_grad_ax.legend(lines, labels)
 sp_grad_ax.spines['right'].set_visible(True)
 sb_grad_ax.set_xlabel("Distance from air interface (μm)")
-sp_grad_ax.set_ylabel("Spore/cell ratio", rotation=270, color=figure_util.blue)
+sp_grad_ax.set_ylabel("Spore ratio", labelpad=10, rotation=270, color=figure_util.blue)
 
 
 ################
