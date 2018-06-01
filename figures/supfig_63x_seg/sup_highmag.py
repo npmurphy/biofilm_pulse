@@ -38,4 +38,4 @@ width, height = figure_util.get_figsize(figure_util.fig_width_medium_pt, wf=1.0,
 fig.subplots_adjust(left=0.06, right=0.98, top=0.95, bottom=0.03, hspace=0.15, wspace=0.15)
 
 print("request size : ", figure_util.inch2cm((width, height)))
-figure_util.save_figures(fig, filename, ["pdf", "png"], figure_util.dpi)
+figure_util.save_figures(fig, filename, ["pdf", "png"], this_dir) #figure_util.dpi)

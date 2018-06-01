@@ -118,4 +118,4 @@ width, height = figure_util.get_figsize(figure_util.fig_width_small_pt, wf=1.0, 
 fig.set_size_inches(width, height)# common.cm2inch(width, height))
 fig.subplots_adjust(left=0.15, right=0.98, top=0.98, bottom=0.005)
 #figure_util.save_figures(fig, filename, ["png", "pdf"], this_dir)
-figure_util.save_figures(fig, filename, ["png"], this_dir)
+figure_util.save_figures(fig, filename, ["png","pdf"], this_dir)
