@@ -140,7 +140,7 @@ letter_settings = {
            "fontsize": figure_util.letter_font_size, 
            "color": "black"}
 
-aximg.text(-0.05, 1.0, "A", transform=aximg.transAxes, **letter_settings)
+aximg.text(-0.155, 1.0, "A", transform=aximg.transAxes, **letter_settings)
 for a, l in zip(axall[:,0].flatten(), figure_util.letters[1:5]):
     #a.annotate(l, xy=(0,0), xytext=(-0.05, 1.),  **letter_settings)
     a.text(-0.36, 1., l, transform=a.transAxes, **letter_settings)
