@@ -9,7 +9,7 @@ patch.antialiased: True
 mathtext.default : regular
 
 font.size: 6.0
-font.family: Arial # specifiying this because Bitstream doesnt show unicode
+font.family: DejaVu Sans #Arial # specifiying this because Bitstream doesnt show unicode
 
 # Font Sizes
 # xx-small, x-small, small, medium, large, x-large, xx-large, smaller, larger.

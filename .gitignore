@@ -25,3 +25,4 @@ figures/figure_allspore_2xqp_combo/spore_sigb_combo.pdf
 *.pdf
 *.tiff
 *.mat
+*.m~

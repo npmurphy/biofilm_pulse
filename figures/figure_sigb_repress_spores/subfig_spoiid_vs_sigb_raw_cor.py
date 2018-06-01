@@ -44,8 +44,6 @@ def get_figure(ax, file_df, cell_df):
     ax.plot(green_x, cfp_trend[blu_chan].values, marker=".", linestyle="-", color="black")
 
     #ax.set_title("vs PsigB-YFP")
-    ax.set_xlabel("Mean normalised P$_{sigB}$-YFP")
-    ax.set_ylabel("Mean normalised P$_{spoIID}$-CFP")
 
     # This didnt work as intended
     # I want some sort of line that separates the cells from non cells

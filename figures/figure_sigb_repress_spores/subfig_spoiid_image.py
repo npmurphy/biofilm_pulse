@@ -34,7 +34,7 @@ def get_figure(ax, img_base, cache_path):
     img_pattern = os.path.join(img_base, name, name + pattern)
     ## The LSM is rotated 90 clockwise compared to the extrated images. 
     c = 1335 #(19563 - 17728 - 500)
-    r = 5281
+    r = 5261
     w = 500
     slice_it = ((r, r+w), (c, c+w))
     #strain = "wt_sigar_sigby_spoiidc"
@@ -53,7 +53,7 @@ def get_figure(ax, img_base, cache_path):
     # turn blue to red 
     # img[:,:,0] = img[:,:,2] 
     # img[:,:,2] = 0
-    img = np.rot90(img)
+    #img = np.rot90(img)
     print(img.shape)
     img = draw_scale_bar(img, 30, 30, 5/PX_TO_UM, 10, "5μm")
 
