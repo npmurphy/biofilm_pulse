@@ -70,13 +70,13 @@ for c, strain in enumerate(data_plots):
 
 leg = ax.legend(loc="lower right")
 leg.get_frame().set_alpha(1.0)
-ax, leg = figure_util.shift_legend(ax, leg, yshift=0.06,xshift=0.05)
+ax, leg = figure_util.shift_legend(ax, leg, yshift=0.10,xshift=0.1)
 
 ax.set_xlim(0.09, 0.29)
 ax.set_ylim(150, 0)
-ax.set_ylabel("Distance from top of biofilm (μm)")
+ax.set_ylabel("Distance from top of biofilm (μm)",labelpad=0)
 ax.set_xlabel("YFP/RFP ratio")
-ax.text(-0.25, 1.0, letters[3], ha="right", va="top", transform=ax.transAxes, fontsize=figure_util.letter_font_size)
+ax.text(-0.29, 1.0, letters[3], ha="right", va="top", transform=ax.transAxes, fontsize=figure_util.letter_font_size)
 
 filename = os.path.join(this_dir, "fig_10x_grad")
 width, height = figure_util.get_figsize(figure_util.fig_width_small_pt, wf=1.0, hf=0.8 )
