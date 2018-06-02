@@ -48,11 +48,11 @@ sspb_strains = ['JLB077',
 ###########
 ## Spore density
 for strain in sspb_strains: 
-    spcount_ax = subfig_spore_count_gradient.get_figure(spcount_ax, file_df, individual, strain, "area_norm_spore_counts", 100)
+    spcount_ax = subfig_spore_count_gradient.get_figure(spcount_ax, file_df, individual, strain, "fraction_spores", 100)
 
 spcount_ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
-spcount_ax.set_ylim(0, 0.00031)
-spcount_ax.set_ylabel("Spore density")
+#spcount_ax.set_ylim(0, 0.00031)
+spcount_ax.set_ylabel("Spore ratio")
 leg = spcount_ax.legend()
 #spcount_ax.get_yaxis().set_label_coords(*ylabel_cord)
 
@@ -99,9 +99,11 @@ for a in [spcount_ax, clcount_ax]:
 #                                         (i["x"], i["x"] + width)), 
 #                                         (height, width),
 #                                         i, vertical=False, scalebar=True)
-letter_lab = (-0.10, 0.98)
+letter_lab = (-0.10, 1.0)
 for l, a in zip(lib.figure_util.letters, axes ):
     a.text(letter_lab[0], letter_lab[1], l, transform=a.transAxes, fontsize=lib.figure_util.letter_font_size)
+
+fig.align_ylabels()
 
 filename = "spore_grad_compare"
 width, height = lib.figure_util.get_figsize(lib.figure_util.fig_width_small_pt, wf=1.0, hf=0.8 )
