@@ -52,7 +52,7 @@ for strain in sspb_strains:
 
 #spcount_ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
 #spcount_ax.set_ylim(0, 0.00031)
-spcount_ax.set_ylabel("Spore ratio")
+spcount_ax.set_ylabel("Spore/cell ratio")
 leg = spcount_ax.legend()
 #spcount_ax.get_yaxis().set_label_coords(*ylabel_cord)
 
