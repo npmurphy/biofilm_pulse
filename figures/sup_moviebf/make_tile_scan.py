@@ -24,7 +24,8 @@ images += [ np.zeros_like(images[-1])]
 outim = np.dstack(images)
 outim = np.rot90(outim,3)
 length = 100 
-outim = lib.figure_util.draw_scale_bar(outim, 1024, 8922,
+r, c,_ = outim.shape
+outim = lib.figure_util.draw_scale_bar(outim, 1400, c-350,
                                scale_length=length/PX_TO_UM,
                                thickness=50,
                                legend = "{0}μm".format(length), fontsize=80)
