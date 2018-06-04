@@ -22,16 +22,25 @@ figure_util.apply_style()
 
 fig = plt.figure()
 #fig, ax = plt.subplots(1,3)
-gs = gridspec.GridSpec(2, 2, width_ratios=[0.8,1.0], height_ratios=[1, 0.6])
+#gs = gridspec.GridSpec(2, 2, width_ratios=[0.8,1.0], height_ratios=[1, 1], wspace=0.4)
 #gs = gridspec.GridSpec(3, 3, width_ratios=[0.3, 0.35, 0.35])
 
 # spimg_ax = plt.subplot(ax[0])
 # corr_ax = plt.subplot(ax[1])
 # sb_grad_ax = plt.subplot(ax[2]) # also spores
-spimg_ax = plt.subplot(gs[0, 0])
+#spimg_ax = plt.subplot(gs[1, 0])
 #corr_ax = plt.subplot(ax[1])
-corr_ax = plt.subplot(gs[0, 1])
-sb_grad_ax = plt.subplot(gs[1,:]) # also spores
+#corr_ax = plt.subplot(gs[1, 1])
+
+corr_ax = fig.add_axes([0.59, 0.095, 0.33, 0.391111111111111])
+#cbar.ax = Bbox(x0=0.8327536231884058, y0=0.09999999999999987, x1=0.89, y1=0.49111111111111105)
+
+#sb_grad_ax = plt.subplot(gs[0,:]) # also spores
+sb_grad_ax = fig.add_axes([0.1, 0.5888888888888888,0.7900000000000001,0.391111111111])
+spimg_ax = fig.add_axes([0.1, 0.095,0.2925925925925927,0.39111111111111])
+# for a in [corr_ax, cbar.ax, sp_grad_ax, spimg_ax]:
+#     pos2 = a.get_position(original=False) # get the original position 
+#     print(pos2)
 
 ########
 ## Spore spoiid correlation
@@ -44,9 +53,11 @@ cell_df = pd.read_hdf(basedir + "rsiga_ysigb_cspoiid_redoedgedata.h5", "cells")
 # Ignore first 2 um (only done for consistency)
 cell_df = cell_df[cell_df["distance"] > 2].copy()
 
+corr_ax.tick_params(direction='out') 
+
 corr_ax, corr_cb = subfig_spoiid_vs_sigb_raw_cor.get_figure(corr_ax, file_df, cell_df)
-corr_ax.set_xlabel("Mean normalised P$_{sigB}$-YFP")
-corr_ax.set_ylabel("Mean normalised P$_{spoIID}$-CFP")
+corr_ax.set_xlabel("Mean normalised P$_{sigB}$-YFP", labelpad=-0.5)
+corr_ax.set_ylabel("Mean norm'd P$_{spoIID}$-CFP")
 corr_ax.yaxis.labelpad = 0
 
 # #corr_ax, corr_cb, cont_cb = subfig_spoiid_vs_sigb_isolines.get_figure(corr_ax, file_df, cell_df)
@@ -55,6 +66,7 @@ cbar = fig.colorbar(corr_cb, ax=corr_ax)
 cbar.ax.set_ylabel('Number of cells', rotation=270) 
 # print("orig pad  = ", cbar.ax.yaxis.labelpad)
 cbar.ax.yaxis.labelpad = 10
+
 
 #cfp_thresh = 3000
 # cfp_thresh = 2000
@@ -118,6 +130,8 @@ spkw = {"color":figure_util.blue, "label": "WT Spores"}
 for strain in sspb_strains: 
     sp_grad_ax = subfig_spore_count_gradient.get_figure(sp_grad_ax, spfile_df, spindividual, strain, spchan, 100, spkw) 
 
+#sp_grad_ax.set_xlabel("Distance from top of biofilm (μm)", labelpad=-2)
+
 lines, labels = [], []
 for a in [sb_grad_ax, sp_grad_ax]:
     ln, lb = a.get_legend_handles_labels()
@@ -130,8 +144,8 @@ for a in [sb_grad_ax, sp_grad_ax]:
 # print(lines[0])
 leg = sb_grad_ax.legend(lines, labels)
 sp_grad_ax.spines['right'].set_visible(True)
-sb_grad_ax.set_xlabel("Distance from air interface (μm)")
-sp_grad_ax.set_ylabel("Spore ratio", labelpad=10, rotation=270, color=figure_util.blue)
+sb_grad_ax.set_xlabel("Distance from top of biofilm (μm)", labelpad=-0.05)
+sp_grad_ax.set_ylabel("Spore/cell ratio", labelpad=7, rotation=270, color=figure_util.blue)
 
 
 ################
@@ -142,41 +156,50 @@ spimg_ax = subfig_spoiid_image.get_figure(spimg_ax, spoiid_base, this_dir)
 
 #props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
 props = {"facecolor":"none", "edgecolor":"none"}
-spimg_ax.text(0.0, -0.05, "P$_{sigA}$-RFP", transform=spimg_ax.transAxes,
-        fontsize=figure_util.letter_font_size,
-        verticalalignment='top',
-        horizontalalignment='left',
-        color=figure_util.red,
-        bbox=props)
-spimg_ax.text(1.0, -0.05, "P$_{sigB}$-YFP", transform=spimg_ax.transAxes, 
-        fontsize=figure_util.letter_font_size,
-        verticalalignment='top',
-        horizontalalignment='right',
-        color=figure_util.green,
-        bbox=props)
-spimg_ax.text(0.0, -0.18, "P$_{spoIID}$-CFP", transform=spimg_ax.transAxes,
-        fontsize=figure_util.letter_font_size,
-        verticalalignment='top',
-        horizontalalignment='left',
-        color=figure_util.blue,
-        bbox=props)
+# spimg_ax.text(0.0, -0.05, "P$_{sigA}$-RFP", transform=spimg_ax.transAxes,
+#         fontsize=figure_util.letter_font_size,
+#         verticalalignment='top',
+#         horizontalalignment='left',
+#         color=figure_util.red,
+#         bbox=props)
+# spimg_ax.text(1.0, -0.05, "P$_{sigB}$-YFP", transform=spimg_ax.transAxes, 
+#         fontsize=figure_util.letter_font_size,
+#         verticalalignment='top',
+#         horizontalalignment='right',
+#         color=figure_util.green,
+#         bbox=props)
+# spimg_ax.text(0.0, -0.18, "P$_{spoIID}$-CFP", transform=spimg_ax.transAxes,
+#         fontsize=figure_util.letter_font_size,
+#         verticalalignment='top',
+#         horizontalalignment='left',
+#         color=figure_util.blue,
+#         bbox=props)
 
-letter_settings = { 
-           "horizontalalignment": 'right',
-           "verticalalignment": 'top',
-           "fontsize": figure_util.letter_font_size}
+letter_style = { "verticalalignment":"top",
+                 "horizontalalignment":"right",
+                 "fontsize": figure_util.letter_font_size,
+                 #"color": "red"
+                 }
 
-spimg_ax.text(-0.18, 1.28, figure_util.letters[0], 
-                         transform=spimg_ax.transAxes, **letter_settings)#, color="white")
-corr_ax.text(-0.1, 1.0, figure_util.letters[1], 
-                         transform=corr_ax.transAxes, **letter_settings)#, color="white")
-sp_grad_ax.text(-0.07, 1.2, figure_util.letters[2], 
-                         transform=sp_grad_ax.transAxes, **letter_settings)#, color="white")
-
+letter_x = 0.03 
+letter_y = 0.48 
+axes = [spimg_ax, spimg_ax, corr_ax]
+axes[0].text(letter_x, 0.995, "A", transform=fig.transFigure, **letter_style)
+axes[1].text(letter_x, letter_y, "B", transform=fig.transFigure, **letter_style)
+axes[2].text(0.45, letter_y, "C", transform=fig.transFigure, **letter_style)
 
 
 filename = "sigb_vs_spores"
-width, height = figure_util.get_figsize(figure_util.fig_width_small_pt, wf=1.0, hf=1.0 )
+width, height = figure_util.get_figsize(figure_util.fig_width_small_pt, wf=1.0, hf=0.8 )
 fig.set_size_inches(width, height)# common.cm2inch(width, height))
-fig.subplots_adjust(left=0.10, right=0.9, top=0.98, bottom=0.1, hspace=0.25, wspace=0.3)
+#fig.subplots_adjust(left=0.10, right=0.89, top=0.98, bottom=0.1, hspace=0.25, wspace=0.4)
+
+#     #pos2 = #copy.copy(pos1)
+#     pos2.x0 = pos2.x0 + 0.1
+#     a.set_position(pos2, which="both") # set a new position
+#     pos3 = a.get_position(original=False) # get the original position 
+#     print(pos3) 
+
+#fig.align_ylabels()
+
 figure_util.save_figures(fig, filename, ["png", "pdf"], this_dir)
