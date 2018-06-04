@@ -41,7 +41,7 @@ def add_annotations(im, i, time_offset=0, time_step=1):
     time = time_offset + (i * time_step)
     hour = time // 60
     mins = time % 60
-    draw.text((0, 0), "{0}:{1:02}".format(hour, mins), (255, 255, 255), font=font)
+    draw.text((0, 0), "{0}".format(hour, mins), (255, 255, 255), font=font)
 
     return np.array(pilim)
 
@@ -81,7 +81,7 @@ def using_timelapse_movie():
     # Original full view
     #ROI = (slice(0,1048), slice(700, 2000)) # Row Col
     #zoomed in view
-    ROI = (slice(0,800), slice(700, 1500)) # Row Col
+    ROI = (slice(0,1000), slice(700, 1200)) # Row Col
 
     proc_yfp = [process_fp(im, ROI, min_yfp, max_yfp) for im in yfp_images]
     proc_rfp = [process_fp(im, ROI, min_rfp, max_rfp) for im in rfp_images]
@@ -150,7 +150,7 @@ def using_snap_shots():
     proc_yfp = [process_fp(im, roi_time(t), min_yfp, max_yfp) for (t, im) in zip(time_selection, yfp_images)]
     proc_rfp = [process_fp(im, roi_time(t), min_rfp, max_rfp) for (t, im) in zip(time_selection, rfp_images)]
     color_indv = [np.dstack([r, y, np.zeros_like(r)]) for y, r in zip(proc_yfp, proc_rfp)]
-
+    color_indv = [ np.rot90(c,3) for c in color_indv]
     color_anotate = [add_annotations(im, i*60) for i, im in zip (time_selection, color_indv)]
 
     imgs_in_row = len(color_anotate)//rows
@@ -159,14 +159,15 @@ def using_snap_shots():
     image_rows = [np.hstack(color_anotate[(r * imgs_in_row): ((r + 1) * imgs_in_row)]) for r in range(rows)]
     final = np.vstack(image_rows)
 
-    half = (final.shape[1] // 3) + 10
+    #half = (final.shape[1] // 3) + 10
     length = 20 
-    final = lib.figure_util.draw_scale_bar(final, 150, half,
+    final = lib.figure_util.draw_scale_bar(final, 150, 20,
                                scale_length=length/PX_TO_UM,
                                thickness=30,
                                legend = "{0}μm".format(length), fontsize=60)
 
     skimage.io.imsave(outimage + "_strip.png", final)
+    print(outimage + "_strip.png")
     #skimage.io.imsave(outimage + "_strip.jpg", final)
 
 
