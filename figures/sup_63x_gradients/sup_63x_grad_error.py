@@ -25,7 +25,7 @@ def make_figure(error):
 
     normalisation = [#("unnormed", (0, 8e3), "P$_{sigB}$-YFP (AU)"), 
                      ("ratio", (0, 1), "YFP/RFP Ratio")]
-    species = ["jlb021",  "jlb088","jlb039", "jlb095"]
+    species = ["jlb021",  "jlb088","jlb039"] #, "jlb095"]
     times = [24, 48, 72, 96]
     #basedir = "figures/figure_sigb_10x_grad/"
     this_dir = os.path.join(os.path.dirname(__file__))
@@ -42,7 +42,7 @@ def make_figure(error):
             all_axes[n, s].set_ylim(*ylim)
             all_axes[n, s].set_ylabel(ylabel)
             all_axes[n, s].set_title(figure_util.strain_label[spec.upper()])
-            all_axes[n, s].set_xlabel("Distance from air interface (μm)")
+            all_axes[n, s].set_xlabel("Distance from top of biofilm (μm)")
 
     #Create legend from custom artist/label lists
     artist = [ plt.Line2D((0,1),(0,0), color=timecolor[t]) for t in times]
@@ -50,7 +50,7 @@ def make_figure(error):
     shape_axes[0, 1].legend(artist, labels)
 
 
-    for a, l in zip(all_axes.flatten(), figure_util.letters):
+    for a, l in zip(all_axes.flatten()[:3], figure_util.letters):
         a.annotate(l, xy=(0,0),
                     xytext=(-0.27, 1.05),  
                     textcoords='axes fraction',
@@ -58,6 +58,8 @@ def make_figure(error):
                     horizontalalignment='center', verticalalignment='top',
                     fontsize=figure_util.letter_font_size, color="black"
                     )
+
+    all_axes[-1,-1].set_axis_off()
 
     filename = "sup_63x_grad_error_{0}".format(error)
     width, height = figure_util.get_figsize(figure_util.fig_width_small_pt, wf=1.0, hf=0.8 )
