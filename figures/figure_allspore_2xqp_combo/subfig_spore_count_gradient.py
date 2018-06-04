@@ -37,7 +37,7 @@ def get_figure(ax, file_df, gradient_data, strain, chan, min_sample_size=None, k
     ax.plot(distances, mean_trace, color=color ,label=label)
     ax.fill_between(distances, mean_trace-sem_trace, mean_trace+sem_trace, color=color, alpha=0.3)
     
-    ax.set_xlabel("Distance from air interface (μm)")
+    ax.set_xlabel("Distance from top of biofilm (μm)")
     ax.set_ylim(bottom=0)
     return ax
 

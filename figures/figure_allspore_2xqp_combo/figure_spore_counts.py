@@ -50,7 +50,7 @@ sspb_strains = ['JLB077',
 for strain in sspb_strains: 
     spcount_ax = subfig_spore_count_gradient.get_figure(spcount_ax, file_df, individual, strain, "fraction_spores", 100)
 
-spcount_ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+#spcount_ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
 #spcount_ax.set_ylim(0, 0.00031)
 spcount_ax.set_ylabel("Spore ratio")
 leg = spcount_ax.legend()
