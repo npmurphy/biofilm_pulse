@@ -28,7 +28,7 @@ image_list = [
     # "SigB_48hrs_center_4_100615_sect_stitched.tiff",
     # ((726, 726 + 500), (72,72+500)), # row, cols 
     # [0]), # channels to include
-    ("WT P$_{sigB}$-YFP",
+    ("WT",
     "SigB_48hrs_center_4_100615_sect_stitched.tiff",
     ((726, 726 + 500), (72,72+500)), # row, cols
     [0, 1]), # channels to include
@@ -45,7 +45,7 @@ image_list = [
 topletters = figure_util.letters[:3]
 letters = figure_util.letters[3:3+3]
 imgletter_lab = (-0.05, 0.97)
-hisletter_lab = (-0.05, 0.97)
+hisletter_lab = (-0.03, 0.97)
 #hisletter_lab = (-0.16, 0.97)
 letter_settings = { 
            "horizontalalignment": 'right',
@@ -113,6 +113,7 @@ def main():
 
     axes = subfig_normalised_histos.get_figure(cellsdf, file_df, axes, time, location, list_of_histos)
     axes[0].legend()
+    
 
 
     axhisto.text(hisletter_lab[0], hisletter_lab[1], letters[0],
