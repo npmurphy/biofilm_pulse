@@ -49,6 +49,9 @@ print(tenx_gradient_df.columns)
 tenx_gradient_df["ratio"] = tenx_gradient_df["green_bg_mean"]/tenx_gradient_df["red_bg_mean"]
 tenx_file_df = filedb.get_filedb(os.path.join(tenx_basepath, "filedb.tsv"))
 sbgrad_ax = subfig_sigb_grad.get_figure(sbgrad_ax, tenx_file_df, tenx_gradient_df, ["wt_sigar_sigby","2xqp_sigar_sigby"])
+sbgrad_ax.set_ylabel("P$_{sigB}$-YFP / P$_{sigA}$-RFP")
+sbgrad_ax.set_xlabel("Distance from biofilm top (μm)")
+
 
 
 #######
@@ -70,6 +73,7 @@ for strain in sspb_strains:
 #spgrad_ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
 spgrad_ax.set_ylim(0, 0.25)
 spgrad_ax.set_ylabel("Spore/cell ratio")
+spgrad_ax.set_xlabel("Distance from biofilm top (μm)")
 leg = spgrad_ax.legend()
 
 
@@ -101,15 +105,21 @@ for i, ax in zip(files, [wtspr_ax, x2spr_ax]):
                                            this_dir,
                                            ((i["y"], i["y"] + height),
                                            (i["x"], i["x"] + width)), 
-                                           (height, width),
                                            i,vertical=False)
 letter_lab = (-0.14, 1.0)
-axes = [spgrad_ax,sbgrad_ax, wtspr_ax, x2spr_ax]#, hist_ax, corr_ax, spimg_ax] 
+
+letter_style = { "verticalalignment":"top",
+                 "horizontalalignment":"right",
+                 "fontsize": figure_util.letter_font_size}
+
+axes = [spgrad_ax, sbgrad_ax, wtspr_ax, x2spr_ax]#, hist_ax, corr_ax, spimg_ax] 
+letter_x = 0.03 
+spgrad_ax.text(letter_x, 0.995, "A", transform=fig.transFigure, **letter_style)
+sbgrad_ax.text(0.53,     0.995, "B", transform=fig.transFigure, **letter_style)
+wtspr_ax.text(letter_x,  0.69, "C", transform=fig.transFigure, **letter_style)
+x2spr_ax.text(letter_x,  0.34, "D", transform=fig.transFigure, **letter_style)
+
 for a, l in zip(axes, figure_util.letters):
-    a.text(letter_lab[0], letter_lab[1], l, 
-            verticalalignment="top",
-            horizontalalignment="right",
-           transform=a.transAxes, fontsize=figure_util.letter_font_size)
     a.yaxis.set_major_locator(mpt.MaxNLocator(nbins=4, prune='upper'))
 
 
@@ -117,5 +127,5 @@ filename = "spore_sigb_combo"
 width, height = figure_util.get_figsize(figure_util.fig_width_small_pt, wf=1.0, hf=1.3 )
 fig.set_size_inches(width, height)# common.cm2inch(width, height))
 fig.subplots_adjust(left=0.15, right=0.98, top=0.98, bottom=0.005)
-#figure_util.save_figures(fig, filename, ["png", "pdf"], this_dir)
+#figure_util.save_figures(fig, filename, ["png", ], this_dir)
 figure_util.save_figures(fig, filename, ["png","pdf"], this_dir)
