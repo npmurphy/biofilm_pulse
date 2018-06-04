@@ -74,12 +74,13 @@ times = file_df["time"].unique()
 plotset = {"linewidth":0.6, "alpha":0.3}
 ax_gradnt = subfig_gradient.get_figure(ax_gradnt, df, file_df, "green_bg_mean", "", "", times, plotset)
 leg = ax_gradnt.legend()
-ax_gradnt, leg = figure_util.shift_legend(ax_gradnt, leg, xshift=0.04, yshift=0.10)
+ax_gradnt, leg = figure_util.shift_legend(ax_gradnt, leg, xshift=0.08, yshift=0.15)
 ax_gradnt.ticklabel_format(style='sci',scilimits=(1,3),axis='both')
 #ax_gradnt.xaxis.major.formatter._useMathText = True
 ax_gradnt.set_xlim(0, 150) 
 ax_gradnt.set_ylim(0, 2900)
-ax_gradnt.set_xlabel("Distance from air interface (μm)")
+#ax_gradnt.set_xlabel("Distance from top of biofilm (μm)")
+ax_gradnt.set_xlabel("Distance from top of biofilm ($\mu$m)")
 ax_gradnt.set_ylabel("YFP (AU)")
 
 ###################
@@ -90,12 +91,12 @@ ax_fstrip.imshow(im, interpolation="bicubic")
 ax_fstrip.grid(False)
 ax_fstrip.axis('off')
 
-axes = [( -0.11, ax_exprmt),
-        ( -0.11, ax_gradnt),
-        ( -0.06, ax_fstrip),
-        ( -0.06, ax_pulses)]
-for (xp, a), l in zip(axes, figure_util.letters):
-    a.text( xp, 1.0, l, ha="right", va="top", 
+axes = [( -0.18,1.1, ax_exprmt),
+        ( -0.11,1.1, ax_gradnt),
+        ( -0.06,1.0, ax_fstrip),
+        ( -0.06,1.0, ax_pulses)]
+for (xp, yp, a), l in zip(axes, figure_util.letters):
+    a.text( xp, yp, l, ha="right", va="top", 
             transform=a.transAxes, 
             fontsize=figure_util.letter_font_size, 
             color="black")
