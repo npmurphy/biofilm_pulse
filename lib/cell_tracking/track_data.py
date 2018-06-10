@@ -289,9 +289,29 @@ class TrackData(object):
     #     lineage = self.get_cell_lineage(cell)
     #     for l in lineage:
     #         self.cells[l][]
+    def _check_for_reuse_of_cell_id(self, auto_correct):
+        for cell in self.get_cells_list():
+            has_position = self.cells[cell]["col"]
+            births = []
+            deaths = []
+            alive = False
+            for i, p in enumerate(has_position):
+                if p != 0 and not alive:
+                    births += [i]
+                    alive = True
+                elif p == 0 and alive:
+                    deaths += [i]
+                    alive = False
+            if len(births) > 1:
+                print("Cell {0} was born twice at {1} and died at {2}".format(cell, births, deaths))
+                if auto_correct:
+                    for l in range(len(births)-1):
+                        self.split_cell_from_point(cell, births[l], deaths[l])
+
 
 
     def check_data_consistency(self, auto_correct):
+        self._check_for_reuse_of_cell_id(auto_correct)
         self._check_for_double_division_state(auto_correct)
         maxf = self.metadata["max_frames"]
         for cell in self.cells.keys():
