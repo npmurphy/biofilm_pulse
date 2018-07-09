@@ -67,7 +67,7 @@ for i, (filen, chan, strainnum, xmax, bins) in enumerate(strains):
     axall[i,1].set_ylim(0, 30)
     axall[i,1].set_xlim(-10, xmax)
 
-    reporter = "P$_{sigA}$-RFP" if chan == "R_cells" else "P$_{sigB}$-YFP"
+    reporter = "P$_{sigA}$-RFP" if chan == "MR" else "P$_{sigB}$-YFP"
     axall[i, 1].set_title("{0}: {1}".format(strain, reporter), y=0.6)
     axall[i, 1].yaxis.set_major_locator(histticker)
     yticks = axall[i, 1].yaxis.get_major_ticks()
@@ -135,19 +135,23 @@ axall[1,1].annotate("Percentage total cells",
                  )
 
 letter_settings = { 
-           "horizontalalignment": 'left',
+           "horizontalalignment": 'center',
            "verticalalignment": 'top',
            "fontsize": figure_util.letter_font_size, 
            "color": "black"}
 
-aximg.text(-0.155, 1.0, "A", transform=aximg.transAxes, **letter_settings)
-for a, l in zip(axall[:,0].flatten(), figure_util.letters[1:5]):
-    #a.annotate(l, xy=(0,0), xytext=(-0.05, 1.),  **letter_settings)
-    a.text(-0.36, 1., l, transform=a.transAxes, **letter_settings)
+x1 = 0.02
+aximg.text(x1, 0.995, "A", transform=figall.transFigure, **letter_settings)
+aximg.text(x1, 0.64, "B",  transform=figall.transFigure, **letter_settings)
+aximg.text(x1, 0.50, "C",  transform=figall.transFigure, **letter_settings)
+aximg.text(x1, 0.36, "D",  transform=figall.transFigure, **letter_settings)
+aximg.text(x1, 0.22, "E",  transform=figall.transFigure, **letter_settings)
 
-for a, l in zip(axall[:,1].flatten(), figure_util.letters[5:]):
-    a.text(-0.30, 1., l,  transform=a.transAxes, **letter_settings)
-    ##a.annotate(l, xy=(0,0), xytext=(-0.1, 1.), **letter_settings)
+x2 = 0.53
+aximg.text(x2, 0.64, "F",  transform=figall.transFigure, **letter_settings)
+aximg.text(x2, 0.50, "G",  transform=figall.transFigure, **letter_settings)
+aximg.text(x2, 0.36, "H",  transform=figall.transFigure, **letter_settings)
+aximg.text(x2, 0.22, "I",  transform=figall.transFigure, **letter_settings)
 
 
 filename = "pad_movie_tracemain"
