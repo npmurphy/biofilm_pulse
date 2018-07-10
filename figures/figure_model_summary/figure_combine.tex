@@ -20,7 +20,7 @@
     %\coordinate (end) at (11.25, -2.27);
     %fig_width_medium_cm = 8cm 
     \node (bgimage) [anchor=north west] at (0, 0){\includegraphics{model_summary_figure.pdf}};
-    \coordinate (origin) at ($(bgimage.north west) + (1.15, -0.28)$);
+    \coordinate (origin) at ($(bgimage.north west) + (1.12, -0.40)$);
     \coordinate (end) at (4.4, -2.27);
 
     %\draw [step=1.0,red,thin,anchor=north west] (origin) grid (end);
@@ -34,7 +34,7 @@
 
       %\node at (bottomright) {X};
       % this hides the black border the matplot lib makes
-      \fill ($(0,0)-(0.1,-0.1)$) [fill=white] rectangle ($(bottomright)+(0.1,-0.1)$);
+      \fill ($(0,0)-(0.34,-0.2)$) [fill=white] rectangle ($(bottomright)+(0.08,-0.23)$);
       
       \coordinate (bally) at (0, -0.9);
       \coordinate (Ax) at ($ (0,0) !.1! (topright) $);
