@@ -15,6 +15,11 @@ def load_data(compiled_data_path, cell_track_path):
 def plot_trace(ax, df, chan, cell_ids, kwargs):
     cell = df[df["cell_id"].isin(cell_ids)].sort_values(by=["cell_id", "frame"])
     values = cell.groupby("frame").sum()[chan]
+    #values = values.rolling(window=10, win_type='gaussian', center=True).mean(std=2) 
+    # print(values.head())
+    # mean_v = values.values.mean()
+    # #print(mean_v)
+    # values = values/mean_v
     times = cell.groupby("frame").mean()["time"]
     if "color" not in kwargs: kwargs["color"] = np.random.rand(3)
     if "label" not in kwargs: kwargs["label"] = str(cell_ids[-1])
