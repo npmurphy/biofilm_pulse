@@ -23,7 +23,7 @@ figall = plt.figure()
 
 gridmain = gs.GridSpec(2, 1,
              height_ratios=[2.5, 4], hspace=0.05)
-gridtracehist = gs.GridSpecFromSubplotSpec(4, 2,
+gridtracehist = gs.GridSpecFromSubplotSpec(4, 1,
                     width_ratios=[0.5, 0.5],
                     subplot_spec=gridmain[1,0], wspace=0.35)
 

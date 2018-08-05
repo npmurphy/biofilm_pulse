@@ -1,67 +1,18 @@
-\documentclass[tikz,12pt]{standalone}
+\documentclass[tikz,9pt]{standalone}
 
 \usepackage{tikz}
-\usetikzlibrary{shapes.geometric}
-\usetikzlibrary{%
-	calc,%
-	decorations.pathmorphing,%
-	fadings,%
-	shadings%
-}
+\usetikzlibrary{calc}
+\usepackage{graphicx}
+%\usepackage{amssymb}
+\usepackage{amsmath}
+\usetikzlibrary{positioning}
+\usetikzlibrary{calc}
 
-	\usepackage{tikz} 
-	\usepackage{graphicx}
-	%\usepackage{amssymb}
-	\usepackage{amsmath}
-	\usetikzlibrary{positioning}
-	\usetikzlibrary{calc}
-	\usetikzlibrary{shapes}
-	\usetikzlibrary{arrows}
-
-\renewcommand*{\familydefault}{\sfdefault}
-\usepackage{textgreek}
-\newcommand{\sigmaB}{\text{\textsigma\textsuperscript{B}}}
-	
 \begin{document}
 
 \tikzset{fontscale/.style = {font=\tiny\sffamily,}}
-\definecolor{mblue}{rgb}{0.31686274509803924, 0.483921568627451, 0.62039215686274507}
-\definecolor{mgreen}{rgb}{0.37647058823529422, 0.60705882352941176, 0.3694117647058824}
-\definecolor{mred}{rgb}{0.73568627450980395, 0.26039215686274508, 0.26509803921568614}
-\definecolor{mgray}{rgb}{0.33333,0.3333,0.33333}
-\definecolor{mmauve}{HTML}{af8dbe}
-	 
-	  \tikzset{gene/.style = {rounded corners=2pt,
-							  node distance=0cm,
-							  minimum width=1.5em,
-							  minimum height=1.5em,
-							  inner sep=5pt}}
-	  \tikzset{protein/.style = {circle,
-							  node distance=-3mm,
-							  minimum width=1.5em,
-							  minimum height=1.5em,
-							  inner sep=5pt}}
-	  \tikzset{Vst/.style = {fill=mblue}}
-	  \tikzset{Wst/.style = {fill=mred}}
-	  \tikzset{Bst/.style = {fill=mgreen}}
-	  \tikzset{Xst/.style = {fill=gray}}
-	  \tikzset{phost/.style = {rounded corners=2pt,fill=orange}}
-	  \tikzset{TUst/.style =   {fill=mmauve}}
-	  
-	  \tikzset{Bprom/.style =   {tape, tape bend bottom= none,fill=mgreen}}
-	  \tikzset{Bpt/.style =   {tape, tape bend top= none,fill=mgreen}}
-	  % \tikzset{Xst/.style =   {protein,fill=gray}}
-	  \tikzset{RPst/.style =  {protein,shape=ellipse,fill=gray}}
-	  \tikzset{YFPst/.style = {fill=yellow}}
 
-		
-	  \tikzset{stressst/.style =  {
-		  regular polygon,
-		  regular polygon sides = 7,
-		  draw,
-		  inner sep=9pt}}
-
-\begin{tikzpicture}[thick,>=stealth',fontscale]
+\begin{tikzpicture}[thick,fontscale]
 	%[fontscale,every node/.style={text=mgray}]
 	%fig_width_medium_cm = 11.4
 	%fig_width_medium_cm = 8cm 
@@ -70,131 +21,9 @@
 	\coordinate (end) at (17.8cm, 8.6cm);
 	%\draw [draw=red,ultra thick]  (0,0) rectangle (end);
 	\draw [fill=white, draw=none]  (0,0) rectangle (end);
-	\node (bgimage) [anchor=south west] at (0, 0){\includegraphics{pad_movie_tracemain.pdf}};
-	\coordinate (origin) at ($(bgimage.south east)$);
+	\node (pathway) [anchor=south west] at (0, 0.8){\includegraphics{supplemental_figure_network.pdf}};
 
-	%\draw [step=1.0,red,thin,anchor=north west] (0,0) grid (end);
-
-	%\node at (origin) {X};
-  
-	\begin{scope}[shift={(origin)}]
-	\coordinate (halfway) at ($ (origin) !.5! (end) $);
-	\coordinate (topthird) at ($ (origin) !.6666! (end) $);
-	\coordinate (botthird) at ($ (origin) !.3333! (end) $);
-
-	%\draw [step=1.0,blue,thin,anchor=north west] (origin) grid (end);
-	% \draw (origin |- halfway) -- (halfway -| end);
-	%  \draw (origin -| halfway) -- (halfway |- end);
-	%  \draw (origin -| botthird) -- (botthird |- end);
-	%  \draw (origin |- botthird) -- (botthird -| end);
-	%  \draw (origin -| topthird) -- (topthird |- end);
-	%  \draw (origin |- topthird) -- (topthird -| end);
-
-
-		%%% W antisig
-		%\coordinate 
-
-		%%% YFP operon
-		\coordinate (probeoperon) at (1.1,0.8);
-		\draw (probeoperon) -- ++ (2.4,0); % gene
-		\draw ($(probeoperon) + (0.9,0)$) -- ++ (0, 0.3)[->] --  ++  (0.4, 0); % promotor
-		\node at ($(probeoperon) + (0.5, 0)$) [Bprom, inner sep=0.2em, name=probeBbind] {$P_\sigmaB$};
-		\node at ($(probeoperon) + (1.7,0)$) [YFPst,gene, name=Vgene]{YFP};
-		%\node at ($(probeBbind) + (0, -0.5)$) {$P_\sigmaB$};
-
-		%% SigB operon
-		\coordinate (operon) at (halfway |- probeoperon);
-		\draw (operon) -- ++ (4.1,0); % gene
-		\draw ($(operon) + (0.9,0)$) -- ++ (0, 0.3)[->] --  ++  (0.4, 0); % promotor
-		%\node at ($(operon) + (0.5, 0)$) [Bprom, inner xsep=0.8em, name=Bbind] {};
-		\node at ($(operon) + (0.5, 0)$) [Bprom, inner sep=0.2em, name=Bbind] {$P_\sigmaB$};
-		\node at ($(operon) + (1.7,0)$) [Vst,gene, name=Vgene]{V};
-		\node at (Vgene.east) [Wst,gene,anchor=west, name=Wgene]{W};
-		\node at (Wgene.east) [Bst,gene,anchor=west, name=Bgene]{\sigmaB};
-		%\node at (Bgene.east) [Xst,gene,anchor=west, name=Xgene]{X};
-
-
-		%%%%
-		%% W and B -> CoreRB
-		\node at (probeBbind |- botthird) [RPst,name=CoreRP] {RNA P.};
-		\node at (CoreRP.south) [Bpt,anchor=north, yshift=2mm, name=Bact]{\sigmaB};
-
-		\node at ($ (probeBbind) !.5! (Bact) $){\small +};
-	   
-
-		\coordinate (sigbmid) at (halfway |- CoreRP.center);
-		\node at ($(sigbmid) + (-0.1,0 ) $) [Bpt, anchor=east, name=Bfree]{\sigmaB};
-		\node at ($(sigbmid) + (+0.1,0 ) $) [Wst,protein, anchor=west, name=Wfree] {W};
-		
-		\coordinate (sigbbound) at ($(sigbmid) + (3.1,0) $);
-		\node at ($(sigbbound) + (-0.0,0)$) [Wst,protein,anchor=east, name=Winact] {W};
-		\node at ($(sigbbound) + (+0.0,0)$) [Bpt, anchor=west, xshift=-1mm, name=Binact]{\sigmaB};
-
-		\draw [->] ($(CoreRP.east) + (0.2, 0.1)$) -- ($(Bfree.west) + (-0.2, 0.1)$);
-		\draw [<-] ($(CoreRP.east) + (0.2, -0.1)$) -- ($(Bfree.west) + (-0.2, -0.1)$);
-		
-		\draw [->] ($(Wfree.east) + (0.2,  0.1)$) -- ($(Winact.west) + (-0.2, 0.1)$);
-		\draw [<-] ($(Wfree.east) + (0.2, -0.1)$) -- ($(Winact.west) + (-0.2, -0.1)$);
-
-
-		%% W and V and P
-		%% the middle W and V unbound pair
-		\coordinate (VWmid) at (halfway |- topthird);
-		\node at ($(VWmid) + (-0.1,0)$) [Wst,protein,anchor=east,name=WV] {W};
-		\node at ($(VWmid) + (+0.1,0)$) [Vst,protein, anchor=west, xshift=-1mm, name=Vantisig]{V};
-
-
-		%%%%Phosphorilated P
-		\coordinate (pphos) at (sigbbound.center |- VWmid);
-		\node at (pphos)  [Vst, protein, name=Vphos] {V};
-		\node at (Vphos.north east) [phost,inner sep=2pt, anchor=west,xshift=-4, name=phos]{$\sim$\,P};
-		
-
-		\draw [<-] ($(Vantisig.east) + (0.2, 0.1)$) 
-			-- 
-			node[TUst,above,protein,minimum size=0,xshift=-7,inner sep=2pt,name=uact] {U} 
-			node[TUst,above,protein,minimum size=0,xshift=7,inner sep=2pt,name=pact] {P}
-			($(Vphos.west) + (-0.2, 0.1)$)
-			;
-		\draw [->] ($(Vantisig.east) + (0.2,-0.1)$) -- node[Wst,below,protein,minimum size=0, inner sep=2pt] {W} ($(Vphos.west) + (-0.2, -0.1)$);
-
-		
-		\draw [<->] ($(WV.south) + (0.2,-0.1)$)  -- ($(Wfree.north) +(-0.2,0.1)$);
-		
-		\coordinate (uboundWV) at (VWmid -| CoreRP);
-		\node at ($(uboundWV) + (+0.1,0 ) $)  [Wst,protein, anchor=east, name=Wbound]{W};
-		\node at ($(uboundWV) + (-0.1,0 ) $) [Vst,protein, anchor=west, name=Vbound]{V};
-		
-		\draw [->] ($(Vbound.east) + (0.2,0.1)$)  -- ($(WV.west) +(-0.2,0.1)$);
-		\draw [<-] ($(Vbound.east) + (0.2,-0.1)$) -- ($(WV.west) +(-0.2,-0.1)$);
-		
-
-		
-		%% Stressosome 
-		\node at ($(halfway) + (0,2.3)$) [stressst,anchor=south,name=stressosome] {};
-		\node at ($(stressosome.south) + (0,-0.1)$) [anchor=center] {Stressosome};
-		\node at (probeBbind |- stressosome.center) [anchor=center,name=EnviroStress, align=center] {{\small Environmental}\\ {\small Stress}};
-		\node at ($(EnviroStress.center) + (0, 1.1)$) [name=NrgStress] {{\small Energy Stress}};
-		
-		
-		%% QP
-		\coordinate (qp) at (halfway |- NrgStress);
-		\node at ($(qp) + (+0.1,0)$) [TUst,protein,anchor=east,name=Q] {Q};
-		\node at ($(qp) + (-0.1,0)$) [TUst,protein,anchor=west,name=P] {P};
-		
-		\draw [->] ($(NrgStress.east) + (0.2,0.0)$)  -- ($(Q.west) +(-0.2,0.0)$);
-		\draw [->] ($(EnviroStress.east) + (0.2,0.0)$)  -- ($(stressosome.west) +(-0.2,0.0)$);
-
-		%% Curved arrows 
-		\path (P.east) edge [draw, ->, bend left] (pact.north); 
-		\path (stressosome.3) edge [draw, ->, bend left] (uact.north); 
-
-		% ON State 
-		\node at (probeBbind |- halfway) {\normalsize "ON" state};
-		\node at (sigbbound |- halfway) {\normalsize "OFF" state};
-		
-
-  \end{scope}
+	\node (bgimage) [anchor=south west] at (8.6,-0.1){\includegraphics{pad_movie_tracemain.pdf}};
 
 
 
