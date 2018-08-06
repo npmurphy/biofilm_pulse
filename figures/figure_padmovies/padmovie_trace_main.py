@@ -23,7 +23,7 @@ figall = plt.figure()
 
 gridmain = gs.GridSpec(2, 1,
              height_ratios=[2.5, 4], hspace=0.05)
-gridtracehist = gs.GridSpecFromSubplotSpec(4, 1,
+gridtracehist = gs.GridSpecFromSubplotSpec(4, 2,
                     width_ratios=[0.5, 0.5],
                     subplot_spec=gridmain[1,0], wspace=0.35)
 
@@ -141,17 +141,17 @@ letter_settings = {
            "color": "black"}
 
 x1 = 0.02
-aximg.text(x1, 0.995, "A", transform=figall.transFigure, **letter_settings)
-aximg.text(x1, 0.64, "B",  transform=figall.transFigure, **letter_settings)
-aximg.text(x1, 0.50, "C",  transform=figall.transFigure, **letter_settings)
-aximg.text(x1, 0.36, "D",  transform=figall.transFigure, **letter_settings)
-aximg.text(x1, 0.22, "E",  transform=figall.transFigure, **letter_settings)
+aximg.text(x1, 0.995, "B", transform=figall.transFigure, **letter_settings)
+aximg.text(x1, 0.64, "C",  transform=figall.transFigure, **letter_settings)
+aximg.text(x1, 0.50, "D",  transform=figall.transFigure, **letter_settings)
+aximg.text(x1, 0.36, "E",  transform=figall.transFigure, **letter_settings)
+aximg.text(x1, 0.22, "F",  transform=figall.transFigure, **letter_settings)
 
 x2 = 0.53
-aximg.text(x2, 0.64, "F",  transform=figall.transFigure, **letter_settings)
-aximg.text(x2, 0.50, "G",  transform=figall.transFigure, **letter_settings)
-aximg.text(x2, 0.36, "H",  transform=figall.transFigure, **letter_settings)
-aximg.text(x2, 0.22, "I",  transform=figall.transFigure, **letter_settings)
+aximg.text(x2, 0.64, "G",  transform=figall.transFigure, **letter_settings)
+aximg.text(x2, 0.50, "H",  transform=figall.transFigure, **letter_settings)
+aximg.text(x2, 0.36, "I",  transform=figall.transFigure, **letter_settings)
+aximg.text(x2, 0.22, "J",  transform=figall.transFigure, **letter_settings)
 
 
 filename = "pad_movie_tracemain"
