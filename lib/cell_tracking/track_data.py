@@ -26,7 +26,7 @@ class TrackData(object):
             self.metadata = {
                     "max_frames": maxframes,
                     "time_offset": "0h0m",
-                    "time_offset": "1m",
+                    #"time_offset": "1m",
                     "states": self._default_states }
             self.states = {v: int(k) for k, v in self.metadata["states"].items()}
             self.cells = {}
@@ -183,11 +183,19 @@ class TrackData(object):
         return new_cell, self
 
     def get_final_frame(self, cell:str):
+        try:
+            _, final = self.get_first_and_final_frame(cell)
+        except ValueError:
+            return -1
+        return final
+
+    def get_first_and_final_frame(self, cell:str):
         frames_nonzero = [ f for f, s in enumerate(self.cells[cell]["state"]) if s > 0 ]
-        if not frames_nonzero:
-            return 0
-        else:
-            return max([ f for f, s in enumerate(self.cells[cell]["state"]) if s > 0 ])
+        if len(frames_nonzero):
+            raise ValueError("cell {0} does not appear in any frame".format(cell))
+        first = min(frames_nonzero)
+        final = max(frames_nonzero)
+        return first, final
 
     # def guess_probable_parents(self, cell:str):
     #     first_appears = self.cells[cell]["state"].index(1)

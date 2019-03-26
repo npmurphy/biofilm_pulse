@@ -4,6 +4,16 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
+# class MyBase(Base):
+#     def __eq__(self, other):
+#         classes_match = isinstance(other, self.__class__)
+#         a, b = self.__dict__.copy(), other.__dict__.copy()
+#         # compare based on equality our attributes, ignoring SQLAlchemy internal stuff
+#         a.pop("_sa_instance_state", None)
+#         b.pop("_sa_instance_state", None)
+#         attrs_match = a == b
+#         return classes_match and attrs_match
+
 
 class Schnitz(Base):
     __tablename__ = "schnitz"
@@ -13,13 +23,13 @@ class Schnitz(Base):
     length = sqa.Column(sqa.Float)
     width = sqa.Column(sqa.Float)
     angle = sqa.Column(sqa.Float)
+    frame = sqa.Column(sqa.Integer)
+    state = sqa.Column(sqa.String(12), default="growing")
     status = sqa.Column(sqa.String(12), default="auto")
+    cell_id = sqa.Column(sqa.Integer, sqa.ForeignKey("cell.id"))
 
-    # def __init__(self, name):
+    #cell = sqaorm.relationship("CellInFrame", back_populates="schnitzes")
 
-    #     self.name = name
-    # def __eq__(self, other):
-    #     return isinstance(other, Schnitz) and other.id == self.id
     def __eq__(self, other):
         classes_match = isinstance(other, self.__class__)
         a, b = self.__dict__.copy(), other.__dict__.copy()
@@ -30,8 +40,8 @@ class Schnitz(Base):
         return classes_match and attrs_match
 
     def __repr__(self):
-        return "Schnitz {0}: ({1},{2}), {3}, {4}, {5}".format(
-            self.id, self.row, self.col, self.length, self.width, self.angle
+        return "Schnitz {0} (frame {6}): ({1},{2}), {3}, {4}, {5}".format(
+            self.id, self.row, self.col, self.length, self.width, self.angle, self.frame
         )
 
 class Cell(Base):
@@ -53,27 +63,28 @@ class Cell(Base):
     def __repr__(self):
         return "Cell {0} - {1} - {2}".format(self.cell_id, self.parent, self.status)
 
-class CellInFrame(Base):
-    __tablename__ = "cellinframe"
+# class CellInFrame(Base):
+#     __tablename__ = "cellinframe"
 
-    id = sqa.Column(sqa.Integer, primary_key=True)
-    frame = sqa.Column(sqa.Integer)
-    cell_id = sqa.Column(sqa.Integer, sqa.ForeignKey("cell.id"))
-    schnitz_id = sqa.Column(sqa.Integer, sqa.ForeignKey("schnitz.id"), unique=True)
-    state = sqa.Column(sqa.String(12), default="growing")
-    status = sqa.Column(sqa.String(12), default="auto")
+#     id = sqa.Column(sqa.Integer, primary_key=True)
+#     #frame = sqa.Column(sqa.Integer)
+#     cell_id = sqa.Column(sqa.Integer, sqa.ForeignKey("cell.id"))
+#     schnitz_id = sqa.Column(sqa.Integer, sqa.ForeignKey("schnitz.id"), unique=True)
+#     status = sqa.Column(sqa.String(12), default="auto")
+    
+#     schnitzes = sqaorm.relationship("Schnitz", back_populates="cell")
 
-    def __eq__(self, other):
-        classes_match = isinstance(other, self.__class__)
-        a, b = self.__dict__.copy(), other.__dict__.copy()
-        # compare based on equality our attributes, ignoring SQLAlchemy internal stuff
-        a.pop("_sa_instance_state", None)
-        b.pop("_sa_instance_state", None)
-        attrs_match = a == b
-        return classes_match and attrs_match
+#     def __eq__(self, other):
+#         classes_match = isinstance(other, self.__class__)
+#         a, b = self.__dict__.copy(), other.__dict__.copy()
+#         # compare based on equality our attributes, ignoring SQLAlchemy internal stuff
+#         a.pop("_sa_instance_state", None)
+#         b.pop("_sa_instance_state", None)
+#         attrs_match = a == b
+#         return classes_match and attrs_match
 
-    def __repr__(self):
-        return "Cell {0}".format(self.id)
+#     def __repr__(self):
+#         return "Cell {0} is schnitz {1}".format(self.cell_id, self.schnitz_id)
 
 
 class MetaData(Base):
@@ -86,22 +97,22 @@ class MetaData(Base):
         return "{{ {0}: {1}}}".format(self.key, self.value)
 
 
-class State(Base):
-    __tablename__ = "states"
-    id = sqa.Column(sqa.Integer, primary_key=True)
-    # key = sqa.Column(sqa.String)
-    name = sqa.Column(sqa.String)
+# class State(Base):
+#     __tablename__ = "states"
+#     id = sqa.Column(sqa.Integer, primary_key=True)
+#     # key = sqa.Column(sqa.String)
+#     name = sqa.Column(sqa.String)
 
-    def __repr__(self):
-        return "{{ {0}: {1}}}".format(self.id, self.value)
+#     def __repr__(self):
+#         return "{{ {0}: {1}}}".format(self.id, self.value)
 
 
-class CellAccess(object):
-    def __init__(self, session):
-        self.session = session
+# class CellAccess(object):
+#     def __init__(self, session):
+#         self.session = session
 
-    def __getitem__(self, key):
-        return self.__getattribute__(key)
+#     def __getitem__(self, key):
+#         return self.__getattribute__(key)
 
 
 class TrackDB(object):
@@ -124,7 +135,7 @@ class TrackDB(object):
         Base.metadata.create_all(engine)
         Session = sqaorm.sessionmaker(bind=engine)
         self.session = Session()
-        self.cells = CellAccess(self.session)
+        #self.cells = CellAccess(self.session)
         # TODO add metadata if its new
         # TODO add states if its new
         # TODO add states table if new
@@ -138,13 +149,33 @@ class TrackDB(object):
         self.session.commit()
     
     def _get_schnitz_obj(self, frame, cell_id):
-        cell_inframe = (
-            self.session.query(CellInFrame)
-                        .filter_by(frame=frame, cell_id=cell_id)
-                        .first()
-        )
-        sch = self.session.query(Schnitz).filter_by(id=cell_inframe.schnitz_id).first()
-        return cell_inframe, sch
+        print("gettering frame=", frame, "cell ", cell_id)
+        # print(self.session.query(CellInFrame).filter_by(cell_id=cell_id).all())
+        # for s in (self.session.query(CellInFrame, Schnitz)
+        #                            .filter(CellInFrame.cell_id==cell_id)
+        #                            .join(Schnitz) 
+        #                            .filter(Schnitz.frame==frame)
+        #                            .all()):
+        #     print(s)
+        print(self.session.query(CellInFrame)
+                              .filter(CellInFrame.cell_id==cell_id)
+                              .join(Schnitz) 
+                              .filter(Schnitz.frame==frame)
+                              .one())
+        cif = (self.session.query(CellInFrame)
+                           .filter(CellInFrame.cell_id==cell_id)).one()
+        print(cif)
+        sch = (cif.join(Schnitz) 
+                  .filter(Schnitz.frame==frame)
+                  .all())
+        print(sch)
+        # cell_inframe = (
+        #     self.session.query(CellInFrame)
+        #                 .filter_by(frame=frame, cell_id=cell_id)
+        #                 .first()
+        # )
+        # sch = self.session.query(Schnitz).filter_by(id=cell_inframe.schnitz_id).first()
+        return cif, s
 
     def get_cell_params(self, frame, cell_id):
         cif, s = self._get_schnitz_obj(frame, cell_id)
@@ -198,7 +229,7 @@ class TrackDB(object):
         if "state" in properties:
             self.set_cell_state(frame, cell_id, properties["state"])
 
-
+"""
 def main():
     engine = sqa.create_engine(
         "sqlite:////home/nmurphy/work/projects/bf_pulse/cell_track.sqllite", echo=True
@@ -211,8 +242,10 @@ def main():
     session.flush()
     session.commit()
     session.close()
+"""
 
 
+"""
 def load_json():
     from lib.cell_tracking.track_data import TrackData
 
@@ -226,7 +259,7 @@ def load_json():
             schnitz = Schnitz(**cell_p)
             session.add(schnitz)
             Cell({"frame": f, "schintz": new_id, "cell": int(cell)})
-
+"""
 
 if __name__ == "__main__":
     main()
