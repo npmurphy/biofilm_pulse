@@ -37,7 +37,8 @@ id|parent|status
 """
 
 class TrackDataDB(unittest.TestCase):
-    def __init_():
+
+    def __init_(self):
         self.test_db = None
         self.test_path = ""
 
@@ -47,57 +48,10 @@ class TrackDataDB(unittest.TestCase):
                   #("cellinframe", CELLSINFRAME_TABLE),
                   ("cell", CELL_TABLE)]
         for name, table in tables:
-            tab = pd.read_csv(io.StringIO(table), sep="\t",index_col="id")
+            tab = pd.read_csv(io.StringIO(table), sep="|",index_col="id")
             tab.to_sql(name=name, con=db.session.bind, if_exists = 'append')    
         return db
 
-    # def create_test_db(path):
-    #     # cell_1 is on frame 1, 2, 3, schnitzes 11, 12, 13
-    #     db = TrackDB(path)
-    #     state = "there"
-
-    #     c = track_db.Cell(id=1, parent=None, status="checked")
-    #     db.session.add(c)
-    #     for f in range(1, 4):
-    #         if f == 3:
-    #             state="dividing"
-    #         i = track_db.CellInFrame(cell_id=1, 
-    #                                  schnitz_id=10+f, 
-    #                                  status="checked")
-    #         db.session.add(i)
-    #         s = track_db.Schnitz(id=10+f, 
-    #             row= 1.0*f,
-    #             col= 2.0*f,
-    #             length= 3.0*f,
-    #             width= 4.0*f,
-    #             angle= 0.5*f,
-    #             frame=f,
-    #             state=state,
-    #             status= "auto")
-    #         db.session.add(s)
-        
-    #     c = track_db.Cell(id=3, parent=1, status="auto")
-    #     db.session.add(c)
-    #     for f in range(4, 8):
-    #         if f == 7:
-    #             state="dividing"
-    #         i = track_db.CellInFrame(
-    #                                  cell_id=3, 
-    #                                  schnitz_id=20+f, 
-    #                                  status="checked")
-    #         db.session.add(i)
-    #         s = track_db.Schnitz(id=20+f, 
-    #             row= 1.0*f,
-    #             col= 2.0*f,
-    #             length= 3.0*f,
-    #             width= 4.0*f,
-    #             angle= 0.5*f,
-    #             frame=f, 
-    #             state=state,
-    #             status= "auto")
-    #         db.session.add(s)
-    #     db.session.commit()
-    #     return db
 
     def setUp(self):
         self.test_path = tempfile.NamedTemporaryFile().name
@@ -138,9 +92,7 @@ class TrackDataDB(unittest.TestCase):
         os.remove(test_path)
         self.assertTrue((not pre) & (post))
 
-    def test_add_to_db(self):
-        test_path = ""
-        td = TrackDB(test_path)
+    def test_set_cell_properties_fail(self):
         frame = 10
         cell_id = 2
         properties = {
@@ -151,33 +103,59 @@ class TrackDataDB(unittest.TestCase):
             "angle": 0.5,
             "state": "dividing",
         }
+        self.assertRaises(ValueError, self.test_db.set_cell_properties, frame, cell_id, properties)
 
-        c_schnitz = {
-            k: properties[k] for k in ["row", "col", "length", "width", "angle"]
+    def test_set_cell_properties_new_schnitz(self):
+        frame = 10
+        cell_id = 3
+        properties = {
+            "row": 10.0,
+            "col": 5.0,
+            "length": 1.0,
+            "width": 9.0,
+            "angle": 0.5,
+            "state": "dividing",
         }
-        c_schnitz["status"] = "auto"
-        c_schnitz["id"] = 1
-        o_schnitz = track_db.Schnitz(**c_schnitz)
+        schnitz_before = self.test_db._get_schnitz_query(frame, cell_id).all()
+        self.assertEqual(len(schnitz_before), 0)
 
-        c_cif = {
-            "frame": frame,
-            "cell_id": cell_id,
-            "state": properties["state"],
-            "schnitz_id": 1,
-            "status": "auto",
-            "id": 1,
+        self.test_db.set_cell_properties(frame, cell_id, properties)
+
+        new_cell_expect = properties.copy()
+        new_cell_expect["frame"] = frame
+        new_cell_expect["cell_id"] = cell_id
+        new_cell_expect["status"] = "auto"
+
+        schnitz_after = self.test_db._get_schnitz_query(frame, cell_id).one().__dict__.copy()
+        schnitz_after.pop("_sa_instance_state")
+        schnitz_after.pop("id")
+        self.assertEqual(schnitz_after, new_cell_expect)
+
+
+    def test_set_cell_properties_reset(self):
+        # Test resetting existing cell
+        frame = 6
+        cell_id = 3
+        properties = {
+            "row": 10.0,
+            "col": 5.0,
+            "length": 1.0,
+            "width": 9.0,
+            "angle": 0.5,
+            "state": "dividing",
         }
-        o_cif = track_db.CellInFrame(**c_cif)
+        schnitz_orig = self.test_db._get_schnitz_obj(frame, cell_id).__dict__.copy()
+        schnitz_orig.pop("_sa_instance_state")
 
-        td.set_cell_properties(frame, cell_id, properties)
+        orig_dict_mod = schnitz_orig.copy()
+        orig_dict_mod.update(properties)
 
-        r_cifs = td.session.query(track_db.CellInFrame).all()
-        r_schnitz = td.session.query(track_db.Schnitz).all()
-        self.assertEqual(len(r_cifs), 1)
-        self.assertEqual(len(r_schnitz), 1)
+        self.test_db.set_cell_properties(frame, cell_id, properties)
 
-        self.assertEqual(o_cif, r_cifs[0])
-        self.assertEqual(o_schnitz, r_schnitz[0])
+        schnitz_after = self.test_db._get_schnitz_obj(frame, cell_id).__dict__.copy()
+        schnitz_after.pop("_sa_instance_state")
+        self.assertNotEqual(schnitz_after, schnitz_orig)
+        self.assertEqual(schnitz_after, orig_dict_mod)
 
     def test_get_cell_params(self):
         cell_id = 3 
@@ -186,7 +164,7 @@ class TrackDataDB(unittest.TestCase):
         c_param = ((2.0*frame, 1.0*frame), 3.0*frame, 4.0*frame, 0.5*frame)
         self.assertEqual(cell_param, c_param)
 
-    def test_add_or_replace_in_db(self):
+    def test_get_cell_params(self):
         ## Replace cell 3 
         cell_id = 3 
         frame = 5
@@ -213,6 +191,10 @@ class TrackDataDB(unittest.TestCase):
         newer_state = self.test_db.get_cell_state(frame, cell_id)
         self.assertEqual("airplane", newer_state)
 
+    def test_get_cell_list(self):
+        cell_list = self.test_db.get_cell_list()
+        expected = [ 1, 3]
+        self.assertEqual(cell_list, expected)
 
     # def test_save_db(self):
     #     self.assertTrue(False)

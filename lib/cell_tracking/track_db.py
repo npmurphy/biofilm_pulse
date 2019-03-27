@@ -40,9 +40,7 @@ class Schnitz(Base):
         return classes_match and attrs_match
 
     def __repr__(self):
-        return "Schnitz {0} (frame {6}): ({1},{2}), {3}, {4}, {5}".format(
-            self.id, self.row, self.col, self.length, self.width, self.angle, self.frame
-        )
+        return "Cell {cell_id} - Schz {id} in frame {frame} : [({col}, {row}), {length}, {width}, {angle}]".format(**self.__dict__)
 
 class Cell(Base):
     __tablename__ = "cell"
@@ -61,7 +59,7 @@ class Cell(Base):
         return classes_match and attrs_match
 
     def __repr__(self):
-        return "Cell {0} - {1} - {2}".format(self.cell_id, self.parent, self.status)
+        return "Cell {id} child of {parent} status: {status}".format(**self.__dict__)
 
 # class CellInFrame(Base):
 #     __tablename__ = "cellinframe"
@@ -149,85 +147,78 @@ class TrackDB(object):
         self.session.commit()
     
     def _get_schnitz_obj(self, frame, cell_id):
-        print("gettering frame=", frame, "cell ", cell_id)
-        # print(self.session.query(CellInFrame).filter_by(cell_id=cell_id).all())
-        # for s in (self.session.query(CellInFrame, Schnitz)
-        #                            .filter(CellInFrame.cell_id==cell_id)
-        #                            .join(Schnitz) 
-        #                            .filter(Schnitz.frame==frame)
-        #                            .all()):
-        #     print(s)
-        print(self.session.query(CellInFrame)
-                              .filter(CellInFrame.cell_id==cell_id)
-                              .join(Schnitz) 
-                              .filter(Schnitz.frame==frame)
-                              .one())
-        cif = (self.session.query(CellInFrame)
-                           .filter(CellInFrame.cell_id==cell_id)).one()
-        print(cif)
-        sch = (cif.join(Schnitz) 
-                  .filter(Schnitz.frame==frame)
-                  .all())
-        print(sch)
-        # cell_inframe = (
-        #     self.session.query(CellInFrame)
-        #                 .filter_by(frame=frame, cell_id=cell_id)
-        #                 .first()
-        # )
-        # sch = self.session.query(Schnitz).filter_by(id=cell_inframe.schnitz_id).first()
-        return cif, s
+        return self._get_schnitz_query(frame, cell_id).one()
+    
+    def _get_schnitz_query(self, frame, cell_id):
+        sch = (self.session.query(Schnitz)
+                           .filter(Schnitz.cell_id==cell_id, Schnitz.frame==frame)
+                           )
+        return sch
+
+    # def _set_or_create(self, model, defaults=None, **kwargs):
+
+    #     instance = session.query(model).filter_by(**kwargs).first()
+    #     if instance:
+    #         return instance
+    #     else:
+    #         params = dict((k, v) for k, v in kwargs.iteritems() if not isinstance(v, ClauseElement))
+    #         if defaults:
+    #             params.update(defaults)
+    #         instance = model(**params)
+    #         return instance
 
     def get_cell_params(self, frame, cell_id):
-        cif, s = self._get_schnitz_obj(frame, cell_id)
+        s = self._get_schnitz_obj(frame, cell_id)
         return (s.col, s.row), s.length, s.width, s.angle
 
     # def set_cell_params(self, frame, cell_id, cell_props):
 
-    def get_cells_list(self):
-        all_cells = self.session.query(Cell).all().id
-        print(all_cells)
+    def get_cell_list(self):
+        all_cells = [ c.id for c in self.session.query(Cell).all()]
         return all_cells
 
     def get_cell_state(self, frame, cell_id):
-        cif, s = self._get_schnitz_obj(frame, cell_id)
-        return cif.state
+        s = self._get_schnitz_obj(frame, cell_id)
+        return s.state
     
     def set_cell_state(self, frame, cell_id, state):
-        cif, s = self._get_schnitz_obj(frame, cell_id)
-        cif.state = state
+        s = self._get_schnitz_obj(frame, cell_id)
+        s.state = state
         self.session.commit()
 
     def set_cell_properties(self, frame, cell_id, properties):
-        cell_exists = (
-            self.session.query(CellInFrame)
-            .filter_by(frame=frame, cell_id=cell_id)
-            .first()
-        )
+        try:
+            _ = (self.session.query(Cell)
+                                    .filter(Cell.id==cell_id)
+                                    .one())
+        except sqaorm.exc.NoResultFound as e:
+            raise ValueError("Cell {0} does not exist yet".format(cell_id)) from e
 
         schnitz_props = [k for k in Schnitz.__dict__ if "__" not in k]
-        cell_props = {k: v for k, v in properties.items() if k in schnitz_props}
-
-        if cell_exists:
-            schnitz = (
-                self.session.query(Schnitz).filter_by(id=cell_exists.schnitz_id)
-            ).update(cell_props)
-        else:
-            schnitz = Schnitz(**cell_props)
+        schnitz_part = {k: v for k, v in properties.items() if k in schnitz_props}
+        schnitz_part.update({"frame": frame, "cell_id": cell_id})
+        
+        schnitz_q = self._get_schnitz_query(frame, cell_id)
+        s_l = len(schnitz_q.all())
+        if s_l == 0:
+            schnitz = Schnitz(**schnitz_part)
             self.session.add(schnitz)
             self.session.flush()
-            self.session.refresh(schnitz)  # need this to get the new pk
-            c = CellInFrame(
-                **{
-                    "frame": frame,
-                    "schnitz_id": schnitz.id,
-                    "cell_id": cell_id,
-                }
-            )
-            self.session.add(c)
+        elif s_l == 1:
+            schnitz_q.update(schnitz_part)
             self.session.flush()
+        else :
+            raise ValueError("{0} Scnitz in frame {1} as cell {2}".format(s_l, frame, cell_id))
 
-        if "state" in properties:
-            self.set_cell_state(frame, cell_id, properties["state"])
+        # try:
+        #     print("trying")
+        #     schnitz_exists = self._get_schnitz_query(frame, cell_id).one()
+        #     #print(len(schnitz_exists.all()))
+        #     schnitz_exists.update(schnitz_part)
+        # except sqaorm.exc.NoResultFound:
+        #     print("failed")
+        # finally:
+        self.session.flush()
 
 """
 def main():
