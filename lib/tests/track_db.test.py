@@ -164,7 +164,7 @@ class TrackDataDB(unittest.TestCase):
         c_param = ((2.0*frame, 1.0*frame), 3.0*frame, 4.0*frame, 0.5*frame)
         self.assertEqual(cell_param, c_param)
 
-    def test_get_cell_params(self):
+    def test_set_cell_params(self):
         ## Replace cell 3 
         cell_id = 3 
         frame = 5

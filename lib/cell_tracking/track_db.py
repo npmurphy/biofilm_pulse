@@ -171,7 +171,16 @@ class TrackDB(object):
         s = self._get_schnitz_obj(frame, cell_id)
         return (s.col, s.row), s.length, s.width, s.angle
 
-    # def set_cell_params(self, frame, cell_id, cell_props):
+    def set_cell_params(self, frame, cell_id, cell_props):
+        center, length, width, angle = cell_props 
+        cell = {}
+        cell["row"] = center[1]
+        cell["col"] = center[0]
+        cell["length"] = length
+        cell["width"] = width
+        cell["angle"] = angle
+        self.set_cell_properties(frame, cell_id, cell)
+
 
     def get_cell_list(self):
         all_cells = [ c.id for c in self.session.query(Cell).all()]
