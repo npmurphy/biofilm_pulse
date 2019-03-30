@@ -30,7 +30,9 @@ from lib.cell_tracking import auto_match
 
 import scipy.ndimage
 
-matplotlib.use('TKAgg')
+#matplotlib.use('TKAgg')
+#matplotlib.use('GTKAgg')
+matplotlib.use('Qt5Agg')
 
 #TODO add state (spore etc) notification to ellipse
 #TODO hide segmentation button (s)
@@ -71,6 +73,7 @@ class State():
         # Trying to plot things like numbers on that makes the background image be scaled over the initial 
         # size while the plots go to the initial place. to avoid that I am 
         # getting an inital size an settign it to be the image size. :()
+        print(self.filepattern.format(self.image_range[0]))
         init_shape = get_shape(self.filepattern.format(self.image_range[0]))
         self.vmaxs = vmax
         self.cells = self.trackdata.cells.keys()
@@ -486,6 +489,7 @@ class State():
     
     def select_frame(self, event):
         print(event)
+        print(event.inaxes)
         if (event.inaxes.name == "cell_trace") or (event.inaxes.name == "compiled_trace"):
             select = int(np.round(event.xdata))
             print("Selecting frame", select)
@@ -562,10 +566,17 @@ class State():
 
     def on_key_press(self, event):
         #print("type", event.key)
-        if event.key == "t":
-            self.track_cell()            
-        elif event.key == "z":# used to be a
-            self.add_new_cell_to_frame(self.current_cell_id)
+        event_dict = { 
+            "t" : self.track_cell
+        }
+
+        try: 
+            action = event_dict[event.key]
+            action()
+        except KeyError as e:
+            pass
+        if event.key == "v":# used to be a
+            self.add_new_cell_to_frame(str(len(self.cells)+1))
         # elif event.key == "t":
         #     self.update_tree(True)
         elif event.key == "A":
