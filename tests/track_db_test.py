@@ -277,15 +277,36 @@ class TrackDataDB(unittest.TestCase):
         db_cells = self.test_db._get_cell_family_edges()
         self.assertEqual(cells, db_cells)
 
-    @unittest.skip
-    def test_what_was_cell_called_at_frame(self):
-        self.assertFalse(True)
+    # def test_what_was_cell_called_at_frame(self):
+    #     start_cell = 3
+    #     frame = 2
+    #     expected_name = 1
+    #     name = self.test_db.what_was_cell_called_at_frame(frame, start_cell)
+    #     self.assertEqual(name, expected_name)
 
-    # def test_save_db(self):
-    #     self.assertTrue(False)
+    def test_save_db(self):
+        cell_id = 3 
+        frame = 7
+        p = ( (5.0, 10), 1.0, 9.0, 0.5)
 
-    # def test_reopens_old_db(self):
-    #     self.assertTrue(False)
+        original = self.test_db.get_cell_params(frame, cell_id)
+
+        self.test_db.set_cell_params(frame, cell_id, p)
+        newly_set = self.test_db.get_cell_params(frame, cell_id)
+        self.assertNotEqual(original, newly_set)
+        self.assertEqual(p, newly_set)
+
+        self.test_db.save()
+        self.test_db.session.close()
+
+        # the objects are still there so this still works?  
+        #retry = self.test_db.get_cell_params(frame, cell_id)
+
+        new_db = TrackDB(self.test_path)
+        modified = new_db.get_cell_params(frame, cell_id)
+        self.assertNotEqual(original, modified)
+        self.assertEqual(p, modified)
+
 
 
 if __name__ == "__main__":

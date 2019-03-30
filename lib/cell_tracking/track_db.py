@@ -71,7 +71,7 @@ class TrackDB(object):
         # TODO add states if its new
         # TODO add states table if new
 
-    def save(self, path):
+    def save(self):
         # ext = ".{:%Y-%m-%d_%H-%M}".format(datetime.datetime.now())
         # try:
         #     shutil.copy(path, path + ext)
@@ -251,10 +251,13 @@ class TrackDB(object):
         lineage.reverse()
         return lineage
 
-    def what_was_cell_called_at_frame(self, cell, frame):
-        for c in self.get_cell_lineage(cell):
-            if self.get_cell_state(frame, c):
-                return cell
+    # def what_was_cell_called_at_frame(self, frame, cell):
+    #     lineage = self.get_cell_lineage(cell)
+    #     print(lineage)
+    #     for c in self.get_cell_lineage(cell):
+    #         print(frame, c)
+    #         if self.get_cell_state(frame, c):
+    #             return cell
 
     def plot_tree(self, ax, node_colors, node_ypos):
         tree = self.make_tree()
