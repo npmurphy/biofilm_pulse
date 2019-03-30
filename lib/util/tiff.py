@@ -8,8 +8,8 @@ def get_shape(path):
         #     res =  tf.series[0].shape
         #     return res[0], res[1]
         # except AttributeError: 
-        rows = tf.pages[0].image_length
-        cols = tf.pages[0].image_width
+        rows = tf.pages[0].imagelength
+        cols = tf.pages[0].imagewidth
         return rows, cols
 
 def is_rgb(path):
