@@ -8,6 +8,7 @@ import sys
 import matplotlib
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
+import matplotlib.collections
 #import matplotlib.widgets as mplw
 import numpy as np
 #import scipy.io
@@ -125,6 +126,7 @@ class State():
 
         self.interactive_cell = None 
         self.non_edit_cells = []
+        self.large_ellipse_coll = None
 
         self.ui_selectors = []
         self.ui_selectors.append(self.fig.canvas.mpl_connect('button_press_event', self.select_cell_id_from_tree))
@@ -223,19 +225,18 @@ class State():
         return "Image:{0} {1} Cell#{2}: of {3}".format(*vals)
 
     def show_non_edit_cells(self, frame):
-        # get the list of existing patches. 
-        for (cell, label) in self.non_edit_cells:
-            cell.remove()
-            #label.remove()
-        self.non_edit_cells = []
-        for cell_id in self.trackdata.get_cells_in_frame(frame):
-            if (cell_id != self.current_cell_id): 
-                cell_params = self.trackdata.get_cell_params(frame, cell_id)
-                cell = cell_editor.get_cell(*cell_params, facecolor="none", edgecolor=self.cmrand(int(cell_id)), linewidth=2 )
-                #text = 
-                self.non_edit_cells += [(cell, cell_id)]
-                self.ax_img.add_patch(cell)
-        # add a number
+        if self.large_ellipse_coll:
+            self.large_ellipse_coll.remove()
+
+        def create_ellipses(cell_id):
+            cell_params = self.trackdata.get_cell_params(frame, cell_id)
+            cell = cell_editor.get_cell(*cell_params, facecolor="none", edgecolor=self.cmrand(int(cell_id)), linewidth=2 )
+            cell.cell_id = cell_id
+            return cell
+
+        self.non_edit_cells = [ create_ellipses(c) for c in self.trackdata.get_cells_in_frame(frame) if (c != self.current_cell_id) ]
+        coll = matplotlib.collections.PatchCollection(self.non_edit_cells)
+        self.large_ellipse_coll = self.ax_img.add_collection(coll)
 
     def exagerate_image(self, img):
         img_sobel = skimage.filters.sobel(img)
@@ -483,10 +484,10 @@ class State():
                 hits_edit, props = self.interactive_cell.ellipse.contains(event)
                 if hits_edit:
                     return None
-            for patch, cid in self.non_edit_cells:
-                hit, props = patch.contains(event)
-                if hit:
-                    self.move_to_cell(cid)
+            hit, cid = self.large_ellipse_coll.contains(event)            
+            if hit:
+                cid = self.non_edit_cells[cid["ind"][0]].cell_id
+                self.move_to_cell(cid)
     
     def select_frame(self, event):
         print(event)
