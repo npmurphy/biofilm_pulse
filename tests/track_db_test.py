@@ -1,13 +1,17 @@
+import io
 import os.path
+import sys
+sys.path += [".."]
+
 import tempfile
 import unittest
+
+import pandas as pd
 
 from lib.cell_tracking import track_db
 from lib.cell_tracking.track_data import TrackData
 from lib.cell_tracking.track_db import TrackDB
-        
-import pandas as pd
-import io
+import sqlalchemy.orm
 
 SCHNITZ_TABLE = """
 id|row|col|length|width|angle|frame|state|status|cell_id
@@ -18,23 +22,27 @@ id|row|col|length|width|angle|frame|state|status|cell_id
 25|5.0|10.0|15.0|20.0|2.5|5|dividing|auto|3.0
 26|6.0|12.0|18.0|24.0|3.0|6|dividing|auto|3.0
 27|7.0|14.0|21.0|28.0|3.5|7|dividing|auto|3.0
+30|12.0|12.0|21.0|20.0|3.5|7|dividing|auto|5.0
 """
-# CELLSINFRAME_TABLE = """
-# id	cell_id	schnitz_id	status
-# 1	1	11	checked
-# 2	1	12	checked
-# 3	1	13	checked
-# 4	3	24	checked
-# 5	3	25	checked
-# 6	3	26	checked
-# 7	3	27	checked
-# """
 
 CELL_TABLE = """
 id|parent|status
 1||checked
 3|1.0|auto
+5|1.0|auto
 """
+
+def object_to_dict(object):
+    od = object.__dict__.copy()
+    od.pop("_sa_instance_state", None)
+    return od
+
+def compare_objects(theone, other):
+    classes_match = isinstance(other, theone.__class__)
+    a = object_to_dict(theone)
+    b = object_to_dict(other)
+    attrs_match = a == b
+    return classes_match and attrs_match
 
 class TrackDataDB(unittest.TestCase):
 
@@ -165,36 +173,113 @@ class TrackDataDB(unittest.TestCase):
         self.assertEqual(cell_param, c_param)
 
     def test_set_cell_params(self):
-        ## Replace cell 3 
         cell_id = 3 
         frame = 5
-        p = {
-            "row": 10.0,
-            "col": 5.0,
-            "length": 1.0,
-            "width": 9.0,
-            "angle": 0.5,
-            "state": "spore" }
+        p = ( (5.0, 10), 1.0, 9.0, 0.5)
 
-        replaced_p = self.test_db.get_cell_params(frame, cell_id)
+        original = self.test_db.get_cell_params(frame, cell_id)
 
-        self.test_db.set_cell_properties(frame, cell_id, p)
-        should_be = (p["col"], p["row"]), p["length"], p["width"], p["angle"]
+        self.test_db.set_cell_params(frame, cell_id, p)
         newly_set = self.test_db.get_cell_params(frame, cell_id)
-        self.assertNotEqual(replaced_p, newly_set)
-        self.assertEqual(should_be, newly_set)
-
-        new_state = self.test_db.get_cell_state(frame, cell_id)
-        self.assertEqual(p["state"], new_state)
         
-        self.test_db.set_cell_state(frame, cell_id, "airplane")
-        newer_state = self.test_db.get_cell_state(frame, cell_id)
-        self.assertEqual("airplane", newer_state)
+        self.assertNotEqual(original, newly_set)
+        self.assertEqual(p, newly_set)
+
+    def test_blank_cell_params(self):
+        cell_id = 3 
+        frame = 5
+        self.test_db.get_cell_params(frame, cell_id)
+        self.test_db.blank_cell_params(frame, cell_id)
+        self.assertRaises(sqlalchemy.orm.exc.NoResultFound, self.test_db.get_cell_params,frame, cell_id)
+        
+
+
+    def test_set_cell_state(self):
+        cell_id = 3 
+        frame = 5
+
+        original_state = self.test_db.get_cell_state(frame, cell_id)
+        self.assertEqual("dividing", original_state)
+
+        new_state = "airplane"
+        self.test_db.set_cell_state(frame, cell_id, new_state)
+        set_state = self.test_db.get_cell_state(frame, cell_id)
+        self.assertEqual(new_state, set_state)
 
     def test_get_cell_list(self):
         cell_list = self.test_db.get_cell_list()
-        expected = [ 1, 3]
+        expected = [ 1, 3, 5]
         self.assertEqual(cell_list, expected)
+
+    def test_dose_cell_exist(self):
+        self.assertTrue(self.test_db.does_cell_exist(1))
+        self.assertFalse(self.test_db.does_cell_exist(2))
+        self.assertTrue(self.test_db.does_cell_exist(3))
+
+    def test_get_parent_of(self):
+        self.assertEqual(1,self.test_db.get_parent_of(3))
+    
+    def test_set_parent_of(self):
+        before = self.test_db.get_parent_of(1)
+        self.assertIsNone(before)
+        
+        # 2 doesnt exist
+        self.assertRaises(sqlalchemy.orm.exc.NoResultFound ,
+                            self.test_db.set_parent_of,1, 2)
+
+        self.test_db.set_parent_of(1, 3)
+        after = self.test_db.get_parent_of(1)
+        self.assertEqual(after, 3)
+
+    def test_split_cell_from_point(self):
+        cell = 3
+        start_f, end_f = 4, 7
+
+        rf, rl = self.test_db.get_first_and_final_frame(cell)
+        self.assertEqual(start_f, rf)
+        self.assertEqual(end_f, rl)
+        
+        self.test_db.split_cell_from_point(3, 5, new_cell=4)
+        cell = 3
+        start_f, end_f = 4, 4
+        rf, rl = self.test_db.get_first_and_final_frame(cell)
+        self.assertEqual(start_f, rf)
+        self.assertEqual(end_f, rl)
+        cell = 4
+        start_f, end_f = 5, 7
+        rf, rl = self.test_db.get_first_and_final_frame(cell)
+        self.assertEqual(start_f, rf)
+        self.assertEqual(end_f, rl)
+
+
+    def test_get_final_frame(self):
+        cell_finals = [(1, 3), (2, -1), (3, 7)] 
+        for cell, final_f in cell_finals:
+            self.assertEqual(final_f, self.test_db.get_final_frame(cell))
+    
+    def test_get_first_and_final_frame(self):
+        cell_finals = [(1, 1, 3), (2, -1, -1), (3, 4, 7)] 
+        for cell, first_f, final_f in cell_finals:
+            rf, rl = self.test_db.get_first_and_final_frame(cell)
+            self.assertEqual(first_f, rf)
+            self.assertEqual(final_f, rl)
+
+    def test_get_cells_in_frame(self):
+        frame = 7
+        ans = [3, 5]
+        cells = self.test_db.get_cells_in_frame(frame, states=["there", "dividing"])
+        self.assertEqual(ans, cells)
+        cells = self.test_db.get_cells_in_frame(100, states=["there", "dividing"])
+        self.assertEqual([], cells)
+
+    def test_get_cell_family_edges(self):
+        cells = [ (0, 1), (1,3), (1,5)]
+        db_cells = self.test_db._get_cell_family_edges()
+        self.assertEqual(cells, db_cells)
+
+    @unittest.skip
+    def test_what_was_cell_called_at_frame(self):
+        self.assertFalse(True)
 
     # def test_save_db(self):
     #     self.assertTrue(False)
