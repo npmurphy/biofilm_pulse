@@ -15,7 +15,7 @@ class Schnitz(Base):
     width = sqa.Column(sqa.Float)
     angle = sqa.Column(sqa.Float)
     frame = sqa.Column(sqa.Integer)
-    state = sqa.Column(sqa.String(12), default="growing")
+    state = sqa.Column(sqa.String(12), default="there")
     status = sqa.Column(sqa.String(12), default="auto")
     cell_id = sqa.Column(sqa.Integer, sqa.ForeignKey("cell.id"))
 
@@ -484,21 +484,43 @@ def view_lineage_tree(td):
     plt.show()
 
 
-"""
-def load_json():
+def load_json(json_path, sql_path):
     from lib.cell_tracking.track_data import TrackData
 
     td = TrackData(json_path)
-    # for i in range(td.metadata["max_frame"]):
-    #    for
-    for cell in td.get_all_cells_list():
-        first, final = td.get_first_and_final_frame(cell)
-        for f in range(first, final + 1):
-            cell_p = td.get_cell_property_list(f, cell)
-            schnitz = Schnitz(**cell_p)
-            session.add(schnitz)
-            Cell({"frame": f, "schintz": new_id, "cell": int(cell)})
-"""
+    
+    cell_db = TrackDB(sql_path)
+
+    def parent(cell):
+        p = td.cells[cell]["parent"]
+        if p == "0":
+            return None
+        return int(p)
+
+    def stater(state_num):
+        if state_num == 1:
+            return "there"
+        return td._default_states[state_num]
+
+    for cell in td.get_cells_list():
+        cell_db._create_cell(int(cell), {"parent": td.cells[cell]["parent"], "status":"migrated"})
+        print(int(cell), {"parent": parent(cell), "status":"migrated"})
+        try: 
+            first_f, final_f = td.get_first_and_final_frame(str(cell))
+            for f in range(first_f, final_f + 1):
+                cell_p = td.get_cell_properties(f, str(cell))
+                cell_p["status"] = "migrated"
+                cell_p["state"] = stater(cell_p["state"])
+                cell_db.set_cell_properties(f, int(cell), cell_p)
+                print(cell_p)
+        except ValueError as e:
+            print(e)
+            pass
+
+        cell_db.save()
+
 
 if __name__ == "__main__":
-    main()
+    jsonpath = '/media/nmurphy/BF_Data_Orange/proc_data/iphox_movies//BF10_timelapse/Column_2/cell_track.json'
+    sql_path = "/tmp/bf_image.sqllite"
+    load_json(jsonpath, sql_path)

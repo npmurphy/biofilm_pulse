@@ -191,7 +191,7 @@ class TrackData(object):
 
     def get_first_and_final_frame(self, cell:str):
         frames_nonzero = [ f for f, s in enumerate(self.cells[cell]["state"]) if s > 0 ]
-        if len(frames_nonzero):
+        if not len(frames_nonzero):
             raise ValueError("cell {0} does not appear in any frame".format(cell))
         first = min(frames_nonzero)
         final = max(frames_nonzero)
