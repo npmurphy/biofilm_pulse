@@ -577,6 +577,10 @@ class State():
             "w": State.save_segmentation(self),
             "g": State.guess_next_cell_location(self, direction=+1),
             "f": State.guess_next_cell_location(self, direction=-1),
+            "pagedown": State.move_ui_to_image(self, self.current_image + 1),
+            "d": State.move_ui_to_image(self, self.current_image + 1),
+            'pageup': State.move_ui_to_image(self, self.current_image - 1),
+             "a": State.move_ui_to_image(self, self.current_image - 1),
         }
 
         try: 
@@ -613,10 +617,6 @@ class State():
         elif event.key == "i":
             self.art_img.set_visible(not self.art_img.get_visible())
             self.fig.canvas.draw_idle()
-        elif event.key == 'pagedown' or event.key == "d":
-            self.move_ui_to_image(self.current_image + 1)
-        elif event.key == 'pageup' or event.key == "a":
-            self.move_ui_to_image(self.current_image - 1)
         else:
             print("Pressing {0} does nothing yet".format(event.key))
 

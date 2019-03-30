@@ -47,16 +47,15 @@ class MetaData(Base):
 
 
 class TrackDB(object):
-    # _default_states = {
-    #     0: "NE",
-    #     1: "growing",
-    #     2: "divided",
-    #     3: "disapeared",
-    #     4: "sporulating",
-    #     5: "spore",
-    # }
+    _default_states = {
+        1: "there",
+        2: "divided",
+        3: "disapeared",
+        4: "sporulating",
+        5: "spore",
+    }
 
-    _default_state = "there"
+    _default_state = _default_states[1]
     _default_status = "auto"
 
     def __init__(self, path):
@@ -66,10 +65,8 @@ class TrackDB(object):
         Base.metadata.create_all(engine)
         Session = sqaorm.sessionmaker(bind=engine)
         self.session = Session()
-        # self.cells = CellAccess(self.session)
-        # TODO add metadata if its new
-        # TODO add states if its new
-        # TODO add states table if new
+        self.metadata = {"states": self._default_states} 
+        self.states = {v: int(k) for k, v in self.metadata["states"].items()}
 
     def save(self):
         # ext = ".{:%Y-%m-%d_%H-%M}".format(datetime.datetime.now())
@@ -78,6 +75,7 @@ class TrackDB(object):
         # except FileNotFoundError as e:
         #     pass
         self.session.commit()
+        print("ran DB commit")
 
     def _get_schnitz_obj(self, frame, cell_id):
         return self._get_schnitz_query(frame, cell_id).one()
@@ -88,12 +86,20 @@ class TrackDB(object):
         )
         return sch
 
-    def _create_cell(self, cell_id, params):
+    def create_cell(self, cell_id, params=None):
+        if params is None:
+            params = {}
         cp = params.copy()
         cp.update({"id": cell_id})
         c = Cell(**cp)
         self.session.add(c)
-        self.session.commit()
+        #self.session.commit()
+    
+    def create_cell_if_new(self, cell_id, params=None):
+        cell = self.session.query(Cell).filter(Cell.id == cell_id).all()
+        if cell:
+            return None
+        self.create_cell(cell_id, params)
 
     def get_cell_params(self, frame, cell_id):
         s = self._get_schnitz_obj(frame, cell_id)
@@ -109,6 +115,15 @@ class TrackDB(object):
         cell["angle"] = angle
         self.set_cell_properties(frame, cell_id, cell)
 
+    def add_new_ellipses_to_frame(self, ellipse_list, frame):
+        cell_id = self.get_max_cell_id() 
+        for ellipse in ellipse_list:
+            cell_id += 1
+            self.set_cell_params(frame, cell_id, ellipse)
+            self.set_cell_status(frame, cell_id, "auto")
+        
+
+
     def blank_cell_params(self, frame, cell_id):
         self.delete_schnitz(frame, cell_id)
 
@@ -118,6 +133,9 @@ class TrackDB(object):
     def get_cell_list(self):
         all_cells = [c.id for c in self.session.query(Cell).all()]
         return all_cells
+    
+    def get_max_cell_id(self):
+        return max(self.get_cell_list())
 
     def does_cell_exist(self, cell_id):
         cell = self.session.query(Cell).filter(Cell.id == cell_id).all()
@@ -127,13 +145,21 @@ class TrackDB(object):
             return False
 
     def get_cell_state(self, frame, cell_id):
-        s = self._get_schnitz_obj(frame, cell_id)
+        sch_list = self._get_schnitz_query(frame, cell_id).all()
+        if not sch_list: 
+            return 0
+        s = sch_list[0]
         return s.state
 
     def set_cell_state(self, frame, cell_id, state):
         s = self._get_schnitz_obj(frame, cell_id)
         s.state = state
-        self.session.commit()
+        #self.session.commit()
+    
+    def set_cell_status(self, frame, cell_id, status):
+        s = self._get_schnitz_obj(frame, cell_id)
+        s.status = status
+        #self.session.commit()
 
     def set_cell_properties(self, frame, cell_id, properties):
         try:
@@ -172,6 +198,10 @@ class TrackDB(object):
     def extend_max_frames(self, new_max):
         # dont_need this
         return None
+    
+    def get_max_frames(self):
+        schnitz = self.session.query(Schnitz).all()
+        return max([s.frame for s in schnitz])
 
     def get_parent_of(self, child):
         return (self.session.query(Cell).filter(Cell.id == child).one()).parent
@@ -180,7 +210,7 @@ class TrackDB(object):
         cell = (self.session.query(Cell).filter(Cell.id == child)).one()
         putative_parent = (self.session.query(Cell).filter(Cell.id == parent)).one()
         cell.parent = putative_parent.id
-        self.session.commit()
+        #self.session.commit()
         return cell
 
     def split_cell_from_point(
@@ -199,7 +229,7 @@ class TrackDB(object):
             .update({"cell_id": new_cell})
         )
         if not self.does_cell_exist(new_cell):
-            self._create_cell(new_cell, new_cell_params)
+            self.create_cell(new_cell, new_cell_params)
 
     def get_first_and_final_frame(self, cell):
         schnitz = self.session.query(Schnitz).filter(Schnitz.cell_id == cell)
@@ -250,6 +280,10 @@ class TrackDB(object):
             lineage += [pred]
         lineage.reverse()
         return lineage
+    
+    def get_final_decendants(self, cell):
+        tree = self.make_tree()
+        return get_final_decendents(tree, cell)
 
     # def what_was_cell_called_at_frame(self, frame, cell):
     #     lineage = self.get_cell_lineage(cell)
@@ -271,7 +305,7 @@ class TrackDB(object):
             ax=ax,
             with_labels=True,
         )
-        return ax, posdef
+        return ax, pos
 
 
 def frame_pos(G, root, vert_locs, width=1.0, xcenter=0.5, pos=None, parent=None):
@@ -448,20 +482,6 @@ def set_and_check_parent(td, par, chi):
 #     # td.save(path)
 
 
-def convert_angles_to_radians(td_path):
-    import numpy as np
-
-    td = TrackData(td_path)
-    for cell_id in td.cells.keys():
-        degs = td.cells[cell_id]["angle"]
-        rads = [cell_dimensions.limit_angle(np.deg2rad(d)) for d in degs]
-        td.cells[cell_id]["angle"] = rads
-        print(degs)
-        print(rads)
-        print("-----------")
-    td.save(td_path)
-
-
 def get_tree_points(td):
     # get the number of leaves.
     # set as width.
@@ -503,7 +523,7 @@ def load_json(json_path, sql_path):
         return td._default_states[state_num]
 
     for cell in td.get_cells_list():
-        cell_db._create_cell(int(cell), {"parent": td.cells[cell]["parent"], "status":"migrated"})
+        cell_db.create_cell(int(cell), {"parent": td.cells[cell]["parent"], "status":"migrated"})
         print(int(cell), {"parent": parent(cell), "status":"migrated"})
         try: 
             first_f, final_f = td.get_first_and_final_frame(str(cell))
