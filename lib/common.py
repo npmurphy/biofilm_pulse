@@ -10,8 +10,6 @@ import tifffile
         
 
 
-
-
 # def save_tiff(filename, im, **args):
 #     tifffile.imsave(filename, im, **args)
 
@@ -36,8 +34,18 @@ def read_lsm_channel(channel, path):
         # height = (tf.pages[0]).image_length
 
         track_data = tf.asarray()
-        for track_num, trackinfo in enumerate(tf.pages[0].cz_lsm_scan_info["tracks"]):
-            wavelength = trackinfo['illumination_channels'][0]["wavelength"]
+        try:
+            trackdata = tf.pages[0].cz_lsm_scan_info["tracks"]
+            illchan = 'illumination_channels'
+            wavelen = "wavelength"
+        except AttributeError as _: 
+            trackdata = tf.lsm_metadata["ScanInformation"]["Tracks"]
+            illchan = "IlluminationChannels"
+            wavelen = "Wavelength"
+
+
+        for track_num, trackinfo in enumerate(trackdata):
+            wavelength = trackinfo[illchan][0][wavelen]
             if (wavelength >= 399) and (wavelength < 487) and (chan == "b"):
                 return track_data[0,0,track_num, :, :] 
             elif (wavelength >= 450) and (wavelength < 548) and (chan == "g"):
