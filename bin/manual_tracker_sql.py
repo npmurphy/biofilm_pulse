@@ -230,12 +230,19 @@ class State():
 
         def create_ellipses(cell_id):
             cell_params = self.trackdata.get_cell_params(frame, cell_id)
-            cell = cell_editor.get_cell(*cell_params, facecolor="none", edgecolor=self.cmrand(int(cell_id)), linewidth=2 )
+            cell = cell_editor.get_cell(*cell_params)
+            #cell = cell_editor.get_cell(*cell_params, facecolor="none", edgecolor=self.cmrand(int(cell_id)), linewidth=2 )
             cell.cell_id = cell_id
             return cell
 
         self.non_edit_cells = [ create_ellipses(c) for c in self.trackdata.get_cells_in_frame(frame) if (c != self.current_cell_id) ]
-        coll = matplotlib.collections.PatchCollection(self.non_edit_cells)
+        coll = matplotlib.collections.PatchCollection(self.non_edit_cells,
+                                                      #cmap=self.cmrand, 
+                                                      facecolor="none",
+                                                      linewidth=2)
+        coll.set_edgecolor([self.cmrand(c.cell_id) for c in self.non_edit_cells])
+        # coll.set_array(
+        #     np.array([ self.cmrand[c.cell_id] for c in self.non_edit_cells]))
         self.large_ellipse_coll = self.ax_img.add_collection(coll)
 
     def exagerate_image(self, img):
@@ -452,7 +459,7 @@ class State():
         self.art_img.set_clim(vmax=self.bg_img.max()*self.vmaxs)
         self.ax_img.set_title(self.make_title())
         ## update tree
-        self.update_tree(recalculate_parents=False)#False)
+        #self.update_tree(recalculate_parents=False)#False)
         self.fig.canvas.draw_idle()
         # for ot in self.text_labels:
         #     print("removing old labels")
@@ -516,6 +523,7 @@ class State():
             print("updating the data structure")
             print("OLD", self.trackdata.get_cell_params(self.current_image, self.current_cell_id))
             properties = self.interactive_cell.get_position_props()
+            properties.update({"status":"checked"})
             print("GUI", properties)
             self.trackdata.set_cell_properties(self.current_image, self.current_cell_id, properties)
             print("Saved", self.trackdata.get_cell_params(self.current_image, self.current_cell_id))
@@ -564,25 +572,26 @@ class State():
     
     def delete_cell_in_frame(self, cell, frame):
         self.trackdata.blank_cell_params(frame, cell)
+        self.trackdata.save()
         self.move_ui_to_image(frame)
 
+    
 
     def on_key_press(self, event):
-        #print("type", event.key)
         event_dict = { 
-            "t" : State.track_cell(self),
-            "v" : State.add_new_cell_to_frame(self, self.trackdata.get_max_cell_id()+1),
-            "c" : State.make_current_cell_like_previous_frame(self),
-            "X": State.delete_cell_in_frame(self, self.current_cell_id, self.current_image),
-            "w": State.save_segmentation(self),
-            "g": State.guess_next_cell_location(self, direction=+1),
-            "f": State.guess_next_cell_location(self, direction=-1),
-            "pagedown": State.move_ui_to_image(self, self.current_image + 1),
-            "d": State.move_ui_to_image(self, self.current_image + 1),
-            'pageup': State.move_ui_to_image(self, self.current_image - 1),
-             "a": State.move_ui_to_image(self, self.current_image - 1),
+            "t" : self.track_cell,
+            "w":  self.save_segmentation,
+            "v" : lambda : self.add_new_cell_to_frame(self.trackdata.get_max_cell_id()+1),
+            "c" : self.make_current_cell_like_previous_frame,
+            "X": lambda : self.delete_cell_in_frame(self.current_cell_id, self.current_image),
+            "g": lambda : self.guess_next_cell_location(direction=+1), 
+            "f": lambda : self.guess_next_cell_location(direction=-1),
+            "pagedown": lambda : self.move_ui_to_image(self.current_image + 1),
+            "d": lambda : self.move_ui_to_image(self.current_image + 1),
+            "pageup": lambda : self.move_ui_to_image(self.current_image - 1),
+            "a": lambda : self.move_ui_to_image(self.current_image - 1),
         }
-
+        #print("type", event.key)
         try: 
             action = event_dict[event.key]
             action()
@@ -614,6 +623,9 @@ class State():
                 self.read_numbers = None
                 self.read_in = ""
                 print("not going to change state")
+        elif event.key == "s":
+            self.large_ellipse_coll.set_visible(not self.large_ellipse_coll.get_visible())
+            self.fig.canvas.draw_idle()
         elif event.key == "i":
             self.art_img.set_visible(not self.art_img.get_visible())
             self.fig.canvas.draw_idle()
