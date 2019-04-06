@@ -79,9 +79,16 @@ def predict_next_location_simple(image_pattern, list_of_positions, this_frame, n
     search_w = 70
     results = {}
     for cell_id, (r, c) in list_of_positions:
-        r, c = int(r), int(c) 
-        our_cell = image_1[r-cell_w:r+cell_w, c-cell_w:c+cell_w] 
-        search_area = image_2[r-search_w:r+search_w, c-search_w:c+search_w]
+        r, c = int(r), int(c)
+        # print(r, c) 
+        # print("temp")
+        # print((r-cell_w,r+cell_w), (c-cell_w,c+cell_w)) 
+        our_cell = image_1[max(0,r-cell_w):r+cell_w, c-cell_w:c+cell_w] 
+        #print(our_cell)
+        search_area = image_2[max(0,r-search_w):r+search_w, c-search_w:c+search_w]
+        # print("SEARCH")
+        # print((r-search_w,r+search_w), (c-search_w,c+search_w))
+        # print(search_area)
 
         result = skimage.feature.match_template(search_area, our_cell, pad_input=True)
         the_top_ten_f = np.argsort(result.ravel())[-10:]

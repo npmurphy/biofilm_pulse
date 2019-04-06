@@ -67,12 +67,12 @@ class CellInteractor(object):
         self.canvas.mpl_connect('motion_notify_event', self.motion_notify_callback)
 
     def draw_callback(self, event):
-        print("draw call")
+        #print("draw call")
         self.background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.ax.draw_artist(self.ellipse)
         self.ax.draw_artist(self.line_maj)
         self.ax.draw_artist(self.line_min)
-        self.canvas.blit(self.ax.bbox)
+        #self.canvas.blit(self.ax.bbox) ## This made it work on old versions. 
 
 
     def get_ind_under_point(self, event):

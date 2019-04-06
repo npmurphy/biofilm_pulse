@@ -280,6 +280,9 @@ def interpolate_tracks(track_data, cell_id, start_frame, end_frame):
     track_data.cells[str(cell_id)]["angle"] = list(angles)
 
     known_frames, = np.where(known_states)
+    print("KNOWN", known_frames)
+    if known_frames < 2:
+        return None
     results = np.zeros((5, len(cell_states)))
     fill = np.arange(start_frame, end_frame+1, 1)
     for i, k in keys:

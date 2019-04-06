@@ -119,6 +119,8 @@ class TrackDB(object):
         cell_id = self.get_max_cell_id() 
         for ellipse in ellipse_list:
             cell_id += 1
+            self.create_cell_if_new(cell_id, {"status":"auto"})
+            self.session.flush()
             self.set_cell_params(frame, cell_id, ellipse)
             self.set_cell_status(frame, cell_id, "auto")
         
@@ -156,6 +158,10 @@ class TrackDB(object):
         s.state = state
         #self.session.commit()
     
+    def get_cell_status(self, frame, cell_id):
+        s = self._get_schnitz_obj(frame, cell_id)
+        return s.status
+    
     def set_cell_status(self, frame, cell_id, status):
         s = self._get_schnitz_obj(frame, cell_id)
         s.status = status
@@ -185,15 +191,12 @@ class TrackDB(object):
                 "{0} Scnitz in frame {1} as cell {2}".format(s_l, frame, cell_id)
             )
 
-        # try:
-        #     print("trying")
-        #     schnitz_exists = self._get_schnitz_query(frame, cell_id).one()
-        #     #print(len(schnitz_exists.all()))
-        #     schnitz_exists.update(schnitz_part)
-        # except sqaorm.exc.NoResultFound:
-        #     print("failed")
-        # finally:
-        self.session.flush()
+    def get_cell_properties(self, frame, cell_id, properties=None):
+        schnitz = self._get_schnitz_obj(frame, cell_id).__dict__.copy()
+        schnitz.pop("_sa_instance_state", None)
+        if properties is None:
+            return schnitz
+        return { k: schnitz[k] for k in properties}
 
     def extend_max_frames(self, new_max):
         # dont_need this
@@ -246,6 +249,9 @@ class TrackDB(object):
         return maxf
 
     def get_cells_in_frame(self, frame, states=["there"]):
+        if states is None:
+            listr = [ s[0] for s in self.session.query(Schnitz.state).distinct()]
+            states = listr
         schnitz = self.session.query(Schnitz).filter(
             Schnitz.frame == frame, Schnitz.state.in_(states)
         )
