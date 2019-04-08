@@ -3,12 +3,13 @@ import os.path
 from lib.common import read_lsm_channel
 import skimage.io
 import argparse
-
+import numpy as np
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--channels', nargs="+", default=["r", "g"])
     parser.add_argument('-f', '--files', nargs="+")
+    parser.add_argument('--rotate', type=int, default=0)
     pa = parser.parse_args()
 
     for fn in pa.files:
@@ -23,6 +24,8 @@ if __name__ == "__main__":
         print("Converting", fn)
         for c in pa.channels:
             img = read_lsm_channel(c, fn)
+            if pa.rotate != 0:
+                img = np.rot90(img, pa.rotate)
             #fr = os.path.splitext(fn)[0]
             new_name = basename + "_c" + c + ".tiff"
             new_path = os.path.join(new_dir, new_name)
