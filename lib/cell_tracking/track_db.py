@@ -173,18 +173,18 @@ class TrackDB(object):
         except sqaorm.exc.NoResultFound as e:
             raise ValueError("Cell {0} does not exist yet".format(cell_id)) from e
 
+        new_params = {"frame": frame, "cell_id": cell_id}
         schnitz_props = [k for k in Schnitz.__dict__ if "__" not in k]
         schnitz_part = {k: v for k, v in properties.items() if k in schnitz_props}
-        schnitz_part.update({"frame": frame, "cell_id": cell_id})
-
+        new_params.update(schnitz_part)
         schnitz_q = self._get_schnitz_query(frame, cell_id)
         s_l = len(schnitz_q.all())
         if s_l == 0:
-            schnitz = Schnitz(**schnitz_part)
+            schnitz = Schnitz(**new_params)
             self.session.add(schnitz)
             self.session.flush()
         elif s_l == 1:
-            schnitz_q.update(schnitz_part)
+            schnitz_q.update(new_params)
             self.session.flush()
         else:
             raise ValueError(
@@ -546,7 +546,7 @@ def load_json(json_path, sql_path):
         cell_db.save()
 
 
-if __name__ == "__main__":
-    jsonpath = '/media/nmurphy/BF_Data_Orange/proc_data/iphox_movies//BF10_timelapse/Column_2/cell_track.json'
-    sql_path = "/tmp/bf_image.sqllite"
-    load_json(jsonpath, sql_path)
+# if __name__ == "__main__":
+#     jsonpath = '/media/nmurphy/BF_Data_Orange/proc_data/iphox_movies//BF10_timelapse/Column_2/cell_track.json'
+#     sql_path = "/tmp/bf_image.sqllite"
+#     load_json(jsonpath, sql_path)

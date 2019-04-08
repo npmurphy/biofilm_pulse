@@ -35,6 +35,7 @@ id|parent|status
 def object_to_dict(object):
     od = object.__dict__.copy()
     od.pop("_sa_instance_state", None)
+    od.pop("id")
     return od
 
 def compare_objects(theone, other):
@@ -134,10 +135,9 @@ class TrackDataDB(unittest.TestCase):
         new_cell_expect["cell_id"] = cell_id
         new_cell_expect["status"] = "auto"
 
-        schnitz_after = self.test_db._get_schnitz_query(frame, cell_id).one().__dict__.copy()
-        schnitz_after.pop("_sa_instance_state")
-        schnitz_after.pop("id")
-        self.assertEqual(schnitz_after, new_cell_expect)
+        schnitz_after = self.test_db._get_schnitz_query(frame, cell_id).one()
+        schnitz_a_dict = object_to_dict(schnitz_after)
+        self.assertEqual(schnitz_a_dict, new_cell_expect)
 
 
     def test_set_cell_properties_reset(self):
