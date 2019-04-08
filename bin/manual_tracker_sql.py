@@ -136,8 +136,8 @@ class State():
         self.node_locs = {}
 
         self.ax_cell_compiled_trace = plt.subplot(self.gridspec[1,0:2])
-        self.ax_cell_compiled_trace.set_xlim(0, self.trackdata.get_max_frames())
-        self.ax_cell_compiled_trace.name = "compiled_trace"
+        # self.ax_cell_compiled_trace.set_xlim(0, self.trackdata.get_max_frames())
+        # self.ax_cell_compiled_trace.name = "compiled_trace"
         self.compiled_plots = {}
         #self.art_cell_id_select = self.ax_cell_id_select.scatter(self.cells, np.ones_like(self.cells), c=self.cells, cmap=self.cmrand)
         
