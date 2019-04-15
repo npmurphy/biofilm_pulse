@@ -32,6 +32,7 @@ if __name__ == "__main__":
         pa.files = glob(pa.files[0], recursive=True)
     pa.files = [ f for f in pa.files if f[-4:] == ".tsv"]
 
+
     def read_tsv(path):
         try: 
             df = pd.read_csv(path, sep="\t")
@@ -42,17 +43,23 @@ if __name__ == "__main__":
             lookuppath = dirname.replace(pa.remove_from_path, "")
 
             file_id = filedb.exists_in_db(file_df, {"name": basename, "dirname": lookuppath})
-            if file_id < 0: 
-                is_bad = filedb.exists_in_db(bad_df, {"name": basename, "dirname": lookuppath})
-                if is_bad >= 0:
-                    return None
+            if file_id < 0:
+                if bad_df is not None: 
+                    is_bad = filedb.exists_in_db(bad_df, {"name": basename, "dirname": lookuppath})
+                    if is_bad >= 0:
+                        return None
+                    else:
+                        raise Exception("Couldnt find", basename, lookuppath)
                 else:
-                    raise Exception("Couldnt find", basename, lookuppath)
+                    return None
+            
             df["global_file_id"] = file_id
             return df
         except KeyError as e:
             print(path)
             raise e
+
+
     if pa.append:
         mode = "a"
     else :
