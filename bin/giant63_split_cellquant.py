@@ -245,7 +245,7 @@ def main():
         distmap = scipy.io.loadmat(distmap_path)["distmap_masked"]
         bigmask = scipy.io.loadmat(file_finder.get_labeled_path(base_fn, "biofilmmask"))["image"].astype(np.bool)
 
-        def laphat_segmentation(img, cell_width_pixels):
+        def laphat_segmentation(img): #, cell_width_pixels):
             return laphat_segment_v1(img,
                                         cell_width_pixels=pa.cell_width_pixels,
                                         small_cells=(pa.cell_width_pixels < 6))

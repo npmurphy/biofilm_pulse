@@ -1,4 +1,5 @@
 datasets
+datasets_offline
 proc_data
 raw_data
 .ipynb_checkpoints/

@@ -13,4 +13,16 @@
   "jlb127": ["delqp_sspby"],
   "jlb129": ["delru_sspby"],
   "jlb124": ["wt_sigby_spoiidc"],
-  "jlb024": ["wt_sighy_sigar"]}
+  "jlb024": ["wt_sighy_sigar"], 
+  "jlb106": ["et_sigar_sigby"],
+  "neb008": ["etdelru_sigar_sigby"],
+  "neb009": ["etdelru_sigar_sigby"],
+  "neb011": ["et2xqp_sigar_sigby"],
+  "neb012": ["et2xqp_sigar_sigby"],
+  "neb018": ["etdelsigf_sigar_sigby"],
+  "neb024": ["et_sigar_yflay"],
+  "neb025": ["et_sigar_yflay"],
+  "neb026": ["et_sigar_csbby"],
+  "neb027": ["et_sigar_csbby"],
+  "neb034": ["et_sigar_sigay"]
+}

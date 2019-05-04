@@ -41,5 +41,9 @@ if __name__ == "__main__":
 
     dfs = [load_file_data(filepath, pa.basepathtoignore, pa.data, file_df) for filepath in pa.files]
     outfilename = "_".join([pa.outfile, pa.data]) + ".h5"
+    try: 
+        os.makedirs(os.path.dirname(outfilename))
+    except FileExistsError:
+        pass
     concat = pd.concat(dfs, ignore_index=True)
     concat.to_hdf(outfilename, key="data")

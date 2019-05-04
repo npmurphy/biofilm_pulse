@@ -8,6 +8,7 @@ import scipy.ndimage
 import skimage.io
 import skimage.morphology
 import shutil
+from lib import file_finder
 
 from lib.processing import slice10x
 
@@ -18,6 +19,7 @@ def main():
     parser.add_argument('--make_backup', action="store_true")
     parser.add_argument('--tiff_file', "-f", type=str)
     parser.add_argument('--make_new_bfmask', action="store_true")
+    parser.add_argument('--smooth_a_mask', type=str, default=None)
     parser.add_argument('--mask_name', default="biofilmmask")
     #parser.add_argument("--use_old_edgemask",action="store_true")
     #parser.add_argument('--segmentation_dir', type=str, default="segmented_laphat1")
@@ -46,6 +48,19 @@ def main():
         mask = slice10x.basic_segment(im)
         scipy.io.savemat(outname + ".mat", {"image": mask})
         skimage.io.imsave(outname + ".tiff", mask.astype(np.uint8)*255)
+    
+    if not (inputargs.smooth_a_mask is None):
+        image_path = os.path.join(base_dir, image_name, image_name + "_cr.tiff")
+        maskname = os.path.join(base_dir, image_name, image_name + ".mat") 
+        inmaskname = file_finder.get_labeled_path(maskname, inputargs.smooth_a_mask)
+        outpath = file_finder.get_labeled_path(maskname, inputargs.mask_name)
+        # load old mask, 
+        mask = scipy.io.loadmat(inmaskname)["image"]
+        # smooth it 
+        smask = slice10x.segment.smooth_segmentation(mask)
+        # save it 
+        scipy.io.savemat(outpath, {"image": smask})
+
 
     # if inputargs.edgemask:
     #     maskpath = os.path.join(base_dir, image_name, image_name + "_biofilmmask.mat")

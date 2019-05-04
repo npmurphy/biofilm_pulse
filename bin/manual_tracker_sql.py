@@ -608,7 +608,7 @@ class State():
                 self.read_in += event.key
             elif event.key == "enter":
                 print("Got number: {0}".format(self.read_in))
-                self.read_numbers(self.read_in)
+                self.read_numbers(int(self.read_in))
                 self.read_numbers = None
                 self.read_in = ""
             elif event.key == "esc":

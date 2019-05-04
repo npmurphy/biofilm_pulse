@@ -17,6 +17,7 @@ class Schnitz(Base):
     frame = sqa.Column(sqa.Integer)
     state = sqa.Column(sqa.String(12), default="there")
     status = sqa.Column(sqa.String(12), default="auto")
+    trackstatus = sqa.Column(sqa.String(12), default="auto")
     cell_id = sqa.Column(sqa.Integer, sqa.ForeignKey("cell.id"))
 
     def __repr__(self):
@@ -166,6 +167,14 @@ class TrackDB(object):
         s = self._get_schnitz_obj(frame, cell_id)
         s.status = status
         #self.session.commit()
+    
+    def get_cell_trackstatus(self, frame, cell_id):
+        s = self._get_schnitz_obj(frame, cell_id)
+        return s.trackstatus
+    
+    def set_cell_trackstatus(self, frame, cell_id, status):
+        s = self._get_schnitz_obj(frame, cell_id)
+        s.trackstatus = status
 
     def set_cell_properties(self, frame, cell_id, properties):
         try:

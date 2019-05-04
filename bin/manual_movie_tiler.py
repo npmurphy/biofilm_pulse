@@ -25,7 +25,8 @@ def get_source_images(base_path, movie_pos_info, channel, max_frame_numbers):
         start, end = dir_dict["frame_start"], dir_dict["frame_end"]
         format_num = str(len(str(end)))
         format_str = "_t{0:0" + format_num + "}_z0_ch{1}.tif"
-        file_name = os.path.join(base_path, moviedir, os.path.basename(moviedir) + format_str)
+        #format_str = "_t{0:0" + format_num + "}_ch{1}.tif"
+        file_name = os.path.join(base_path, moviedir,  os.path.basename(moviedir) + format_str)
         #print(start, end)
         for f in range(start, end+1):
             #print("f, i ", f, f + index)

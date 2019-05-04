@@ -72,16 +72,33 @@ def main():
     color_chans_stats = [ cc + "_" + s for cc in color_chans for s, _ in stats ] 
     names = fixed_heads + color_chans_stats
 
-    with open(pa.bg_subtract) as bgjs:
-        bg_subvals = json.load(bgjs)
+    try:
+        with open(pa.bg_subtract) as bgjs:
+            bg_subvals = json.load(bgjs)
+            bg_subvals["red_raw"] = 0 
+            bg_subvals["green_raw"] = 0 
+    except TypeError: # why no file not founds! 
+        bg_subvals = {}
         bg_subvals["red_raw"] = 0 
         bg_subvals["green_raw"] = 0 
+
+
 
     datarow = init_dict(names)
 
     for num, f in enumerate(pa.files):
         print("{0} of {1}: {2}".format(num, len(pa.files), f))
-        sptsv = f.replace(".tiff", ".tsv")
+        ext = os.path.splitext(f)[1]
+        imgname = os.path.splitext(os.path.basename(f))[0]
+        dirname = os.path.dirname(f)
+
+        if ext == ".lsm":
+            tiffpath = os.path.join(dirname, imgname, imgname)
+            img = np.dstack([skimage.io.imread(tiffpath + chan + ".tiff") for chan in ["_cr", "_cg"]])
+            sptsv = f.replace(".lsm", ".tsv")
+        else:
+            sptsv = f.replace(".tiff", ".tsv")
+            img = skimage.io.imread(f)
 
         with open(sptsv, "w") as csvf:
             writer = csv.DictWriter(csvf, fieldnames=names, delimiter="\t")
@@ -89,7 +106,6 @@ def main():
             #mask = images_to_data.get_20_mask(f)
             #th_files = insert_dir_in_path(f, spore_segdir).replace(".tiff", "_T{*).tiff")
             #sptsv = f.replace(".tiff", "_T{0}.tsv").format(pa.threshold)
-            img = skimage.io.imread(f)
             channel_imgs = do_subtractions(img, subtractions, bg_subvals)
 
             base_dir = os.path.dirname(f)

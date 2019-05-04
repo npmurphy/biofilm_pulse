@@ -64,6 +64,8 @@ if __name__ == "__main__":
             dat = {}
         except TypeError as error: # scipy stopped raising a FNF error!
             dat = {}
+        except KeyError as error: # if the file is distmap and already exists it cannot find "image" 
+            dat = {}
         savename = "distmap_masked" if pa.filled == edg_lab else "distbot_masked"
         #, "distmap_unmasked" : distmap.astype(np.float32)
         data = {savename: distmap_mask.astype(np.float32)}

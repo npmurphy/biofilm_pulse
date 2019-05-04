@@ -51,8 +51,8 @@ from lib.common import read_lsm
 
 # In[ ]:
 
-def new_rough_segment(im):
-    gauss_blur = scipy.ndimage.filters.gaussian_filter(im,5)
+def new_rough_segment(im, gaussian=5):
+    gauss_blur = scipy.ndimage.filters.gaussian_filter(im, gaussian)
     ot = skimage.filters.threshold_otsu(gauss_blur)
     return gauss_blur>ot
 
@@ -104,10 +104,10 @@ def new_rough_segment(im):
 
 # In[ ]:
 
-def basic_segment(im):
+def basic_segment(im, gaussian=5):
     msk = new_rough_segment(im)
 
-    gim = skimage.filters.gaussian(im,5)
+    gim = skimage.filters.gaussian(im, gaussian)
     pk = skimage.feature.peak_local_max(gim*msk, indices=False, min_distance=20, num_peaks=5000)
     lb, n = ndimage.label(pk)
     
@@ -128,6 +128,13 @@ def basic_segment(im):
     return wshm
 
 
+def smooth_segmentation(mask):
+    mask_smooth = scipy.ndimage.morphology.binary_fill_holes(mask)
+    mask_smooth = skimage.morphology.binary_opening(mask_smooth, selem=skimage.morphology.disk(9)).astype(mask.dtype)
+    n = np.prod(mask.shape)
+    m = int(0.1 * n)
+    mask_smooth = skimage.morphology.remove_small_objects(mask_smooth.astype(bool),min_size=m)
+    return mask_smooth
 # ### Segment All the images 
 
 # In[ ]:
