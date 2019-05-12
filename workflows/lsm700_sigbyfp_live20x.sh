@@ -165,7 +165,7 @@ done
 # filename="NEB034_72hrs_20x_3"
 
 
-filename="NEB_011_48hrs_20x_2"
+filename="NEB_018_48hrs_20x_2"
 subset="Set_2/48hrs"
 
 bright=0.7 # not w
