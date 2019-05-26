@@ -27,9 +27,13 @@ for strain, typel in strain_to_type.items():
     type_to_strain[typel] =  type_to_strain[typel] + [strain]
 
 def get_strain(name):
-    fids = file_df[(file_df["time"] == time) &
-                   (file_df["strain"].isin(type_to_strain[name]))].index
-    print(name, " has ", len(fids))
+    fdf = file_df[(file_df["time"] == time) &
+                   (file_df["strain"].isin(type_to_strain[name]))]
+    fids = fdf.index
+    #print(fdf.columns)
+    e = len((fdf["strain"]  + fdf["dirname"]).unique())
+    print(name, " has ", len(fids), "images from ", e , "experiments")
+    print(fdf[["dirname", "name"]])
     df = gradient_df[gradient_df["file_id"].isin(fids)]
     return df
 
@@ -58,6 +62,10 @@ for c, (strain) in enumerate(type_to_strain.keys()):
     columns["upsem"] = columns["mean"] + df_sem["ratio"].values 
     columns["downsem"] = columns["mean"] - df_sem["ratio"].values 
     columns["distance"] = df_mean.index
+    for color in ["green", "red"]:
+        columns[color + "_mean"] = df_mean[color+"_raw_mean"].values 
+        columns[color + "_upsem"] = columns[color+"_mean"] + df_sem[color+"_raw_mean"].values 
+        columns[color + "_downsem"] = columns[color + "_mean"] - df_sem[color+"_raw_mean"].values 
     data = pd.DataFrame(columns)
     data.index.name = "i"
     data.to_csv(os.path.join(output_dir, strain + ".tsv"), sep="\t")

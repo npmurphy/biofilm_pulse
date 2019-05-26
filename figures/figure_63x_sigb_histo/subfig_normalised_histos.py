@@ -37,11 +37,15 @@ def plot_strain_fileindiv_histos(ax, df, fileids, view_chan, norm_chan, slice_st
     xbins = bins[1:] - ((bins[1]-bins[0])/2)
     slice_meaned = histo_slice_mean_norm(df, fileids, view_chan, norm_chan, slice_st, slice_end)
     histos = np.zeros((len(fileids),len(xbins)))
+    total_cells = 0
     for f, fid in enumerate(fileids):
         image_vals = slice_meaned.loc[slice_meaned["global_file_id"] == fid, newchan]
         n = len(image_vals)
         ycounts, _ = np.histogram(image_vals.values, bins=bins)
+        total_cells += ycounts.sum()
+        print("# Cells", ycounts.sum())
         histos[f,:] = (ycounts/n) * 100
+    print("## Total cells ", total_cells)
 
     histo_mean = histos.mean(axis=0)
     hist_std = histos.std(axis=0)
