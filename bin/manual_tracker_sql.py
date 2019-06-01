@@ -59,6 +59,8 @@ class State():
         self.blue_chan = "ch02"
         #self.red_chan = "_r"
 
+        self.color_mode = "trackstatus"
+
         self.cell_interactor_style = { "edgecolor":"white", "facecolor":"none", "linewidth":1}
        
         self.trackdata_path = track_path
@@ -230,9 +232,11 @@ class State():
 
         def create_ellipses(cell_id):
             cell_params = self.trackdata.get_cell_params(frame, cell_id)
+            cell_props = self.trackdata.get_cell_properties(frame, cell_id)
             cell = cell_editor.get_cell(*cell_params)
             #cell = cell_editor.get_cell(*cell_params, facecolor="none", edgecolor=self.cmrand(int(cell_id)), linewidth=2 )
             cell.cell_id = cell_id
+            cell.trackstatus = cell_props["trackstatus"]
             return cell
 
         self.non_edit_cells = [ create_ellipses(c) for c in self.trackdata.get_cells_in_frame(frame) if (c != self.current_cell_id) ]
@@ -240,10 +244,25 @@ class State():
                                                       #cmap=self.cmrand, 
                                                       facecolor="none",
                                                       linewidth=2)
-        coll.set_edgecolor([self.cmrand(c.cell_id) for c in self.non_edit_cells])
+        coll.set_edgecolor([self.get_cell_color(c) for c in self.non_edit_cells])
         # coll.set_array(
         #     np.array([ self.cmrand[c.cell_id] for c in self.non_edit_cells]))
         self.large_ellipse_coll = self.ax_img.add_collection(coll)
+
+    def get_cell_color(self, cell):
+        if self.color_mode == "trackstatus":
+            if cell.trackstatus == "auto":
+                return "orange"
+            elif cell.trackstatus == "autocid":
+                return "yellow"
+            elif cell.trackstatus == "migrated":
+                return "green"
+            elif cell.trackstatus == "approved":
+                return "green"
+            else:
+                return "gray"
+        else: #if self.color_mode == "random"
+            return self.cmrand(cell.cell_id) 
 
     def exagerate_image(self, img):
         img_sobel = skimage.filters.sobel(img)
@@ -630,7 +649,8 @@ class State():
             self.art_img.set_visible(not self.art_img.get_visible())
             self.fig.canvas.draw_idle()
         else:
-            print("Pressing {0} does nothing yet".format(event.key))
+            if event.key() not in event_dict:
+                print("Pressing {0} does nothing yet".format(event.key))
 
 
 
