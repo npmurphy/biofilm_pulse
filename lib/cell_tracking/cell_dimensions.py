@@ -109,7 +109,6 @@ def get_perpendicular_intersection_point(line, p):
  
     return ix, iy
 
-#%%
 # def get_intersection_point(line1, line2):
 #     ((x0, x1), (y0, y1)) = line1
 #     ((x2, x3), (y2, y3)) = line2
@@ -242,6 +241,59 @@ def get_lines_from_ellipse(xy:(float,float), length:float, width:float, angle:fl
     return line_maj, line_min
 
 
+def get_axis_lines_from_ellipse(xy:(float,float), length:float, width:float, angle:float):
+    """
+        returns the major axis and minor axis lines in the form [[x1, x2], [y1, y2]]
+    """
+    x0, y0 = xy
+    #orientation = np.deg2rad(angle)
+    orientation = angle
+    assert(length>0)
+    assert(width>0)
+    assert(abs(orientation) <= np.pi/2)
+    coso = np.cos(orientation)
+    sino = np.sin(orientation)
+    hl = length / 2
+    hw = width / 2
+    xr = x0 + (coso * hl) 
+    xl = x0 - (coso * hl) 
+
+    xright = x0 + (sino * hw) 
+    xleft = x0 - (sino * hw)
+    y_min_left = y0 + (coso * hw) 
+
+    ybot = y0 + (sino * hl) 
+    ytop = y0 - (sino * hl) 
+    
+    y2 = y0 - (coso * hw) 
+
+    line_maj = ((xl, xr), (ytop, ybot))
+    line_min = ((xleft, xright), (y_min_left, y2))
+    #line_min_real = ((x0, x2), (y0, y2))
+
+    return line_maj, line_min
+
+def get_ellispe_from_extrema(major_points:((float,float), (float,float)),
+                             minor_points:((float,float), (float,float))):
+    """
+        returns the ellipse from the points of the major axis and minor axis lines [[x1, y1], [x2, y2]]
+    """
+
+    xmjt, ymjt = major_points[0]
+    xmjb, ymjb = major_points[1]
+    xmnl, ymnl = minor_points[0]
+    xmnr, ymnr = minor_points[1]
+
+    vec_maj = np.array([xmjt - xmjb, ymjt - ymjb])
+    vec_min = np.array([xmnl - xmnr, ymnl - ymnr])
+    dot_p = np.dot(vec_maj, vec_min)
+    np.testing.assert_allclose(dot_p, 0.0, rtol=1e-3, atol=1e-3)
+
+    center = get_perpendicular_intersection_point(([xmjt, xmjb], [ymjt, ymjb]), (xmnr, ymnr))
+    angle = np.arctan2(vec_maj[1], vec_maj[0]) # y/x
+    length = np.sqrt(np.sum(vec_maj**2))
+    width = np.sqrt(np.sum(vec_min**2))
+    return center, length, width, angle 
 
 
 if __name__ == "__main__":
