@@ -82,6 +82,8 @@ class TrackDB(object):
         return self._get_schnitz_query(frame, cell_id).one()
 
     def _get_schnitz_query(self, frame, cell_id):
+        if not isinstance(cell_id, int):
+            raise ValueError("cell_id should be of type int but is {}".format(type(cell_id)) )
         sch = self.session.query(Schnitz).filter(
             Schnitz.cell_id == cell_id, Schnitz.frame == frame
         )
