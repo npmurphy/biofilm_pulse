@@ -39,10 +39,6 @@ matplotlib.use('Qt5Agg')
 #TODO hide segmentation button (s)
 #TODO add cell lable
 
-######
-# Bugs:
-# TODO  deleting a cell causes the image moving to stop working.
-# TODO sometimes a cell's parent is a string.  
 
 class State():
 
@@ -101,7 +97,7 @@ class State():
         ## Setting up GUI
         #######################
         self.fig = plt.figure()
-        self.gridspec = gridspec.GridSpec(3, 2, height_ratios=[1, 0.1, 0.1], width_ratios=[0.6, 0.4])
+        self.gridspec = gridspec.GridSpec(4, 2, height_ratios=[1, 0.1, 0.1, 0.1], width_ratios=[0.6, 0.4])
         self.cmrand = matplotlib.colors.ListedColormap(np.random.rand(10000, 3))
         #self.rand_colors = np.random.rand(1000, 3)
 
@@ -137,7 +133,12 @@ class State():
         self.ax_tree.name = "cell_picker"
         self.node_locs = {}
 
-        self.ax_cell_compiled_trace = plt.subplot(self.gridspec[1,0:2])
+        self.text_box_contents = None
+        self.ax_entry = plt.subplot(self.gridspec[1,0:2])
+        self.text_box = matplotlib.widgets.TextBox(self.ax_entry, 'Cell id', initial="")
+        self.text_box.on_submit(self.text_update)
+
+        self.ax_cell_compiled_trace = plt.subplot(self.gridspec[2,0:2])
         # self.ax_cell_compiled_trace.set_xlim(0, self.trackdata.get_max_frames())
         # self.ax_cell_compiled_trace.name = "compiled_trace"
         self.compiled_plots = {}
@@ -146,7 +147,7 @@ class State():
         self.ui_selectors.append(self.fig.canvas.mpl_connect('button_press_event', self.select_cell))
         self.ui_selectors.append(self.fig.canvas.mpl_connect('button_press_event', self.select_frame))
         
-        self.ax_cell_trace = plt.subplot(self.gridspec[2,0:2], sharex=self.ax_cell_compiled_trace)
+        self.ax_cell_trace = plt.subplot(self.gridspec[3,0:2], sharex=self.ax_cell_compiled_trace)
         self.comp_bar = None
         self.trace_bar = None
         self.cell_trace_plots = []
@@ -158,6 +159,10 @@ class State():
         self.read_in = ""
 
         self.move_ui_to_image(self.current_image)
+
+    def text_update(self, text):
+        self.text_box_contents = int(text.strip())
+        print("text_contents are now:", self.text_box_contents)
         
     def _get_image_range(self, image_range):
         if image_range == (None, None):
@@ -184,17 +189,22 @@ class State():
     #     self.move_to_cell(cell)
     
     def select_cell_id_from_tree(self, event):
-        if (not event.inaxes.name == "cell_picker"):
-            return None
-        mind = 1e18
-        minc = 0
-        for c, (x,y) in self.node_locs.items():
-            d = np.sqrt(((x - event.xdata)**2 + (y - event.ydata)**2))
-            if d < mind:
-                mind = d
-                minc = c
-        if mind < 1:
-            self.move_to_cell(minc)
+        try: 
+            if event.inaxis is None:
+                return None
+            if (not event.inaxes.name == "cell_picker"):
+                return None
+            mind = 1e18
+            minc = 0
+            for c, (x,y) in self.node_locs.items():
+                d = np.sqrt(((x - event.xdata)**2 + (y - event.ydata)**2))
+                if d < mind:
+                    mind = d
+                    minc = c
+            if mind < 1:
+                self.move_to_cell(minc)
+        except AttributeError: 
+            pass
 
     # def set_current_cell_textbox(self, text):
     #     try:
@@ -252,9 +262,9 @@ class State():
     def get_cell_color(self, cell):
         if self.color_mode == "trackstatus":
             if cell.trackstatus == "auto":
-                return "orange"
+                return "gray"
             elif cell.trackstatus == "autocid":
-                return "yellow"
+                return "orange"
             elif cell.trackstatus == "migrated":
                 return "green"
             elif cell.trackstatus == "approved":
@@ -505,6 +515,8 @@ class State():
         self.fig.canvas.draw_idle()
 
     def select_cell(self, event):
+        if event.inaxes is None: 
+            return None
         if event.inaxes.name == "cell_viewer":
             if self.interactive_cell is not None:
                 hits_edit, props = self.interactive_cell.ellipse.contains(event)
@@ -516,8 +528,10 @@ class State():
                 self.move_to_cell(cid)
     
     def select_frame(self, event):
-        print(event)
-        print(event.inaxes)
+        # print(event)
+        # print(event.inaxes)
+        if event.inaxes is None:
+            return None
         if (event.inaxes.name == "cell_trace") or (event.inaxes.name == "compiled_trace"):
             select = int(np.round(event.xdata))
             print("Selecting frame", select)
@@ -594,11 +608,22 @@ class State():
         self.trackdata.save()
         self.move_ui_to_image(frame)
 
-    
+    def approve_track_status(self, cell_id, frame):
+        self.trackdata.set_cell_properties(frame, cell_id, {"trackstatus": "approved"})
+
+    def set_schntiz_cell_id(self, cell_id, frame):
+        self.trackdata.set_cell_id(frame, cell_id, self.text_box_contents)
+        self.trackdata.save()
+        print("set id to ", self.text_box_contents)
+        self.move_to_cell(self.text_box_contents)
+        print("moving to ", self.text_box_contents)
+        self.update_ui()
 
     def on_key_press(self, event):
         event_dict = { 
-            "t" : self.track_cell,
+            #"t" : self.track_cell,
+            "t" : lambda : self.approve_track_status(self.current_cell_id, self.current_image),
+            "i" : lambda : self.set_schntiz_cell_id(self.current_cell_id, self.current_image),
             "w":  self.save_segmentation,
             "v" : lambda : self.add_new_cell_to_frame(self.trackdata.get_max_cell_id()+1),
             "c" : self.make_current_cell_like_previous_frame,
@@ -645,11 +670,11 @@ class State():
         elif event.key == "s":
             self.large_ellipse_coll.set_visible(not self.large_ellipse_coll.get_visible())
             self.fig.canvas.draw_idle()
-        elif event.key == "i":
-            self.art_img.set_visible(not self.art_img.get_visible())
-            self.fig.canvas.draw_idle()
+        # elif event.key == "i":
+        #     self.art_img.set_visible(not self.art_img.get_visible())
+        #     self.fig.canvas.draw_idle()
         else:
-            if event.key() not in event_dict:
+            if event.key not in event_dict:
                 print("Pressing {0} does nothing yet".format(event.key))
 
 
