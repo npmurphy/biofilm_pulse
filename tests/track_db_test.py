@@ -11,6 +11,7 @@ import pandas as pd
 from lib.cell_tracking import track_db
 from lib.cell_tracking.track_data import TrackData
 from lib.cell_tracking.track_db import TrackDB
+from lib.cell_tracking.track_db import Schnitz
 import sqlalchemy.orm
 
 SCHNITZ_TABLE = """
@@ -134,6 +135,7 @@ class TrackDataDB(unittest.TestCase):
         new_cell_expect["frame"] = frame
         new_cell_expect["cell_id"] = cell_id
         new_cell_expect["status"] = "auto"
+        new_cell_expect["trackstatus"] = "auto"
 
         schnitz_after = self.test_db._get_schnitz_query(frame, cell_id).one()
         schnitz_a_dict = object_to_dict(schnitz_after)
@@ -276,6 +278,31 @@ class TrackDataDB(unittest.TestCase):
         cells = [ (0, 1), (1,3), (1,5)]
         db_cells = self.test_db._get_cell_family_edges()
         self.assertEqual(cells, db_cells)
+    
+    def test_set_cell_id(self):
+        frame = 7 # has cells 3 and 5
+        orig_3_schnitz_id = self.test_db._get_schnitz_obj(frame, 3).id
+        print(orig_3_schnitz_id)
+        orig_5_schnitz_id = self.test_db._get_schnitz_obj(frame, 5).id
+
+        before_cells = self.test_db.get_cell_list()
+
+        self.test_db.set_cell_id(frame, old_id=5, new_id=3)
+        
+        after_cells = self.test_db.get_cell_list()
+        new_3_obj = self.test_db._get_schnitz_obj(frame, 3)
+        # Check the schintz id is correct 
+        self.assertEqual(orig_5_schnitz_id, new_3_obj.id)
+
+        old_3_obj = self.test_db.session.query(Schnitz).filter_by(id = orig_3_schnitz_id).one()
+
+        self.assertNotIn(old_3_obj.cell_id, before_cells)
+        self.assertIn(old_3_obj.cell_id, after_cells)
+        self.assertTrue(old_3_obj.cell_id != 3)
+
+        self.assertEqual(len(before_cells) + 1, len(after_cells))
+
+
 
     # def test_what_was_cell_called_at_frame(self):
     #     start_cell = 3

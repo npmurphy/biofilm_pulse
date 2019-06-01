@@ -96,6 +96,7 @@ class TrackDB(object):
         cp.update({"id": cell_id})
         c = Cell(**cp)
         self.session.add(c)
+        return c
         #self.session.commit()
     
     def create_cell_if_new(self, cell_id, params=None):
@@ -208,6 +209,21 @@ class TrackDB(object):
         if properties is None:
             return schnitz
         return { k: schnitz[k] for k in properties}
+
+    def set_cell_id(self, frame, old_id, new_id):
+        if old_id == new_id:
+            return False
+        cell_to_rename = self._get_schnitz_obj(frame, old_id)
+
+        cell_already_using_new_id = self._get_schnitz_query(frame, new_id).all()
+        print(cell_already_using_new_id)
+        if cell_already_using_new_id:
+            new_cell_id = self.get_max_cell_id() + 1
+            new_cell = self.create_cell(new_cell_id)
+            cell_already_using_new_id[0].cell_id = new_cell.id
+        cell_to_rename.cell_id = new_id
+        return True
+
 
     def extend_max_frames(self, new_max):
         # dont_need this
