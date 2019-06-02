@@ -135,7 +135,7 @@ class TrackDataDB(unittest.TestCase):
         new_cell_expect["frame"] = frame
         new_cell_expect["cell_id"] = cell_id
         new_cell_expect["status"] = "auto"
-        new_cell_expect["trackstatus"] = "auto"
+        new_cell_expect["trackstatus"] = None
 
         schnitz_after = self.test_db._get_schnitz_query(frame, cell_id).one()
         schnitz_a_dict = object_to_dict(schnitz_after)
@@ -282,7 +282,6 @@ class TrackDataDB(unittest.TestCase):
     def test_set_cell_id(self):
         frame = 7 # has cells 3 and 5
         orig_3_schnitz_id = self.test_db._get_schnitz_obj(frame, 3).id
-        print(orig_3_schnitz_id)
         orig_5_schnitz_id = self.test_db._get_schnitz_obj(frame, 5).id
 
         before_cells = self.test_db.get_cell_list()

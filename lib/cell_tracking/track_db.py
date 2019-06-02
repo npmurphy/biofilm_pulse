@@ -17,7 +17,7 @@ class Schnitz(Base):
     frame = sqa.Column(sqa.Integer)
     state = sqa.Column(sqa.String(12), default="there")
     status = sqa.Column(sqa.String(12), default="auto")
-    trackstatus = sqa.Column(sqa.String(12), default="auto")
+    trackstatus = sqa.Column(sqa.String(12), default=None)
     cell_id = sqa.Column(sqa.Integer, sqa.ForeignKey("cell.id"))
 
     def __repr__(self):
@@ -216,7 +216,6 @@ class TrackDB(object):
         cell_to_rename = self._get_schnitz_obj(frame, old_id)
 
         cell_already_using_new_id = self._get_schnitz_query(frame, new_id).all()
-        print(cell_already_using_new_id)
         if cell_already_using_new_id:
             new_cell_id = self.get_max_cell_id() + 1
             new_cell = self.create_cell(new_cell_id)
