@@ -262,13 +262,13 @@ class State():
     def get_cell_color(self, cell):
         if self.color_mode == "trackstatus":
             if cell.trackstatus == "auto":
-                return "gray"
-            elif cell.trackstatus == "autocid":
                 return "orange"
-            elif cell.trackstatus == "migrated":
-                return "green"
             elif cell.trackstatus == "approved":
                 return "green"
+            elif cell.trackstatus == "migrated":
+                return "blue"
+            elif cell.trackstatus == "manual":
+                return "blue"
             else:
                 return "gray"
         else: #if self.color_mode == "random"
