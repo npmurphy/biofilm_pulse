@@ -66,7 +66,7 @@ class TrackDB(object):
         Base.metadata.create_all(engine)
         Session = sqaorm.sessionmaker(bind=engine)
         self.session = Session()
-        self.metadata = {"states": self._default_states} 
+        self.metadata = {"states": self._default_states}
         self.states = {v: int(k) for k, v in self.metadata["states"].items()}
 
     def save(self):
@@ -83,7 +83,9 @@ class TrackDB(object):
 
     def _get_schnitz_query(self, frame, cell_id):
         if not isinstance(cell_id, int):
-            raise ValueError("cell_id should be of type int but is {}".format(type(cell_id)) )
+            raise ValueError(
+                "cell_id should be of type int but is {}".format(type(cell_id))
+            )
         sch = self.session.query(Schnitz).filter(
             Schnitz.cell_id == cell_id, Schnitz.frame == frame
         )
@@ -97,8 +99,8 @@ class TrackDB(object):
         c = Cell(**cp)
         self.session.add(c)
         return c
-        #self.session.commit()
-    
+        # self.session.commit()
+
     def create_cell_if_new(self, cell_id, params=None):
         cell = self.session.query(Cell).filter(Cell.id == cell_id).all()
         if cell:
@@ -119,16 +121,21 @@ class TrackDB(object):
         cell["angle"] = angle
         self.set_cell_properties(frame, cell_id, cell)
 
+    def cell_properties_to_params(self, properties):
+        center = (properties["col"], properties["row"])
+        length = properties["length"]
+        width = properties["width"]
+        angle = properties["angle"]
+        return center, length, width, angle
+
     def add_new_ellipses_to_frame(self, ellipse_list, frame):
-        cell_id = self.get_max_cell_id() 
+        cell_id = self.get_max_cell_id()
         for ellipse in ellipse_list:
             cell_id += 1
-            self.create_cell_if_new(cell_id, {"status":"auto"})
+            self.create_cell_if_new(cell_id, {"status": "auto"})
             self.session.flush()
             self.set_cell_params(frame, cell_id, ellipse)
             self.set_cell_status(frame, cell_id, "auto")
-        
-
 
     def blank_cell_params(self, frame, cell_id):
         self.delete_schnitz(frame, cell_id)
@@ -139,7 +146,7 @@ class TrackDB(object):
     def get_cell_list(self):
         all_cells = [c.id for c in self.session.query(Cell).all()]
         return all_cells
-    
+
     def get_max_cell_id(self):
         return max(self.get_cell_list())
 
@@ -152,7 +159,7 @@ class TrackDB(object):
 
     def get_cell_state(self, frame, cell_id):
         sch_list = self._get_schnitz_query(frame, cell_id).all()
-        if not sch_list: 
+        if not sch_list:
             return 0
         s = sch_list[0]
         return s.state
@@ -160,21 +167,21 @@ class TrackDB(object):
     def set_cell_state(self, frame, cell_id, state):
         s = self._get_schnitz_obj(frame, cell_id)
         s.state = state
-        #self.session.commit()
-    
+        # self.session.commit()
+
     def get_cell_status(self, frame, cell_id):
         s = self._get_schnitz_obj(frame, cell_id)
         return s.status
-    
+
     def set_cell_status(self, frame, cell_id, status):
         s = self._get_schnitz_obj(frame, cell_id)
         s.status = status
-        #self.session.commit()
-    
+        # self.session.commit()
+
     def get_cell_trackstatus(self, frame, cell_id):
         s = self._get_schnitz_obj(frame, cell_id)
         return s.trackstatus
-    
+
     def set_cell_trackstatus(self, frame, cell_id, status):
         s = self._get_schnitz_obj(frame, cell_id)
         s.trackstatus = status
@@ -208,7 +215,7 @@ class TrackDB(object):
         schnitz.pop("_sa_instance_state", None)
         if properties is None:
             return schnitz
-        return { k: schnitz[k] for k in properties}
+        return {k: schnitz[k] for k in properties}
 
     def set_cell_id(self, frame, old_id, new_id):
         if old_id == new_id:
@@ -223,11 +230,10 @@ class TrackDB(object):
         cell_to_rename.cell_id = new_id
         return True
 
-
     def extend_max_frames(self, new_max):
         # dont_need this
         return None
-    
+
     def get_max_frames(self):
         schnitz = self.session.query(Schnitz).all()
         return max([s.frame for s in schnitz])
@@ -235,17 +241,20 @@ class TrackDB(object):
     def get_parent_of(self, child):
         return (self.session.query(Cell).filter(Cell.id == child).one()).parent
 
+    # def get_children_of(self, child):
+
     def set_parent_of(self, child, parent):
         cell = (self.session.query(Cell).filter(Cell.id == child)).one()
         putative_parent = (self.session.query(Cell).filter(Cell.id == parent)).one()
         cell.parent = putative_parent.id
-        #self.session.commit()
+        # self.session.commit()
         return cell
 
     def split_cell_from_point(
         self, parent, frame_start, frame_end=None, new_cell=None, new_cell_params={}
     ):
-
+        if new_cell is None:
+            new_cell = self.get_max_cell_id() + 1
         if frame_end is None:
             frame_end = self.get_final_frame(parent)
         (
@@ -259,6 +268,7 @@ class TrackDB(object):
         )
         if not self.does_cell_exist(new_cell):
             self.create_cell(new_cell, new_cell_params)
+        return new_cell
 
     def get_first_and_final_frame(self, cell):
         schnitz = self.session.query(Schnitz).filter(Schnitz.cell_id == cell)
@@ -276,7 +286,7 @@ class TrackDB(object):
 
     def get_cells_in_frame(self, frame, states=["there"]):
         if states is None:
-            listr = [ s[0] for s in self.session.query(Schnitz.state).distinct()]
+            listr = [s[0] for s in self.session.query(Schnitz.state).distinct()]
             states = listr
         schnitz = self.session.query(Schnitz).filter(
             Schnitz.frame == frame, Schnitz.state.in_(states)
@@ -312,7 +322,7 @@ class TrackDB(object):
             lineage += [pred]
         lineage.reverse()
         return lineage
-    
+
     def get_final_decendants(self, cell):
         tree = self.make_tree()
         return get_final_decendents(tree, cell)
@@ -338,6 +348,18 @@ class TrackDB(object):
             with_labels=True,
         )
         return ax, pos
+
+    def divide_cell(self, frame, parent, child_a, child_b):
+        self.set_cell_properties(frame, parent, {"state": "divided"})
+        if parent == child_a:
+            child_a = self.split_cell_from_point(parent, frame + 1)
+        if parent == child_b:
+            child_b = self.split_cell_from_point(parent, frame + 1)
+        self.set_parent_of(child_a, parent)
+        self.set_parent_of(child_b, parent)
+        self.set_cell_properties(frame + 1, child_a, {"trackstatus": "auto"})
+        self.set_cell_properties(frame + 1, child_b, {"trackstatus": "auto"})
+        return child_a, child_b
 
 
 def frame_pos(G, root, vert_locs, width=1.0, xcenter=0.5, pos=None, parent=None):
@@ -540,7 +562,7 @@ def load_json(json_path, sql_path):
     from lib.cell_tracking.track_data import TrackData
 
     td = TrackData(json_path)
-    
+
     cell_db = TrackDB(sql_path)
 
     def parent(cell):
@@ -555,9 +577,11 @@ def load_json(json_path, sql_path):
         return td._default_states[state_num]
 
     for cell in td.get_cells_list():
-        cell_db.create_cell(int(cell), {"parent": td.cells[cell]["parent"], "status":"migrated"})
-        print(int(cell), {"parent": parent(cell), "status":"migrated"})
-        try: 
+        cell_db.create_cell(
+            int(cell), {"parent": td.cells[cell]["parent"], "status": "migrated"}
+        )
+        print(int(cell), {"parent": parent(cell), "status": "migrated"})
+        try:
             first_f, final_f = td.get_first_and_final_frame(str(cell))
             for f in range(first_f, final_f + 1):
                 cell_p = td.get_cell_properties(f, str(cell))
