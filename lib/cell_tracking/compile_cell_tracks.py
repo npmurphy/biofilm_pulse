@@ -53,7 +53,7 @@ def compile(data_pattern, td, outpath, channels, start_frame=None, end_frame=Non
     names = ["red", "green", "blue"]
     lab_channels = {names[i]: c for i, c in enumerate(channels)}
     offset_mins = track_data.parse_time(td.metadata["time_offset"])
-    timestep_mins = track_data.parse_time(td.metadata["time_offset"])
+    timestep_mins = track_data.parse_time(td.metadata["time_step"])
     data_fields = [
         "frame",
         "time",
