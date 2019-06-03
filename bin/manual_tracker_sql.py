@@ -290,7 +290,7 @@ class State:
 
         self.non_edit_cells = [
             create_ellipses(c)
-            for c in self.trackdata.get_cells_in_frame(frame)
+            for c in self.trackdata.get_cells_in_frame(frame, states=None)
             if (c != self.current_cell_id)
         ]
         coll = matplotlib.collections.PatchCollection(
@@ -308,6 +308,8 @@ class State:
         if self.color_mode == "trackstatus":
             if cell.trackstatus == "auto":
                 return "orange"
+            elif cell.trackstatus == "disapprove":
+                return "red"
             elif cell.trackstatus == "approved":
                 return "green"
             elif cell.trackstatus == "migrated":
