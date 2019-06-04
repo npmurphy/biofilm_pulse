@@ -1,5 +1,6 @@
 # 00 is red, 01 is green
-basedir="proc_data/iphox_movies/"
+basedir="/media/nmurphy/BF_Data_Orange/proc_data/iphox_movies/"
+datadir="/media/nmurphy/BF_Data_Orange/datasets/iphox_singlecell/"
 dataset="BF10_timelapse"
 lookat="Column_2"
 
@@ -7,8 +8,8 @@ pattern=${lookat}"_t{0:03d}_ch00.tif"
 cpattern=${lookat}"_t{0:03d}_ch{1}.tif" 
     
 python bin/make_cell_track_movie.py \
-    --dataset ${basedir}/${dataset}/${lookat}/compiled.tsv \
-    --trackdata ${basedir}/${dataset}/${lookat}/cell_track.json \
+    --dataset ${datadir}/${dataset}/${lookat}/compiled_redo.tsv \
+    --trackdata ${datadir}/${dataset}/${lookat}/cell_track.json \
     --image_pattern ${basedir}/${dataset}/${lookat}/${cpattern} \
     --output_pattern "datasets/movie_1/frame_{0:03d}.png" \
     --cell 11 \
@@ -17,8 +18,8 @@ python bin/make_cell_track_movie.py \
      #--cokmpileddata ${basedir}/${dataset}/${lookat}/compiled.tsv \
 
 python bin/make_cell_track_movie.py \
-    --dataset ${basedir}/${dataset}/${lookat}/compiled.tsv \
-    --trackdata ${basedir}/${dataset}/${lookat}/cell_track.json \
+    --dataset ${datadir}/${dataset}/${lookat}/compiled_redo.tsv \
+    --trackdata ${datadir}/${dataset}/${lookat}/cell_track.json \
     --image_pattern ${basedir}/${dataset}/${lookat}/${cpattern} \
     --output_pattern "datasets/movie_1_simp/frame_{0:03d}.png" \
     --simple_only \
@@ -29,16 +30,16 @@ python bin/make_cell_track_movie.py \
 
 #ffmpeg -start_number 38 -i datasets/movie_1/frame_%03d.png -c:v libx264 -pix_fmt yuv420p datasets/movie1.mp4
 ffmpeg -start_number 38 \
-       -i datasets/movie_1/frame_%03d.png \
-       -r 25 \
-       -f mpeg -vcodec mpeg1video -b:v 5000k -y 
-       datasets/movie1_2.mpg
-
-ffmpeg -start_number 38 \
-       -i datasets/movie_1_simp/frame_%03d.png \
+       -i /media/nmurphy/BF_Data_Orange/datasets/movie_1/frame_%03d.png \
        -r 25 \
        -f mpeg -vcodec mpeg1video -b:v 5000k -y \
-       datasets/movie1_simp.mpg
+       /media/nmurphy/BF_Data_Orange/datasets/movie1_2.mpg
+
+ffmpeg -start_number 38 \
+       -i /media/nmurphy/BF_Data_Orange/datasets/movie_1_simp/frame_%03d.png \
+       -r 25 \
+       -f mpeg -vcodec mpeg1video -b:v 5000k -y \
+       /media/nmurphy/BF_Data_Orange/datasets/movie1_simp.mpg
 
 ##############
 ## 20x Movie
