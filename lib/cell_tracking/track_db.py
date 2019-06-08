@@ -2,6 +2,7 @@ import sqlalchemy as sqa
 import sqlalchemy.orm as sqaorm
 from sqlalchemy.ext.declarative import declarative_base
 import networkx as nx
+import pandas as pd 
 
 Base = declarative_base()
 
@@ -55,6 +56,13 @@ class SchnitzNotFoundError(Exception):
         self.message = message
 
 
+class SchnitzExistsError(Exception):
+    """Raised when a schnitz is there and we shouldnt overwrite it"""
+
+    def __init__(self, message):
+        self.message = message
+
+
 class TrackDB(object):
     _default_states = {
         1: "there",
@@ -103,6 +111,14 @@ class TrackDB(object):
             Schnitz.cell_id == cell_id, Schnitz.frame == frame
         )
         return sch
+    
+    def _get_schnitzes_in_frame(self, frame):
+        if not isinstance(frame, int):
+            raise ValueError(
+                "frame should be of type int but is {}".format(type(frame))
+            )
+        sch = self.session.query(Schnitz).filter(Schnitz.frame == frame)
+        return sch
 
     def create_cell(self, cell_id, params=None):
         if params is None:
@@ -122,6 +138,11 @@ class TrackDB(object):
 
     def add_cell_to_frame(self, frame, cell_id, parameters):
         self.create_cell_if_new(cell_id)
+        try:
+            self._get_schnitz_obj(frame, cell_id)
+            raise SchnitzExistsError(message=f"Cell {cell_id} already exists in frame {frame}")
+        except SchnitzNotFoundError:
+            pass
         new_params = {"frame": frame, "cell_id": cell_id}
         parameters.update(new_params)
         schnitz = Schnitz(**parameters)
@@ -207,6 +228,10 @@ class TrackDB(object):
     def set_cell_trackstatus(self, frame, cell_id, status):
         s = self._get_schnitz_obj(frame, cell_id)
         s.trackstatus = status
+
+    def get_dataframe_of_cell_properties_in_frame(self, frame):
+        df = pd.read_sql(self._get_schnitzes_in_frame(frame).statement, self.session.bind)
+        return df.set_index("id")
 
     def set_cell_properties(self, frame, cell_id, properties):
         try:

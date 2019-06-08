@@ -16,15 +16,15 @@ from lib.cell_tracking.track_db import Schnitz
 import sqlalchemy.orm
 
 SCHNITZ_TABLE = """
-id|row|col|length|width|angle|frame|state|status|cell_id
-11|1.0|2.0|3.0|4.0|0.5|1|there|auto|1.0
-12|2.0|4.0|6.0|8.0|1.0|2|there|auto|1.0
-13|3.0|6.0|9.0|12.0|1.5|3|dividing|auto|1.0
-24|4.0|8.0|12.0|16.0|2.0|4|dividing|auto|3.0
-25|5.0|10.0|15.0|20.0|2.5|5|dividing|auto|3.0
-26|6.0|12.0|18.0|24.0|3.0|6|dividing|auto|3.0
-27|7.0|14.0|21.0|28.0|3.5|7|dividing|auto|3.0
-30|12.0|12.0|21.0|20.0|3.5|7|dividing|auto|5.0
+id|row|col|length|width|angle|frame|state|status|cell_id|trackstatus
+11|1.0|2.0|3.0|4.0|0.5|1|there|auto|1.0|
+12|2.0|4.0|6.0|8.0|1.0|2|there|auto|1.0|
+13|3.0|6.0|9.0|12.0|1.5|3|dividing|auto|1.0|
+24|4.0|8.0|12.0|16.0|2.0|4|dividing|auto|3.0|
+25|5.0|10.0|15.0|20.0|2.5|5|dividing|auto|3.0|
+26|6.0|12.0|18.0|24.0|3.0|6|dividing|auto|3.0|
+27|7.0|14.0|21.0|28.0|3.5|7|dividing|auto|3.0|
+30|12.0|12.0|21.0|20.0|3.5|7|dividing|auto|5.0|
 """
 
 CELL_TABLE = """
@@ -144,6 +144,41 @@ class TrackDataDB(unittest.TestCase):
         properties.update({"trackstatus": None, "status": "auto"})
         schnitz_after.pop("id")
         self.assertEqual(schnitz_after, properties)
+
+    def test_get_dataframe_of_cell_properties_in_frame(self):
+        frame = 7
+        resl_df = self.test_db.get_dataframe_of_cell_properties_in_frame(frame)
+        expt_tab = pd.read_csv(io.StringIO(SCHNITZ_TABLE), sep="|", index_col="id")
+        expt_tab["cell_id"] = expt_tab["cell_id"].astype(int)
+        expt_tab["trackstatus"] = None  # expt_tab["trackstatus"].astype(str)
+        expt_df = expt_tab[expt_tab["frame"] == frame]
+        print(resl_df)
+        print(expt_df)
+        pd.testing.assert_frame_equal(resl_df, expt_df, check_like=True)
+
+    def test_add_cell_to_frame_already_exists(self):
+        frame = 7
+        cell_id = 3
+        properties = {
+            "row": 10.0,
+            "col": 5.0,
+            "length": 1.0,
+            "width": 9.0,
+            "angle": 0.5,
+            "state": "dividing",
+        }
+        schnitz_before = self.test_db.get_cell_properties(frame, cell_id)
+
+        self.assertRaises(
+            track_db.SchnitzExistsError,
+            self.test_db.add_cell_to_frame,
+            frame,
+            cell_id,
+            properties,
+        )
+
+        schnitz_after = self.test_db.get_cell_properties(frame, cell_id)
+        self.assertEqual(schnitz_before, schnitz_after)
 
     def test_set_cell_properties_reset(self):
         # Test resetting existing cell
