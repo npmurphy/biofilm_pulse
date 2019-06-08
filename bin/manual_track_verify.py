@@ -39,9 +39,9 @@ class State:
         filepattern,
         track_path,
         image_start=1,
-        cell_start: int = 1,
+        #cell_start: int = 1,
         viewmethod="gauss",  # straight",
-        vmax=1.0,
+        vmax=1.3,
         image_range=(None, None),
     ):
         self.filepattern = filepattern
@@ -66,7 +66,7 @@ class State:
         init_shape = get_shape(self.filepattern.format(self.image_range[0]))
         self.vmaxs = vmax
         self.cells = self.trackdata.get_cell_list()
-        self.current_cell_id = int(cell_start)
+        self.current_cell_id = 0 #int(cell_start)
         self.current_image = image_start
         self.view_methods = {"gauss": (2, lambda x: skimage.filters.gaussian(x, 1.1))}
         dim, self.view_method = self.view_methods[viewmethod]
@@ -96,6 +96,7 @@ class State:
             )
             for i in range(self.number_of_steps)
         ]
+
         shift = (1 / self.number_of_steps) * 0.5
         self.ax_overlaps = [
             self.fig.add_axes(
@@ -110,6 +111,8 @@ class State:
             self.number_of_steps - 1
         )
 
+        #self.last_selected_image = self.current_image
+
         # imgcmap = "bone"
         # imgcmap = "viridis"
         imgcmap = "hot"
@@ -119,7 +122,6 @@ class State:
                 bg,
                 cmap=plt.get_cmap(imgcmap),
                 vmin=0,
-                vmax=0.3,
                 interpolation="nearest",
             )
             for ax, bg in zip(self.ax_images, self.bg_images)
@@ -130,7 +132,6 @@ class State:
                 bg,
                 cmap=plt.get_cmap(imgcmap),
                 vmin=0,
-                vmax=0.3,
                 interpolation="nearest",
             )
             for ax, bg in zip(self.ax_overlaps, self.overlap_images)
@@ -147,7 +148,16 @@ class State:
         self.main_ov_ellipses = [None] * (self.number_of_steps - 1)
         self.ui_selectors = []
 
-        self.move_ui_to_image(self.current_image)
+        self.move_to_image(self.current_image)
+        self.go_to_next_unapproved()
+
+    
+    # def select_image(self, event):
+    #     if event.inaxes is None:
+    #         return None
+    #     frame = event.inaxes.name 
+    #     self.last_selected_image = int(frame)
+    #     return self.last_selected_image
 
     def _get_image_range(self, image_range):
         if image_range == (None, None):
@@ -169,8 +179,8 @@ class State:
 
         self.update_ui()
 
-    def make_title(self, status):
-        vals = (self.current_image, status, self.current_cell_id, len(self.cells))
+    def make_title(self, frame, status):
+        vals = (frame, status, self.current_cell_id, len(self.cells))
         return "Image:{0} Cell#{2} **{1}**".format(*vals)
 
     def move_to_image(self, number):
@@ -194,6 +204,9 @@ class State:
             self.art_images[i].set_data(self.bg_images[i])
             self.art_images[i].set_clim(vmax=self.bg_images[i].max() * self.vmaxs)
             # self.ax_images[i].set_title(self.make_title())
+            self.ax_images[i].name = self.current_image + i
+            #self.ax_images[i].set_title(self.make_title( name = self.current_image + i
+
         self.fig.canvas.draw_idle()
         return True
 
@@ -212,11 +225,35 @@ class State:
             if cell_status == "auto":
                 print("Its, good, lets look at ", next_cell)
                 self.move_to_cell_all_axes(next_cell)
-                break
+                return True
             else:
                 print("Its got no status or is null skipping", next_cell)
                 continue
         print("No cells left")
+        return False
+
+    def update_track_data(self, interactive_cell, frame):
+        """ this updates the track data with currently edited cell"""
+        if interactive_cell is not None:
+            print("updating the data structure")
+            print(
+                "OLD",
+                self.trackdata.get_cell_params(
+                    frame, self.current_cell_id
+                ),
+            )
+            properties = interactive_cell.get_position_props()
+            properties.update({"status": "checked"})
+            print("GUI", properties)
+            self.trackdata.set_cell_properties(
+                frame, self.current_cell_id, properties
+            )
+            print(
+                "Saved",
+                self.trackdata.get_cell_params(
+                    frame, self.current_cell_id
+                ),
+            )
 
     def move_to_cell_all_axes(self, cell):
         frame = self.current_image
@@ -237,7 +274,7 @@ class State:
                 pass
             cp = current_cells[i]
             if cp is not None:
-                ax.set_title(self.make_title(cp["trackstatus"]))
+                ax.set_title(self.make_title(ax.name, cp["trackstatus"]))
                 ellipse_data = self.trackdata.cell_properties_to_params(cp)
                 self.main_bg_ellipses[i] = cell_editor.CellInteractor(
                     ax, *ellipse_data, **self.cell_interactor_style
@@ -280,6 +317,8 @@ class State:
         self.fig.canvas.draw_idle()
 
     def save_segmentation(self):
+        for f, ic in enumerate(self.main_bg_ellipses):
+            self.update_track_data(ic, self.current_image + f)
         self.trackdata.save()
 
     # def set_cell_state(self, cell_state):
@@ -293,7 +332,7 @@ class State:
         self.trackdata.set_cell_properties(
             frame, cell_id, {"trackstatus": judgement}
         )
-        self.save_segmentation()
+        self.trackdata.save()
 
     def on_key_press(self, event):
         event_dict = {
@@ -323,14 +362,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--images", type=str, required=True)
     parser.add_argument("--trackdata", type=str, required=True)
-    parser.add_argument("-c", "--start_cell", type=str, default="1")
+    #parser.add_argument("-c", "--start_cell", type=str, default="1")
     parser.add_argument("-s", "--start_image", type=int, default=1)
     parser.add_argument("--view", type=str, default="gauss")
     parser.add_argument("--vmax", type=float, default=1.0)
     pa = parser.parse_args()
 
     state = State(
-        pa.images, pa.trackdata, pa.start_image, pa.start_cell, pa.view, pa.vmax
+        pa.images, pa.trackdata, pa.start_image, pa.view, pa.vmax
     )
 
     state.fig.canvas.mpl_connect("key_press_event", state.on_key_press)
