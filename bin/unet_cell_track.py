@@ -1,21 +1,20 @@
 """
 Docstring
 """
-import skimage.morphology
-import skimage.feature
-import skimage.segmentation
-import skimage.io
-import scipy.ndimage
-
+import argparse
+import os.path
 from collections import Counter
 
 import numpy as np
-import os.path
+import scipy.ndimage
+import skimage.feature
+import skimage.io
+import skimage.morphology
+import skimage.segmentation
 
 import lib.cell_tracking.cell_dimensions
+from lib.cell_tracking import auto_match, cell_dimensions
 from lib.cell_tracking.track_db import TrackDB
-from lib.cell_tracking import auto_match
-from lib.cell_tracking import cell_dimensions
 
 
 def get_cell_mask_cells(img_shape, cells):
@@ -101,16 +100,17 @@ def track_cells_from_frame(td, image_path, frame):
     }
 
     for now_cid, next_cid in cells_to_remap.items():
-        if next_cid == 1719:
-            print("stop")
-        print("setting", now_cid, "to", next_cid)
-        print("setting", type(now_cid), "to", type(next_cid))
+        print(now_cid, "->", next_cid)
         td.set_cell_id(next_frame, next_cid, now_cid)
         td.set_cell_properties(next_frame, now_cid, {"trackstatus": "auto"})
     td.save()
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--frame", type=int, required=True)
+    args = parser.parse_args()
+
     trackdb = "/home/nmurphy/Dropbox/work/projects/bf_pulse/bf10_track.sqllite"
     filepaths = {
         "basedir": "/media/nmurphy/BF_Data_Orange/proc_data/iphox_movies/",
@@ -121,7 +121,7 @@ def main():
         **filepaths
     )
 
-    frame = 50
+    frame = args.frame
 
     td = TrackDB(trackdb)
 
