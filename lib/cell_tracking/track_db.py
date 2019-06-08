@@ -2,7 +2,7 @@ import sqlalchemy as sqa
 import sqlalchemy.orm as sqaorm
 from sqlalchemy.ext.declarative import declarative_base
 import networkx as nx
-import pandas as pd 
+import pandas as pd
 
 Base = declarative_base()
 
@@ -111,7 +111,7 @@ class TrackDB(object):
             Schnitz.cell_id == cell_id, Schnitz.frame == frame
         )
         return sch
-    
+
     def _get_schnitzes_in_frame(self, frame):
         if not isinstance(frame, int):
             raise ValueError(
@@ -140,7 +140,9 @@ class TrackDB(object):
         self.create_cell_if_new(cell_id)
         try:
             self._get_schnitz_obj(frame, cell_id)
-            raise SchnitzExistsError(message=f"Cell {cell_id} already exists in frame {frame}")
+            raise SchnitzExistsError(
+                message=f"Cell {cell_id} already exists in frame {frame}"
+            )
         except SchnitzNotFoundError:
             pass
         new_params = {"frame": frame, "cell_id": cell_id}
@@ -171,14 +173,21 @@ class TrackDB(object):
         angle = properties["angle"]
         return center, length, width, angle
 
-    def add_new_ellipses_to_frame(self, ellipse_list, frame):
-        cell_id = self.get_max_cell_id()
-        for ellipse in ellipse_list:
-            cell_id += 1
-            self.create_cell_if_new(cell_id, {"status": "auto"})
+    def add_new_ellipses_to_frame(self, ellipses, frame):
+        if isinstance(ellipses, dict):
+            cids = ellipses.keys()
+            ellipse_list = ellipses.values()
+        elif isinstance(ellipses, list):
+            start_c = self.get_max_cell_id() + 1
+            cids = [i for i in range(start_c, len(ellipse_list))]
+            ellipse_list = ellipses
+
+        for cid, ellipse in zip(cids, ellipse_list):
+            self.add_cell_to_frame(frame, cid, {"status": "auto"})
+            self.set_cell_params(frame, cid, ellipse)
             self.session.flush()
-            self.set_cell_params(frame, cell_id, ellipse)
-            self.set_cell_status(frame, cell_id, "auto")
+            # self.create_cell_if_new(cell_id, {"status": "auto"})
+            # self.set_cell_status(frame, cell_id, "auto")
 
     def blank_cell_params(self, frame, cell_id):
         self.delete_schnitz(frame, cell_id)
@@ -230,7 +239,9 @@ class TrackDB(object):
         s.trackstatus = status
 
     def get_dataframe_of_cell_properties_in_frame(self, frame):
-        df = pd.read_sql(self._get_schnitzes_in_frame(frame).statement, self.session.bind)
+        df = pd.read_sql(
+            self._get_schnitzes_in_frame(frame).statement, self.session.bind
+        )
         return df.set_index("id")
 
     def set_cell_properties(self, frame, cell_id, properties):

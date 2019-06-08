@@ -152,8 +152,6 @@ class TrackDataDB(unittest.TestCase):
         expt_tab["cell_id"] = expt_tab["cell_id"].astype(int)
         expt_tab["trackstatus"] = None  # expt_tab["trackstatus"].astype(str)
         expt_df = expt_tab[expt_tab["frame"] == frame]
-        print(resl_df)
-        print(expt_df)
         pd.testing.assert_frame_equal(resl_df, expt_df, check_like=True)
 
     def test_add_cell_to_frame_already_exists(self):
@@ -410,6 +408,24 @@ class TrackDataDB(unittest.TestCase):
         par_cell.update({"state": "divided"})
         par_cell_d = self.test_db.get_cell_properties(d_frame, 3)
         self.assertEqual(par_cell, par_cell_d)
+        self.assertEqual(1, self.test_db.get_parent_of(3))
+
+    def test_add_new_ellipses_to_frame(self):
+        frame = 10
+        to_add = {10: ((1, 2), 3, 4, 5), 11: ((6, 7), 8, 9, 10)}
+        self.assertNotIn(10, self.test_db.get_cell_list())
+        self.assertNotIn(11, self.test_db.get_cell_list())
+        self.assertRaises(
+            track_db.SchnitzNotFoundError, self.test_db.get_cell_params, frame, 10
+        )
+        self.assertRaises(
+            track_db.SchnitzNotFoundError, self.test_db.get_cell_params, frame, 11
+        )
+
+        self.test_db.add_new_ellipses_to_frame(to_add, frame)
+        for cid, params in to_add.items():
+            result = self.test_db.get_cell_params(frame, cid)
+            self.assertEqual(params, result)
 
 
 if __name__ == "__main__":
