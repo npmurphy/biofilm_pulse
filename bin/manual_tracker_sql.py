@@ -27,6 +27,7 @@ from lib.cell_tracking import cell_editor
 from lib.cell_tracking import cell_tracker
 from lib.util.tiff import get_shape
 import lib.cell_tracking.track_db as track_data
+from lib.cell_tracking import track_db
 from lib.cell_tracking.track_db import TrackDB
 import lib.cell_tracking.compile_cell_tracks as compiledtracks
 
@@ -686,33 +687,31 @@ class State:
         self.trackdata.save()  # self.trackdata_path)
 
     def add_new_cell_to_frame(self, cell_id):
-        print("Adding cell {0}".format(cell_id))
-        self.trackdata.create_cell_if_new(cell_id)
-        self.current_cell_id = cell_id
-        self.cells = [c for c in self.trackdata.get_cell_list()]
-        # TODO update the cell selector
-        if self.trackdata.get_cell_state(self.current_image, cell_id) != 0:
-            print("cell already exists in this frame")
-            return None
-        else:
-            # Try to put the cell in the middle of the screen.
-            x0, x1 = self.ax_img.get_xlim()
-            y0, y1 = self.ax_img.get_ylim()
-            xpos = x0 + (x1 - x0) / 2
-            ypos = y1 + (y0 - y1) / 2
-            temp_properties = {
-                "row": ypos,
-                "col": xpos,
-                "length": 22,
-                "width": 6,
-                "angle": 0,
-                "state": "there",
-            }
-            self.trackdata.set_cell_properties(
+        # Try to put the cell in the middle of the screen.
+        x0, x1 = self.ax_img.get_xlim()
+        y0, y1 = self.ax_img.get_ylim()
+        xpos = x0 + (x1 - x0) / 2
+        ypos = y1 + (y0 - y1) / 2
+        temp_properties = {
+            "row": ypos,
+            "col": xpos,
+            "length": 22,
+            "width": 6,
+            "angle": 0,
+            "state": "there",
+        }
+
+        try:
+            self.trackdata.add_cell_to_frame(
                 self.current_image, cell_id, temp_properties
             )
+            print("Adding cell {0}".format(cell_id))
+            self.current_cell_id = cell_id
             self.move_to_cell(cell_id)
-        self.update_track_data()
+            self.update_track_data()
+        except track_db.SchnitzExistsError:
+            print(f"Cell {cell_id} exists in frame {self.current_image}")
+            return None
         self.fig.canvas.draw_idle()
 
     def set_cell_state(self, state):
