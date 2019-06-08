@@ -422,9 +422,11 @@ class TrackDataDB(unittest.TestCase):
             track_db.SchnitzNotFoundError, self.test_db.get_cell_params, frame, 11
         )
 
-        self.test_db.add_new_ellipses_to_frame(to_add, frame)
+        self.test_db.add_new_ellipses_to_frame(to_add, frame, {"trackstatus":"auto"})
         for cid, params in to_add.items():
             result = self.test_db.get_cell_params(frame, cid)
+            properties = self.test_db.get_cell_properties(frame, cid)
+            self.assertEqual(properties["trackstatus"], "auto")
             self.assertEqual(params, result)
 
 

@@ -173,7 +173,7 @@ class TrackDB(object):
         angle = properties["angle"]
         return center, length, width, angle
 
-    def add_new_ellipses_to_frame(self, ellipses, frame):
+    def add_new_ellipses_to_frame(self, ellipses, frame, properties=None):
         if isinstance(ellipses, dict):
             cids = ellipses.keys()
             ellipse_list = ellipses.values()
@@ -181,9 +181,13 @@ class TrackDB(object):
             start_c = self.get_max_cell_id() + 1
             cids = [i for i in range(start_c, len(ellipse_list))]
             ellipse_list = ellipses
+        
+        if properties is None:
+            properties = {} 
 
         for cid, ellipse in zip(cids, ellipse_list):
-            self.add_cell_to_frame(frame, cid, {"status": "auto"})
+            self.add_cell_to_frame(frame, cid, properties)
+            self.session.flush()
             self.set_cell_params(frame, cid, ellipse)
             self.session.flush()
             # self.create_cell_if_new(cell_id, {"status": "auto"})

@@ -783,6 +783,7 @@ class State:
             "v": lambda: self.add_new_cell_to_frame(
                 self.trackdata.get_max_cell_id() + 1
             ),
+            "a": lambda: self.add_new_cell_to_frame(self.current_cell_id),
             "c": self.make_current_cell_like_previous_frame,
             "X": lambda: self.delete_cell_in_frame(
                 self.current_cell_id, self.current_image
@@ -790,9 +791,9 @@ class State:
             "g": lambda: self.guess_next_cell_location(direction=+1),
             "f": lambda: self.guess_next_cell_location(direction=-1),
             "pagedown": lambda: self.move_ui_to_image(self.current_image + 1),
-            "d": lambda: self.move_ui_to_image(self.current_image + 1),
+            #"d": lambda: self.move_ui_to_image(self.current_image + 1),
             "pageup": lambda: self.move_ui_to_image(self.current_image - 1),
-            "a": lambda: self.move_ui_to_image(self.current_image - 1),
+            #"a": lambda: self.move_ui_to_image(self.current_image - 1),
         }
         # print("type", event.key)
         try:
