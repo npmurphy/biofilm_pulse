@@ -107,7 +107,7 @@ class TrackDataDB(unittest.TestCase):
 
     def test_set_cell_properties_fail(self):
         frame = 10
-        cell_id = 2
+        cell_id = 3
         properties = {
             "row": 10.0,
             "col": 5.0,
@@ -117,10 +117,14 @@ class TrackDataDB(unittest.TestCase):
             "state": "dividing",
         }
         self.assertRaises(
-            ValueError, self.test_db.set_cell_properties, frame, cell_id, properties
+            track_db.SchnitzNotFoundError,
+            self.test_db.set_cell_properties,
+            frame,
+            cell_id,
+            properties,
         )
 
-    def test_set_cell_properties_new_schnitz(self):
+    def test_add_cell_to_frame(self):
         frame = 10
         cell_id = 3
         properties = {
@@ -131,20 +135,15 @@ class TrackDataDB(unittest.TestCase):
             "angle": 0.5,
             "state": "dividing",
         }
-        schnitz_before = self.test_db._get_schnitz_query(frame, cell_id).all()
-        self.assertEqual(len(schnitz_before), 0)
+        self.assertRaises(
+            track_db.SchnitzNotFoundError, self.test_db._get_schnitz_obj, frame, cell_id
+        )
 
-        self.test_db.set_cell_properties(frame, cell_id, properties)
-
-        new_cell_expect = properties.copy()
-        new_cell_expect["frame"] = frame
-        new_cell_expect["cell_id"] = cell_id
-        new_cell_expect["status"] = "auto"
-        new_cell_expect["trackstatus"] = None
-
-        schnitz_after = self.test_db._get_schnitz_query(frame, cell_id).one()
-        schnitz_a_dict = object_to_dict(schnitz_after)
-        self.assertEqual(schnitz_a_dict, new_cell_expect)
+        self.test_db.add_cell_to_frame(frame, cell_id, properties)
+        schnitz_after = self.test_db.get_cell_properties(frame, cell_id)
+        properties.update({"trackstatus": None, "status": "auto"})
+        schnitz_after.pop("id")
+        self.assertEqual(schnitz_after, properties)
 
     def test_set_cell_properties_reset(self):
         # Test resetting existing cell
@@ -213,10 +212,7 @@ class TrackDataDB(unittest.TestCase):
         self.test_db.get_cell_params(frame, cell_id)
         self.test_db.blank_cell_params(frame, cell_id)
         self.assertRaises(
-            sqlalchemy.orm.exc.NoResultFound,
-            self.test_db.get_cell_params,
-            frame,
-            cell_id,
+            track_db.SchnitzNotFoundError, self.test_db.get_cell_params, frame, cell_id
         )
 
     def test_set_cell_state(self):

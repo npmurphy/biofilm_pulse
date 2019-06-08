@@ -47,6 +47,14 @@ class MetaData(Base):
         return "{{ {0}: {1}}}".format(self.key, self.value)
 
 
+class SchnitzNotFoundError(Exception):
+    """Raised when a schnitz is not found"""
+
+    def __init__(self, expression, message):
+        self.expression = expression
+        self.message = message
+
+
 class TrackDB(object):
     _default_states = {
         1: "there",
@@ -79,7 +87,12 @@ class TrackDB(object):
         print("ran DB commit")
 
     def _get_schnitz_obj(self, frame, cell_id):
-        return self._get_schnitz_query(frame, cell_id).one()
+        try:
+            return self._get_schnitz_query(frame, cell_id).one()
+        except sqaorm.exc.NoResultFound as e:
+            raise SchnitzNotFoundError(
+                e, f"No schnitz with cell_id {cell_id} in frame {frame}."
+            )
 
     def _get_schnitz_query(self, frame, cell_id):
         if not isinstance(cell_id, int):
@@ -106,6 +119,15 @@ class TrackDB(object):
         if cell:
             return None
         self.create_cell(cell_id, params)
+
+    def add_cell_to_frame(self, frame, cell_id, parameters):
+        self.create_cell_if_new(cell_id)
+        new_params = {"frame": frame, "cell_id": cell_id}
+        parameters.update(new_params)
+        schnitz = Schnitz(**parameters)
+        self.session.add(schnitz)
+        self.session.flush()
+        return schnitz
 
     def get_cell_params(self, frame, cell_id):
         s = self._get_schnitz_obj(frame, cell_id)
@@ -188,7 +210,8 @@ class TrackDB(object):
 
     def set_cell_properties(self, frame, cell_id, properties):
         try:
-            _ = self.session.query(Cell).filter(Cell.id == cell_id).one()
+            _ = self._get_schnitz_obj(frame, cell_id)
+            # _ = self.session.query(Cell).filter(Cell.id == cell_id).one()
         except sqaorm.exc.NoResultFound as e:
             raise ValueError("Cell {0} does not exist yet".format(cell_id)) from e
 
@@ -198,11 +221,7 @@ class TrackDB(object):
         new_params.update(schnitz_part)
         schnitz_q = self._get_schnitz_query(frame, cell_id)
         s_l = len(schnitz_q.all())
-        if s_l == 0:
-            schnitz = Schnitz(**new_params)
-            self.session.add(schnitz)
-            self.session.flush()
-        elif s_l == 1:
+        if s_l == 1:
             schnitz_q.update(new_params)
             self.session.flush()
         else:
@@ -227,6 +246,8 @@ class TrackDB(object):
             new_cell_id = self.get_max_cell_id() + 1
             new_cell = self.create_cell(new_cell_id)
             cell_already_using_new_id[0].cell_id = new_cell.id
+            cell_already_using_new_id[0].trackstatus = None
+
         cell_to_rename.cell_id = new_id
         return True
 
