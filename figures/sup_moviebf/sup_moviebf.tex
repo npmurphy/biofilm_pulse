@@ -22,7 +22,7 @@
     
     
     
-    \begin{tikzpicture}[fontscale]
+    \begin{tikzpicture}[fontscale, >=latex]
         %fig_width_medium_cm = 11.4
       %fig_width_medium_cm = 8cm 
        %trim={<left> <lower> <right> <upper>}
@@ -30,15 +30,41 @@
         \node (bftopphoto)  at (0, 0){%
             \includegraphics[trim={0 1000 0 800},clip,width=7.5cm]{bf_top_photo.jpg}%
         };
+        \node [white] (glasstext) at ($(bftopphoto.north west) +(0.1, -0.1)$) [anchor=north west] {Glass bottom};
+        \node [white] at ($(bftopphoto.south west) +(0.1, 0.1)$) [anchor=south west] {Biofilm};
+        \node [white] (edgetext) at ($(bftopphoto.south) +(0, 0.1)$) [anchor=south] {Edge morphology};
+        \node (edgeloc1) at ($(bftopphoto.south east) + (-1.5, 0.7)$) {};
+        \node (edgeloc2) at ($(bftopphoto.south west) + (1.5, 0.7)$) {};
+        \draw[->,white] (edgetext.east) -- (edgeloc1);
+        \draw[->,white] (edgetext.west) -- (edgeloc2);
+
+        %%%% Center text
+        \node [white] (centertext) at ($(bftopphoto.north) +(0, -0.1)$) [anchor=north] {Centre morphology};
+        \node (centerloc) at ($(bftopphoto.center) + (0, -0.0)$) {};
+        \draw[white, ->] (centertext) -- (centerloc);
+
         \node at (bftopphoto.north west) [anchor=north west, xshift=-0.5cm] {A};
         \node (bfedgephoto) [anchor=north] at (bftopphoto.south){%
             \includegraphics[trim={0 1500 0 900},clip,width=7.5cm]{bf_edge_photo.jpg}%
         };
         \node at (bfedgephoto.north west) [anchor=north west, xshift=-0.5cm] {B};
+        \node [white] at ($(bfedgephoto.south west) + (0.1, 0.1)$) [anchor=south west] {MSgg agar};
+        \node [white] at ($(bfedgephoto.north west) + (0.1, -0.1)$) [anchor=north west] {Air};
+        \node (bottomlabel) [white] at ($(bfedgephoto.south east) + (-0.1, 0.1)$) [anchor=south east] {Bottom of biofilm};
+        \node (toplabel) [white] at ($(bfedgephoto.north east) + (-0.1, -0.1)$) [anchor=north east] {Top of biofilm};
+        \node (toploc) at ($(bfedgephoto.center) + (.4, -0.0)$) {};
+        \draw[white, ->] (toplabel.west) -- (toploc);
+        \node (bottomloc) at ($(bfedgephoto.center) + (.4, -0.35)$) {};
+        \draw[white, ->] (bottomlabel.west) -- (bottomloc);
+        %%%% top bottom
+
+
         \node (bfedgeconfocal) [anchor=north] at (bfedgephoto.south){%
             \includegraphics[width=7.5cm]{tilescan_3_small.jpg}%
         };
         \node at (bfedgeconfocal.north west) [anchor=north west, xshift=-0.5cm] {C};
+        \node [white] at ($(bfedgeconfocal.south west) + (0.1, 0.1)$) [anchor=south west] {MSgg agar};
+        \node [white] at ($(bfedgeconfocal.north west) + (0.1, -0.1)$) [anchor=north west] {Air};
         %\coordinate (origin) at ($(bgimage.west) + (1.13cm, 0.35cm)$);
     
         %\coordinate (origin) at (0, 0); %$(bgimage.north west) + (3cm, -3cm)$);
