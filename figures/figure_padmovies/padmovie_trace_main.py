@@ -29,7 +29,7 @@ gridtracehist = gs.GridSpecFromSubplotSpec(4, 2,
 
 aximg = plt.subplot(gridmain[0, 0:2])
 #movie = skimage.io.imread("sigB_biofilmpad6-O001_3_1_strip.png")
-movie = skimage.io.imread(os.path.join(this_dir, "sigB_biofilmfinal-B_4_strip.png"))
+movie = skimage.io.imread(os.path.join(this_dir, "sigB_biofilmfinal-B_4_movie_strip.png"))
 aximg.imshow(movie, rasterized=True, interpolation="none")
 aximg.grid(False)
 aximg.axis('off')
