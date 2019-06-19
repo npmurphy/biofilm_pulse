@@ -6,10 +6,16 @@ patch.linewidth: 0.5
 patch.facecolor: 348ABD  # blue
 patch.edgecolor: EEEEEE
 patch.antialiased: True
-mathtext.default : regular
 
 font.size: 6.0
 font.family: DejaVu Sans #Arial # specifiying this because Bitstream doesnt show unicode
+#text.latex.unicode: True
+#mathtext.default : regular
+mathtext.fontset : custom
+#mathtext.fontset : dejavusans
+mathtext.rm : DejaVu Sans
+mathtext.it : DejaVu Sans:italic
+mathtext.bf : DejaVu Sans:bold
 
 # Font Sizes
 # xx-small, x-small, small, medium, large, x-large, xx-large, smaller, larger.
