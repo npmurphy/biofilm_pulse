@@ -87,9 +87,9 @@ def main():
     rmax = 50000
     gmax = 10000
     strains = [ ("wt_sigar_sigby", red_chan, rmax, "WT\n P$_{sigA}$-RFP"), 
-                ("wt_sigar_sigby", green_chan,    gmax,  "WT\n P$_{sigB}$-YFP"),
-                ("delqp_sigar_sigby", green_chan, gmax,  "ΔrsbQP\n P$_{sigB}$-YFP"),
-                ("delru_sigar_sigby", green_chan, gmax,  "ΔrsbRU\n P$_{sigB}$-YFP")]
+                ("wt_sigar_sigby", green_chan,    gmax,  "WT\n P$_{\mathit{sigB}}$-YFP"),
+                ("delru_sigar_sigby", green_chan, gmax,  "Δ$\mathit{rsbRU}$\n P$_{\mathit{sigB}}$-YFP"),
+                ("delqp_sigar_sigby", green_chan, gmax,  "Δ$\mathit{rsbQP}$\n P$_{\mathit{sigB}}$-YFP")]
                 #("2xqp_sigar_sigby", green_chan,  gmax,  "2$\\times$rsbQP\n P$_{sigB}$-YFP")]
     
     fig, ax = plt.subplots(len(plot_colors), len(strains),  sharey=True) 
@@ -162,7 +162,7 @@ def main():
     #    a.text(letter_lab[0], letter_lab[1], l, transform=a.transAxes, fontsize=8)
 
     filename = "sup_meta_histo"
-    width, height = figure_util.get_figsize(figure_util.fig_width_small_pt, wf=1.0, hf=0.6 )
+    width, height = figure_util.get_figsize(figure_util.fig_width_medium_pt, wf=1.0, hf=0.6 )
     fig.subplots_adjust(left=0.085, right=0.89, top=0.89, bottom=0.13, hspace=0.20, wspace=0.25)
     fig.set_size_inches(width, height)# common.cm2inch(width, height))
     figure_util.save_figures(fig, filename, ["png", "pdf"], this_dir)

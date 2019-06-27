@@ -35,13 +35,13 @@ image_list = [
         [0, 1],
     ),  # channels to include
     (
-        "ΔrsbRU",
+        r"Δ$\mathit{rsbRU}$",
         "delRU_48hrs_center_3_100615_sect_stitched.tiff",
         ((678, 678 + 500), (137, 137 + 500)),  # row, cols
         [0, 1],
     ),
     (  # channels to include
-        "ΔrsbQP",
+        r"Δ$\mathit{rsbQP}$",
         "delQP_48hrs_center_2_100615_sect_stitched.tiff",
         ((1342, 1342 + 500), (100, 100 + 500)),  # row, cols
         [0, 1],
@@ -133,7 +133,7 @@ def main():
             rchan,
             gbins,
             slice_srt_end,
-            "WT P$_{sigB}$-YFP",
+            r"WT P$_{\mathit{sigB}}$-YFP",
             strain_color["JLB021"],
         ),
         (
@@ -142,7 +142,7 @@ def main():
             rchan,
             gbins,
             slice_srt_end,
-            "ΔrsbRU P$_{sigB}$-YFP",
+            r"Δ$\mathit{rsbRU}$ P$_{\mathit{sigB}}$-YFP",
             strain_color["JLB088"],
         ),
         (
@@ -151,7 +151,7 @@ def main():
             rchan,
             gbins,
             slice_srt_end,
-            "ΔrsbQP P$_{sigB}$-YFP",
+            r"Δ$\mathit{rsbQP}$ P$_{\mathit{sigB}}$-YFP",
             strain_color["JLB039"],
         ),
     ]
