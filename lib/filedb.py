@@ -1,13 +1,15 @@
 import pandas as pd
 
 #'sect_date', 'image_date',
-file_db_columns = ("file_id", 'path', 'name', 'dirname',
-                   'time', 'location', 'strain')
+file_db_columns = ("file_id", "path", "name", "dirname", "time", "location", "strain")
 index_col = file_db_columns[0]
+
 
 def get_filedb(path):
     try:
-        filedb = pd.read_csv(path, sep="\t", skip_blank_lines=True, index_col=index_col) #, parse_dates=True)#, dtype=datatypes)
+        filedb = pd.read_csv(
+            path, sep="\t", skip_blank_lines=True, index_col=index_col
+        )  # , parse_dates=True)#, dtype=datatypes)
     except OSError as e:
         print(e)
         print("Making a new FileDB")
@@ -18,13 +20,14 @@ def get_filedb(path):
 
 
 def exists_in_db(db, file_info):
-    records_same_name = (db["name"] == file_info["name"]) & \
-                        (db["dirname"] == file_info["dirname"])
+    records_same_name = (db["name"] == file_info["name"]) & (
+        db["dirname"] == file_info["dirname"]
+    )
     if sum(records_same_name) == 0:
         return -1
     elif sum(records_same_name) == 1:
         print((db[records_same_name]).index.tolist())
-        return (db[records_same_name].index[0])
+        return db[records_same_name].index[0]
     elif sum(records_same_name) > 1:
         print("ERROR : ", db[records_same_name])
         raise Exception("too many files with the same name and dir")
