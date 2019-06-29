@@ -42,7 +42,7 @@ wh63 = 500
 strains_to_plot = [
     (
         "delru_sigar_sigby",
-        "ΔrsbRU P$_{sigB}$-YFP",
+        "Δ$\mathit{rsbRU}$ P$_{\mathit{sigB}}$-YFP",
         (
             (
                 "Set_2/48hrs/JLB088_48hrs_20x_3.tif",
@@ -58,7 +58,7 @@ strains_to_plot = [
     ),
     (
         "etdelru_sigar_sigby",
-        "et-ΔrsbRU P$_{sigB}$-YFP",
+        "et-Δ$\mathit{rsbRU}$ P$_{\mathit{sigB}}$-YFP",
         (
             (
                 "Set_2/48hrs/NEB_009_48hrs_20x_4.tif",
@@ -74,7 +74,7 @@ strains_to_plot = [
     ),
     (
         "et_sigar_sigby",
-        "et-WT P$_{sigB}$-YFP",
+        "et-WT P$_{\mathit{sigB}}$-YFP",
         (
             (
                 "Set_1/48hrs/JLB106_48hrs_20x_3.tif",
@@ -90,7 +90,7 @@ strains_to_plot = [
     ),
     (
         "et2xqp_sigar_sigby",
-        "et-2×rsbQP P$_{sigB}$-YFP",
+        "et-2×$\mathit{rsbQP}$ P$_{sigB}$-YFP",
         (
             (
                 "Test_snaps/48hrs/NEB011_48hrs_20x_5.tif",
@@ -106,7 +106,7 @@ strains_to_plot = [
     ),
     (
         "etdelsigf_sigar_sigby",
-        "et-ΔrsbRU-ΔσF P$_{sigB}$-YFP",
+        "et-Δ$\mathit{rsbRU}$-Δ$\mathit{σF}$ P$_{\mathit{sigB}}$-YFP",
         (
             (
                 "Set_2/48hrs/NEB_018_48hrs_20x_2.tif",
@@ -122,7 +122,7 @@ strains_to_plot = [
     ),
     (
         "et_sigar_yflay",
-        "et-WT P$_{fla}$-YFP",
+        "et-WT P$_{\mathit{yflA}}$-YFP",
         (
             (
                 "Set_2/48hrs/NEB_024_48hrs_20x_1.tif",
@@ -138,7 +138,7 @@ strains_to_plot = [
     ),
     (
         "et_sigar_csbby",
-        "et-WT P$_{csbb}$-YFP",
+        "et-WT P$_{\mathit{csbB}}$-YFP",
         (
             (
                 "Set_2/48hrs/NEB_026_48hrs_20x_1.tif",
@@ -154,7 +154,7 @@ strains_to_plot = [
     ),
     (
         "et_sigar_sigay",
-        "et-WT P$_{sigA}$-YFP",
+        "et-WT P$_{\mathit{sigA}}$-YFP",
         (
             (
                 "Test_snaps/48hrs/NEB034_48hrs_20x_4.tif",
@@ -203,10 +203,10 @@ ax_cellim = np.array([plt.subplot(gs[g, 3]) for g in range(n_strains)])
 ################
 dpath = "datasets/lsm700_live20x_newstrain1/gradient_summary/{0}.tsv"
 legend_pos = [
+    "center right",
     "upper left",
     "upper left",
-    "upper left",
-    "upper left",
+    "center right",
     "center right",
     "upper left",
     "upper center",
@@ -259,7 +259,7 @@ for i, (strain_name, label, _) in enumerate(strains_to_plot):
         red_green_ax.set_ylim(0, 5)
         # red_green_ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0),useOffset=False) # useMathText=True,
         red_green_ax.spines["right"].set_visible(True)
-    ax_gradnt[i].legend(lines, labels, loc=legend_pos[i])
+    red_green_ax.legend(lines, labels, loc=legend_pos[i], framealpha=0.7)#.set_zorder(10000)
     grand_lab = (-0.25, 0.97)
     ax_gradnt[i].text(
         grand_lab[0],
@@ -373,7 +373,7 @@ ax_histos[-1].set_xlabel("Normalised cell fluorecence")
 #%%%%%%%%%%%%%%%%%%
 ## Gradient images
 ##################
-FP_max_min = [(0, (2 ** 16) - 1), (0, 45000)]  # RFP  # YFP
+FP_max_min = [(0, (2 ** 16) - 1), (0, 45000), (0,1)]  # RFP  # YFP
 
 for i, (strain_name, label, image_prop) in enumerate(strains_to_plot):
     if len(image_prop) == 0:
@@ -415,7 +415,7 @@ for i, (strain_name, label, image_prop) in enumerate(strains_to_plot):
 #%%%%%%%%%%%%%%%%%%
 ## Cell images
 ##################
-FP_Single_max_min = [(0, 40000), (0, 30000)]  # RFP  # YFP
+FP_Single_max_min = [(0, 40000), (0, 30000), (0, 1)]  # RFP  # YFP #CFP
 
 for i, (strain_name, label, image_prop) in enumerate(strains_to_plot):
     if len(image_prop) == 0:
@@ -459,12 +459,13 @@ for i, (strain_name, label, image_prop) in enumerate(strains_to_plot):
 filename = "sup_transformable"
 # width, height = figure_util.get_figsize(figure_util.fig_width_big_pt, wf=1.0, hf=0.5 )
 # width, height = figure_util.get_figsize(figure_util.fig_width_big_pt, wf=1.0, hf=2.0)
-height = figure_util.cm2inch(26)[0]
+height = figure_util.cm2inch(24.7)[0]
 width = figure_util.cm2inch(17.73)[0]
 print(width)
 fig.subplots_adjust(
-    left=0.09, right=0.99, top=0.98, bottom=0.05
-)  # , hspace=0.25, wspace=0.25)
+    left=0.09, right=0.99, top=0.99, bottom=0.04,
+    hspace=0.25 # wspace=0.25)
+)  
 
 fig.set_size_inches(width, height)  # common.cm2inch(width, height))
 figure_util.save_figures(fig, filename, ["png", "pdf"], base_dir=this_dir)

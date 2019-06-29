@@ -135,14 +135,14 @@ ax_joint.scatter(
     s=10,
     c=[figure_util.black],
     alpha=1,
-    label=r"P$_{\mathrm{sigA}}$-RFP P$_{\mathrm{sigB}}$-YFP",
+    label=r"P$_{\mathit{sigA}}$-RFP P$_{\mathit{sigB}}$-YFP",
 )
 ax_joint.scatter(
     x=[],
     y=[],
     s=10,
     c=[figure_util.red],
-    label=r"P$_{\mathrm{sigA}}$-RFP P$_{\mathrm{sigA}}$-YFP",
+    label=r"P$_{\mathit{sigA}}$-RFP P$_{\mathit{sigA}}$-YFP",
 )
 
 ax_joint = plot_regression(

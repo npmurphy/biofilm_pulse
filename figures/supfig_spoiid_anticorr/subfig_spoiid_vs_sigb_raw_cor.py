@@ -23,7 +23,8 @@ def plot_regression(x, y, ax=None, **kwargs):
         space = " "
     else:
         space = ""
-    label_str = "R$^2$:      {2}{0:0.03f}\nSlope: {1:0.03f}"
+    #label_str = "R$^2$:      {2}{0:0.03f}\nSlope: {1:0.03f}"
+    label_str = "Slope: {1:0.03f}"
     if ax is not None:
         ax.plot(
             nx,

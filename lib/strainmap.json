@@ -1,28 +1,92 @@
-{ "jlb021": ["wt_sigar_sigby", "WT"],
-  "jlb088": ["delru_sigar_sigby", "ΔRU"],
-  "jlb039": ["delqp_sigar_sigby", "ΔQP"],
-  "jlb095": ["2xqp_sigar_sigby", "2xQP"],
-  "jlb098": ["delsigb_sigar_sigby", "ΔσB"],
-  "jlb035": ["rfponly_sigar"],
-  "jlb001": ["wt_blank"],
-  "jlb109": ["wt_sigby_sspbc"],
-  "jlb077": ["wt_sspby"],
-  "jlb117": ["2xqp_sspby"],
-  "jlb118": ["delsigb_sspby"],
-  "jlb119": ["delsigbx_sspby"],
-  "jlb127": ["delqp_sspby"],
-  "jlb129": ["delru_sspby"],
-  "jlb124": ["wt_sigby_spoiidc"],
-  "jlb024": ["wt_sighy_sigar"], 
-  "jlb106": ["et_sigar_sigby"],
-  "neb008": ["etdelru_sigar_sigby"],
-  "neb009": ["etdelru_sigar_sigby"],
-  "neb011": ["et2xqp_sigar_sigby"],
-  "neb012": ["et2xqp_sigar_sigby"],
-  "neb018": ["etdelsigf_sigar_sigby"],
-  "neb024": ["et_sigar_yflay"],
-  "neb025": ["et_sigar_yflay"],
-  "neb026": ["et_sigar_csbby"],
-  "neb027": ["et_sigar_csbby"],
-  "neb034": ["et_sigar_sigay"]
+{
+    "jlb021": [
+        "wt_sigar_sigby",
+        "WT"
+    ],
+    "jlb022": [
+        "wt_sigar_sigwy",
+        "SigW"
+    ],
+    "jlb088": [
+        "delru_sigar_sigby",
+        "ΔRU"
+    ],
+    "jlb039": [
+        "delqp_sigar_sigby",
+        "ΔQP"
+    ],
+    "jlb095": [
+        "2xqp_sigar_sigby",
+        "2xQP"
+    ],
+    "jlb098": [
+        "delsigb_sigar_sigby",
+        "ΔσB"
+    ],
+    "jlb035": [
+        "rfponly_sigar"
+    ],
+    "jlb001": [
+        "wt_blank"
+    ],
+    "jlb109": [
+        "wt_sigby_sspbc"
+    ],
+    "jlb077": [
+        "wt_sspby"
+    ],
+    "jlb117": [
+        "2xqp_sspby"
+    ],
+    "jlb118": [
+        "delsigb_sspby"
+    ],
+    "jlb119": [
+        "delsigbx_sspby"
+    ],
+    "jlb127": [
+        "delqp_sspby"
+    ],
+    "jlb129": [
+        "delru_sspby"
+    ],
+    "jlb124": [
+        "wt_sigby_spoiidc"
+    ],
+    "jlb024": [
+        "wt_sighy_sigar"
+    ],
+    "jlb106": [
+        "et_sigar_sigby"
+    ],
+    "neb008": [
+        "etdelru_sigar_sigby"
+    ],
+    "neb009": [
+        "etdelru_sigar_sigby"
+    ],
+    "neb011": [
+        "et2xqp_sigar_sigby"
+    ],
+    "neb012": [
+        "et2xqp_sigar_sigby"
+    ],
+    "neb018": [
+        "etdelsigf_sigar_sigby"
+    ],
+    "neb024": [
+        "et_sigar_yflay"
+    ],
+    "neb025": [
+        "et_sigar_yflay"
+    ],
+    "neb026": [
+        "et_sigar_csbby"
+    ],
+    "neb027": [
+        "et_sigar_csbby"
+    ],
+    "neb034": [
+        "et_sigar_sigay"
+    ]
 }

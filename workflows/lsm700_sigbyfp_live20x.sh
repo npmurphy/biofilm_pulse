@@ -3,8 +3,9 @@
 img_dir="/media/nmurphy/BF_Data_Orange/proc_data/lsm700_live20x_newstrain1/images/"
 outputdir="/media/nmurphy/BF_Data_Orange/datasets/lsm700_live20x_newstrain1/" 
 #subset="Set_2/48hrs"
-subset="Set_2/72hrs"
-bgdir="${img_dir}/"Set_1/48hrs""
+#subset="Set_2/72hrs"
+subset="Test_snaps/48hrs"
+bgdir="${img_dir}/${subset}"
 
 ## First split out the channels and rotate to top up 
 for f in `ls ${bgdir}/*.lsm`; 
@@ -164,6 +165,27 @@ done
 # filename="NEB034_72hrs_20x_2"
 # filename="NEB034_72hrs_20x_3"
 
+# Testsnaps 48hrs
+# filename="JLB088_48hrs_20x_1"
+# filename="JLB088_48hrs_20x_2"
+# filename="JLB088_48hrs_20x_3"
+# filename="NEB008_48hrs_20x_1"
+# filename="NEB008_48hrs_20x_2"
+# filename="NEB008_48hrs_20x_3"
+# filename="NEB011_48hrs_20x_1"
+# filename="NEB011_48hrs_20x_2"
+# filename="NEB011_48hrs_20x_3"
+# filename="NEB011_48hrs_20x_4"
+# filename="NEB011_48hrs_20x_5"
+# filename="NEB018_48hrs_20x_1"
+# filename="NEB018_48hrs_20x_2"
+# filename="NEB018_48hrs_20x_3"
+#filename="NEB028_48hrs_20x_1" ## not an approved strain
+# filename="NEB034_48hrs_20x_1" # not great
+# filename="NEB034_48hrs_20x_2"
+# filename="NEB034_48hrs_20x_3"
+# filename="NEB034_48hrs_20x_4"
+
 
 filename="NEB_018_48hrs_20x_2"
 subset="Set_2/48hrs"
@@ -178,10 +200,10 @@ python bin/mask_maker.py \
     --maxbright ${bright}
 
  
-rerun="Set_1/48hrs/NEB009_48hrs_20x_1.lsm"; 
+#rerun="Set_1/48hrs/NEB009_48hrs_20x_1.lsm"; 
 # Make the distance maps
-#for f in `ls ${bgdir}/*.lsm`; 
-for f in `ls ${img_dir}/${rerun}`; 
+for f in `ls ${bgdir}/*.lsm`; 
+#for f in `ls ${img_dir}/${rerun}`; 
 do
     echo ${f};
     lsmfile=$(basename "$f");
@@ -199,7 +221,8 @@ done
 widths='--sample_freq 0.25 --slice_width 0.5'
 #python bin/gradient_10x_maker.py -f ${bgdir}/*.lsm ${widths} --subtractions none
 # run with set_*/72hours
-python bin/gradient_10x_maker.py -f ${img_dir}/Set_*/72hrs/*.lsm ${widths} --subtractions none
+#python bin/gradient_10x_maker.py -f ${img_dir}/Set_*/72hrs/*.lsm ${widths} --subtractions none
+python bin/gradient_10x_maker.py -f ${img_dir}/Test_snaps/48hrs/*.lsm ${widths} --subtractions none
 
 python bin/gradient_10x_maker.py -f ${img_dir}/${rerun} ${widths} --subtractions none
 
@@ -212,7 +235,7 @@ python bin/data_aggregator_10x.py \
     --basepathtoignore ${img_dir}/ \
     --data distmap \
     --outfile ${outputdir}/gradient_data \
-    -f  ${img_dir}/Set_*/*/*.lsm
+    -f  ${img_dir}/*/48hrs/*.lsm
     
 
 python /home/nmurphy/work/projects/bf_pulse/analysis/summarise_live_20x_gradients.py

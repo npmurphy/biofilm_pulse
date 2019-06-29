@@ -68,7 +68,7 @@ sigb = "σᴮ"
 
 sspb_strains = [
     ("JLB077", "WT", black),
-    ("JLB117", "2×rsbQP", orange),
+    ("JLB117", "2×$\mathit{rsbQP}$", orange),
     ("JLB118", "Δσᴮ", purple),
 ]
 

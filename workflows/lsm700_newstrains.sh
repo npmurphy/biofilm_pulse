@@ -4,7 +4,7 @@
 #############################
 #bgdir="proc_data/slice63x_bg_subtract_eugene2/December_2014/"
 basedir="/media/nmurphy/BF_Data_Orange/proc_data/new_strain_snaps1/images/"
-bgdir="${basedir}/Set_2/72hrs/63x"
+bgdir="${basedir}/Set_3/48hrs/63x"
 for f in `ls ${bgdir}/*.lsm`; 
 do
     echo ${f};
@@ -51,7 +51,27 @@ done
 # filename="NEB026_72hrs_63x_4"
 # filename="NEB034_72hrs_63x_1"
 # filename="NEB034_72hrs_63x_2"
-filename="NEB034_72hrs_63x_3"
+#filename="NEB034_72hrs_63x_3"
+
+# set 3
+# filename="JLB088_48hrs_63x_1.lsm"
+# filename="JLB088_48hrs_63x_2.lsm"
+# filename="JLB088_48hrs_63x_4_deep.lsm"
+# filename="JLB088_48hrs_63x_4.lsm"
+# filename="JLB088_48hrs_63x_5.lsm"
+# filename="NEB018_48hrs_63x_2.lsm"
+# filename="NEB018_48hrs_63x_3.lsm"
+# filename="NEB034_48hrs_63x_2.lsm"
+# filename="NEB034_48hrs_63x_3.lsm"
+# filename="NEB034_48hrs_63x_4.lsm"
+# filename="NEB034_48hrs_63x_5.lsm"
+## Bad images 
+##filename="JLB088_48hrs_63x_3.lsm" # bad
+##filename="NEB018_48hrs_63x_1.lsm" # bad
+##filename="NEB018_48hrs_63x_4.lsm" #bad
+##filename="NEB018_48hrs_63x_5.lsm" # bad
+##filename="NEB034_48hrs_63x_1.lsm" #bad
+
 
 
 bright=0.7 # not wt
@@ -104,4 +124,5 @@ python bin/giant63_simple_agregate.py \
     --remove_from_path ${basedir} \
     -f ${basedir}/**/*.tsv
 cp ${basedir}/../file_list.tsv ${outputdir}/file_list.tsv
+#gvim ${basedir}/../file_list.tsv 
  

@@ -26,6 +26,7 @@ figure_util.apply_style()
 # from lib.figure_util import strain_color, strain_label
 # import matplotlib.ticker as mpt
 
+np.random.seed(47)
 fig = plt.figure()
 
 
@@ -49,8 +50,8 @@ corr_ax.tick_params(direction="out")
 anti_ax.tick_params(direction="out")
 
 corr_ax, corr_cb = subfig_spoiid_vs_sigb_raw_cor.get_figure(corr_ax, file_df, cell_df)
-corr_ax.set_xlabel("Mean normalised P$_{sigB}$-YFP", labelpad=-0.5)
-corr_ax.set_ylabel("Mean norm'd P$_{spoIID}$-CFP")
+corr_ax.set_xlabel("Mean normalised P$_{\mathit{sigB}}$-YFP", labelpad=-0.5)
+corr_ax.set_ylabel("Mean norm'd P$_{\mathit{spoIID}}$-CFP")
 corr_ax.yaxis.labelpad = 0
 corr_ax.xaxis.labelpad = 2
 
@@ -67,8 +68,8 @@ shuffle_df["meannorm_green"] = (
 anti_ax, anti_cb = subfig_spoiid_vs_sigb_raw_cor.get_figure(
     anti_ax, file_df, shuffle_df
 )
-anti_ax.set_xlabel("Shuffled P$_{sigB}$-YFP values", labelpad=-0.5)
-anti_ax.set_ylabel("Mean norm'd P$_{spoIID}$-CFP")
+anti_ax.set_xlabel("Shuffled P$_{\mathit{sigB}}$-YFP values", labelpad=-0.5)
+anti_ax.set_ylabel("Mean norm'd P$_{\mathit{spoIID}}$-CFP")
 anti_ax.yaxis.labelpad = 0
 anti_ax.xaxis.labelpad = 2
 
