@@ -4,6 +4,80 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import lib.figure_util as figure_util
+import pandas as pd
+import seaborn as sns
+
+def get_figure_peaks(
+    ax, file_df, gradient_data, strains, chan, min_sample_size=None, kwargs={}
+):
+    distances = gradient_data["distance"].values
+
+    df = pd.DataFrame(columns=["strain", "peak", "file"])
+    print(strains)
+    print(pd.__version__)
+    for strain in strains:
+        print(strain)
+        st_files = file_df.index[(file_df.strain == strain)]
+        data_columns = ["file_{0}_{1}".format(s, chan) for s in st_files]
+        total_columns = ["file_{0}_total_counts".format(s) for s in st_files]
+
+        if min_sample_size:
+            for dc, tc in zip(data_columns, total_columns):
+                gradient_data.loc[gradient_data[tc] < min_sample_size, dc] = np.nan
+                #print(gradient_data[dc])
+        smooth_data = gradient_data[data_columns].rolling(window=5).mean()
+
+        strain_grads = smooth_data[data_columns].values
+
+        name = figure_util.strain_label[strain]
+        for l in range(strain_grads.shape[1]):
+            i = len(df)
+            max_i = np.nanargmax(strain_grads[:, l])
+            df.loc[i] = {"strain": name, "peak": distances[max_i], "file": l}
+            # max_l += [max_i]
+    print(df)
+
+    # sns.v
+    # iolinplot(x="strain", y="peak", data=df, ax=ax)
+    alpha = 1
+    my_pal = {figure_util.strain_label[s]: (*figure_util.strain_color[s], alpha) for s in strains}
+    my_pal["WT"] = "gray"
+    print(my_pal)
+    ax = sns.boxplot(y="strain", x="peak", data=df, ax=ax, palette=my_pal, linewidth=1)#, boxprops={"alpha":.3})
+    #ax = sns.swarmplot(y="strain", x="peak", data=df, ax=ax, s=3, color="black", alpha=0.7)
+    ax.set_xlabel("")
+    #ax.legend()
+    return ax
+
+def get_figure_individual(
+    ax, file_df, gradient_data, strain, chan, min_sample_size=None, kwargs={}
+):
+    distances = gradient_data["distance"].values
+    if "label" not in kwargs:
+        label = figure_util.strain_label[strain]
+    else:
+        label = kwargs["label"]
+
+    st_files = file_df.index[(file_df.strain == strain)]
+    data_columns = ["file_{0}_{1}".format(s, chan) for s in st_files]
+    total_columns = ["file_{0}_total_counts".format(s) for s in st_files]
+
+    if min_sample_size:
+        for dc, tc in zip(data_columns, total_columns):
+            gradient_data.loc[gradient_data[tc] < min_sample_size, dc] = np.nan
+    
+    smooth_data = gradient_data[data_columns].rolling(window=5).mean()
+
+    strain_grads = smooth_data.values
+
+    for l in range(strain_grads.shape[1]):
+        ax.plot(
+            distances, strain_grads[:, l], color=plt.cm.Set3(l / 12), linewidth=1
+        
+        )  # , label=l)
+
+    ax.set_ylim(bottom=0)
+    return ax
 
 
 def get_figure(
