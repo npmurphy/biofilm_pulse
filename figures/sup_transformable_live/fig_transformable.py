@@ -5,6 +5,7 @@ import numpy as np
 import skimage.io
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+import matplotlib.axes
 from lib import filedb
 import subfig_draw_bin
 
@@ -24,7 +25,7 @@ plt.style.use(stylefile)
 import lib.figure_util as figure_util
 from lib import strainmap
 
-letters = figure_util.letters
+letters = figure_util.letters # hiding first column of axis
 # from lib.figure_util import dpi, strain_color, strain_label
 
 
@@ -72,22 +73,22 @@ strains_to_plot = [
             ),
         ),
     ),
-    (
-        "et_sigar_sigby",
-        "et-WT P$_{\mathit{sigB}}$-YFP",
-        (
-            (
-                "Set_1/48hrs/JLB106_48hrs_20x_3.tif",
-                ((500, 500 + h), (0, 0 + w)),  # row, cols
-                0,
-            ),
-            (
-                "Set_1/48hrs/63x/JLB106_48hrs_63x_3.tif",
-                ((600, 600 + wh63), (1548, 1548 + wh63)),  # row, cols
-                0,
-            ),
-        ),
-    ),
+    # (
+    #     "et_sigar_sigby",
+    #     "et-WT P$_{\mathit{sigB}}$-YFP",
+    #     (
+    #         (
+    #             "Set_1/48hrs/JLB106_48hrs_20x_3.tif",
+    #             ((500, 500 + h), (0, 0 + w)),  # row, cols
+    #             0,
+    #         ),
+    #         (
+    #             "Set_1/48hrs/63x/JLB106_48hrs_63x_3.tif",
+    #             ((600, 600 + wh63), (1548, 1548 + wh63)),  # row, cols
+    #             0,
+    #         ),
+    #     ),
+    # ),
     (
         "et2xqp_sigar_sigby",
         "et-2×$\mathit{rsbQP}$ P$_{sigB}$-YFP",
@@ -177,8 +178,10 @@ n_strains = len(strains_to_plot)
 # ax_histos = axes[:, 2]
 # ax_cellim = axes[:, 3]
 
+dummyfig = plt.figure()
 fig = plt.figure()
-gs = gridspec.GridSpec(n_strains, 4, width_ratios=[0.33, 0.29, 0.18, 0.2], wspace=0.12)
+#gs = gridspec.GridSpec(n_strains, 4, width_ratios=[0.33, 0.29, 0.18, 0.2], wspace=0.12)
+gs = gridspec.GridSpec(n_strains, 3, width_ratios=[0.43, 0.27, 0.3], wspace=0.12)
 
 # Making less wide
 # outer_gs = gridspec.GridSpec(2, 2,
@@ -190,12 +193,11 @@ gs = gridspec.GridSpec(n_strains, 4, width_ratios=[0.33, 0.29, 0.18, 0.2], wspac
 #                                   subplot_spec = outer_gs[1,:],
 #                                   hspace=0.03)
 
-ax_gradnt = np.array([plt.subplot(gs[g, 0]) for g in range(n_strains)])
-ax_gradim = np.array([plt.subplot(gs[g, 1]) for g in range(n_strains)])
-ax_histos = np.array([plt.subplot(gs[g, 2]) for g in range(n_strains)])
-ax_cellim = np.array([plt.subplot(gs[g, 3]) for g in range(n_strains)])
-# ax_fstrip = plt.subplot(pic_trace_gs[0, :])
-# ax_pulses = plt.subplot(pic_trace_gs[1, :])
+#ax_gradnt = np.array([plt.subplot(gs[g, 0]) for g in range(n_strains)])
+ax_gradnt = np.array([matplotlib.axes.Axes(dummyfig, [0,1,2,3]) for g in range(n_strains)])
+ax_gradim = np.array([plt.subplot(gs[g, 0]) for g in range(n_strains)])
+ax_histos = np.array([plt.subplot(gs[g, 1]) for g in range(n_strains)])
+ax_cellim = np.array([plt.subplot(gs[g, 2]) for g in range(n_strains)])
 
 
 #%%%%%%%%%%%%%%%
@@ -272,8 +274,6 @@ for i, (strain_name, label, _) in enumerate(strains_to_plot):
         transform=ax_gradnt[i].transAxes,
     )
 
-# leg.get_frame().set_alpha(1.0)
-# ax, leg = figure_util.shift_legend(ax, leg, yshift=0.06)
 ax_gradnt[-1].set_xlabel("Distance from top of biofilm (μm)")
 
 # ax_gradnt[0].text(
@@ -358,7 +358,7 @@ for i, (strain_name, label, _) in enumerate(strains_to_plot):
     ax_histos[i].text(
         hisletter_lab[0],
         hisletter_lab[1],
-        letters[2] + "." + letters[i].lower(),
+        letters[1] + "." + letters[i].lower(),
         va="top",
         ha="left",
         color="black",
@@ -394,7 +394,7 @@ for i, (strain_name, label, image_prop) in enumerate(strains_to_plot):
     ax_gradim[i].text(
         grand_lab[0],
         grand_lab[1],
-        letters[1] + "." + letters[i].lower(),
+        letters[0] + "." + letters[i].lower(),
         va="top",
         ha="left",
         color="white",
@@ -436,7 +436,7 @@ for i, (strain_name, label, image_prop) in enumerate(strains_to_plot):
     ax_cellim[i].text(
         grand_lab[0],
         grand_lab[1],
-        letters[3] + "." + letters[i].lower(),
+        letters[2] + "." + letters[i].lower(),
         va="top",
         ha="left",
         color="white",
@@ -459,11 +459,13 @@ for i, (strain_name, label, image_prop) in enumerate(strains_to_plot):
 filename = "sup_transformable"
 # width, height = figure_util.get_figsize(figure_util.fig_width_big_pt, wf=1.0, hf=0.5 )
 # width, height = figure_util.get_figsize(figure_util.fig_width_big_pt, wf=1.0, hf=2.0)
-height = figure_util.cm2inch(24.7)[0]
-width = figure_util.cm2inch(17.73)[0]
+#height = figure_util.cm2inch(24.7)[0]
+height = figure_util.cm2inch(19)[0]
+#width = figure_util.cm2inch(17.73)[0]
+width = figure_util.cm2inch(12.0)[0]
 print(width)
 fig.subplots_adjust(
-    left=0.09, right=0.99, top=0.99, bottom=0.04,
+    left=0.01, right=0.99, top=0.99, bottom=0.05,
     hspace=0.25 # wspace=0.25)
 )  
 
