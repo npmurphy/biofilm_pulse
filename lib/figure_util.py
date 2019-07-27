@@ -76,6 +76,7 @@ sigb_strains = [
     ("JLB021", "WT", black),
     ("JLB022", "P$_\mathit{sigW}$-YFP", black),
     ("JLB088", r"$\Delta\mathit{rsbRU}$", yellow),
+    ("JLB035", r"RFP only", red),
     ("JLB039", r"$\Delta\mathit{rsbQP}$", brown),
     ("JLB095", r"$2\times\mathit{rsbQP}$", orange),
     ("JLB098", r"$\Delta\mathit{\sigma}}^{B}$", purple),
