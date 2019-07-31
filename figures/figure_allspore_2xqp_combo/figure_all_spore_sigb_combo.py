@@ -141,26 +141,26 @@ for i, ax in zip(files, [wtspr_ax, x2spr_ax]):
     ax.text(0.99, 0.99, label, color="cyan", va="top", ha="right", transform=ax.transAxes)
 
 
-rect = patches.Rectangle(
-    (50, 350),
-    300,
-    600,
-    linewidth=1,
-    edgecolor="gray",
-    facecolor="none",
-    transform=x2spr_ax.transData,
-)
-x2spr_ax.add_patch(rect)
-rect2 = patches.Rectangle(
-    (1500, 300),
-    600,
-    750,
-    linewidth=1,
-    edgecolor="gray",
-    facecolor="none",
-    transform=x2spr_ax.transData,
-)
-x2spr_ax.add_patch(rect2)
+# rect = patches.Rectangle(
+#     (50, 350),
+#     300,
+#     600,
+#     linewidth=1,
+#     edgecolor="gray",
+#     facecolor="none",
+#     transform=x2spr_ax.transData,
+# )
+# x2spr_ax.add_patch(rect)
+# rect2 = patches.Rectangle(
+#     (1500, 300),
+#     600,
+#     750,
+#     linewidth=1,
+#     edgecolor="gray",
+#     facecolor="none",
+#     transform=x2spr_ax.transData,
+# )
+# x2spr_ax.add_patch(rect2)
 
 letter_lab = (-0.14, 1.0)
 
