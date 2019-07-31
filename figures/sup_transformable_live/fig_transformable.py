@@ -153,22 +153,22 @@ strains_to_plot = [
             ),
         ),
     ),
-    (
-        "et_sigar_sigay",
-        "et-WT P$_{\mathit{sigA}}$-YFP",
-        (
-            (
-                "Test_snaps/48hrs/NEB034_48hrs_20x_4.tif",
-                ((500, 500 + h), (0, 0 + w)),  # row, cols
-                0,
-            ),
-            (
-                "Set_2/48hrs/63x/NEB_034_48hrs_63x_4.tif",
-                ((190, 190 + wh63), (190, 190 + wh63)),  # row, cols
-                0,
-            ),
-        ),
-    ),
+    # (
+    #     "et_sigar_sigay",
+    #     "et-WT P$_{\mathit{sigA}}$-YFP",
+    #     (
+    #         (
+    #             "Test_snaps/48hrs/NEB034_48hrs_20x_4.tif",
+    #             ((500, 500 + h), (0, 0 + w)),  # row, cols
+    #             0,
+    #         ),
+    #         (
+    #             "Set_2/48hrs/63x/NEB_034_48hrs_63x_4.tif",
+    #             ((190, 190 + wh63), (190, 190 + wh63)),  # row, cols
+    #             0,
+    #         ),
+    #     ),
+    # ),
 ]
 
 n_strains = len(strains_to_plot)
@@ -460,9 +460,9 @@ filename = "sup_transformable"
 # width, height = figure_util.get_figsize(figure_util.fig_width_big_pt, wf=1.0, hf=0.5 )
 # width, height = figure_util.get_figsize(figure_util.fig_width_big_pt, wf=1.0, hf=2.0)
 #height = figure_util.cm2inch(24.7)[0]
-height = figure_util.cm2inch(19)[0]
+height = figure_util.cm2inch(17)[0]
 #width = figure_util.cm2inch(17.73)[0]
-width = figure_util.cm2inch(12.0)[0]
+width = figure_util.cm2inch(11.0)[0]
 print(width)
 fig.subplots_adjust(
     left=0.01, right=0.99, top=0.99, bottom=0.05,

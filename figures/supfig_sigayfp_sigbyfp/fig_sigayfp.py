@@ -11,12 +11,14 @@ import lib.figure_util as figure_util
 from lib import filedb, strainmap
 from lib.figure_util import timecolor
 
+from figures.sup_transformable_live import subfig_draw_bin
+
 this_dir = os.path.dirname(__file__)
 # stylefile = os.path.join(this_dir, "../figstyle.mpl")
 import seaborn as sns
 
 figure_util.apply_style()
-
+letters = figure_util.letters
 
 basedir = "/media/nmurphy/BF_Data_Orange/datasets/new_strain_snaps1/"
 cell_df = pd.read_hdf(os.path.join(basedir, "single_cell_data.h5"), "cells")
@@ -49,6 +51,7 @@ sigavsiga = file_df[
     (
         file_df["strain"].isin(type_to_strain["et_sigar_sigay"])
         & (file_df["time"] == 48.0)
+        & (file_df["dirname"]== "Set_2/48hrs/63x")
     )
 ]
 print(sigavsiga)
@@ -97,6 +100,96 @@ ax_mx = fig.add_subplot(gs[0, 0], sharex=ax_joint)
 ax_my = fig.add_subplot(gs[1, 1], sharey=ax_joint)
 ax_leg = fig.add_subplot(gs[0, 1])
 ax_leg.axis("off")
+ax_20x = fig.add_axes([0.065, 0.78, 0.45, 0.21])
+ax_63x = fig.add_axes([0.5, 0.78, 0.45,0.21])
+
+
+w = 2048
+h = 1548
+wh63 = 500
+FP_max_min = [(0, (2 ** 16) - 1), (0, 45000), (0,1)]  # RFP  # YFP
+label =  r"et-WT P$_{\mathit{sigA}}$-YFP"
+grad_image = "Test_snaps/48hrs/NEB034_48hrs_20x_4.tif"
+grad_region = ((500, 500 + h), (0, 0 + w))  # row, cols
+scalebar  = 63
+
+path = os.path.join("datasets/lsm700_live20x_newstrain1/images", grad_image)
+ax_20x = subfig_draw_bin.get_figure(
+        ax_20x,
+        label,
+        path,
+        grad_region,
+        [0, 1],
+        FP_max_min,
+        (0, 100),  # not doing yet
+        add_scale_bar=scalebar,
+    )
+grand_lab = (0.03, 0.97)
+ax_20x.text(
+    grand_lab[0],
+    grand_lab[1],
+    "A",
+    va="top",
+    ha="left",
+    color="white",
+    fontsize=figure_util.letter_font_size,
+    transform=ax_20x.transAxes,
+)
+ax_20x.text(
+    0.97,
+    0.03,
+    label,
+    va="bottom",
+    ha="right",
+    color="white",
+    fontsize=6,
+    transform=ax_20x.transAxes,
+)
+
+#%%%%%%%%%%%%%%%%%%
+## Cell images
+##################
+FP_Single_max_min = [(0, 40000), (0, 30000), (0, 1)]  # RFP  # YFP #CFP
+cell_image = "Set_2/48hrs/63x/NEB_034_48hrs_63x_4.tif"
+cell_region = ((190, 190 + wh63), (190, 190 + wh63))  # row, cols
+scalebar = 63
+
+path = os.path.join("datasets/new_strain_snaps1/images", cell_image)
+ax_63x = subfig_draw_bin.get_figure(
+    ax_63x,
+    label,
+    path,
+    cell_region,
+    [0, 1],
+    FP_Single_max_min,
+    (0, 100),  # not doing yet
+    add_scale_bar=scalebar,
+)
+grand_lab = (0.03, 0.97)
+ax_63x.text(
+    grand_lab[0],
+    grand_lab[1],
+    "B",
+    va="top",
+    ha="left",
+    color="white",
+    fontsize=figure_util.letter_font_size,
+    transform=ax_63x.transAxes,
+)
+ax_63x.text(
+    0.97,
+    0.03,
+    label,
+    va="bottom",
+    ha="right",
+    color="white",
+    fontsize=6,
+    transform=ax_63x.transAxes,
+)
+
+###############################
+###########################
+############################
 # red_chan = "red_raw_meannorm"
 # green_chan = "red_raw_meannorm"
 # bins = np.linspace(0,3.0,100)
@@ -217,9 +310,9 @@ ax_joint.set_ylabel("YFP flouresence (AU)")
 
 
 filename = "sup_sigayfp"
-width, height = figure_util.get_figsize(figure_util.fig_width_small_pt, wf=1.0, hf=1.0)
+width, height = figure_util.get_figsize(figure_util.fig_width_small_pt, wf=1.0, hf=1.3)
 fig.set_size_inches(width, height)
-fig.subplots_adjust(left=0.10, bottom=0.1, top=0.97, right=0.97)
+fig.subplots_adjust(left=0.10, bottom=0.06, top=0.75, right=0.97)
 # fig.tight_layout()
 figure_util.save_figures(fig, filename, ["pdf", "png"], this_dir)
 # figure_util.save_figures(fig, filename, ["png"], this_dir)

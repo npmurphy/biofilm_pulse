@@ -9,7 +9,7 @@ import skimage.transform
 
 import lib.figure_util as figure_util
 import lib.strainmap as strainmap
-from lib.resolutions import PX_TO_UM_LSM780_63x as PX_TO_UM
+from lib.resolutions import PX_TO_UM_LSM700_63x as PX_TO_UM
 
 figure_util.apply_style()
 
@@ -65,7 +65,7 @@ letter_lab = (0.07, 0.98)
 
 ## Big Image
 im = prepare_image(
-    os.path.join(imagedir, big_image[0]), 100, 400, external_scale=0.1
+    os.path.join(imagedir, big_image[0]), 100, 250, external_scale=0.1
 )  # , scale_image=(10, 10, 1))
 axbig = plt.subplot(grid[0, 0:2])
 axbig.grid(False)
