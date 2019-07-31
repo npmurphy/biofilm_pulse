@@ -51,6 +51,7 @@ sigavsiga = file_df[
         & (file_df["time"] == 48.0)
     )
 ]
+print(sigavsiga)
 sigavsigb = file_df[
     (
         file_df["strain"].isin(type_to_strain["et_sigar_sigby"])
@@ -60,7 +61,7 @@ sigavsigb = file_df[
 
 red_chan = "red_raw_mean"
 green_chan = "green_raw_mean"
-cell_df[red_chan] = cell_df[red_chan]/ 10000
+cell_df[red_chan] = cell_df[red_chan] / 10000
 cell_df[green_chan] = cell_df[green_chan] / 10000
 
 strain_sigby = cell_df.loc[cell_df["global_file_id"].isin(sigavsigb.index), :]
@@ -83,10 +84,16 @@ def plot_regression(x, y, ax=None, **kwargs):
 
 
 fig = plt.figure()
-gs = fig.add_gridspec(nrows=2, ncols=2, height_ratios=[0.2, 0.8], width_ratios=[0.8, 0.2], 
-    wspace=0.06, hspace=0.06)# left=0.05, right=0.48, wspace=0.05)
-ax_joint = fig.add_subplot(gs[1,0])
-ax_mx = fig.add_subplot(gs[0,0], sharex=ax_joint)
+gs = fig.add_gridspec(
+    nrows=2,
+    ncols=2,
+    height_ratios=[0.2, 0.8],
+    width_ratios=[0.8, 0.2],
+    wspace=0.06,
+    hspace=0.06,
+)  # left=0.05, right=0.48, wspace=0.05)
+ax_joint = fig.add_subplot(gs[1, 0])
+ax_mx = fig.add_subplot(gs[0, 0], sharex=ax_joint)
 ax_my = fig.add_subplot(gs[1, 1], sharey=ax_joint)
 ax_leg = fig.add_subplot(gs[0, 1])
 ax_leg.axis("off")
@@ -117,16 +124,46 @@ strain_sigay.plot.scatter(
     alpha=0.2,
     edgecolors="none",
 )  # , label="P$_{\mathrm{sigA}}$-RFP P$_{\mathrm{sigA}}$-YFP")
-#cbarax = 
+# cbarax =
 # sns.jointplot(strain_sigay[red_chan], strain_sigay[green_chan], cmap=plt.cm.plasma, joint_kws={ "linewidths":0.5})
 # sns.jointplot(strain_sigby[red_chan], strain_sigby[green_chan], cmap=plt.cm.plasma, joint_kws={ "linewidths":1})
-sns.kdeplot(strain_sigay[red_chan], strain_sigay[green_chan], ax=ax_joint, cmap=plt.cm.plasma, linewidths=0.5)
-sns.kdeplot(strain_sigby[red_chan], strain_sigby[green_chan], ax=ax_joint, cmap=plt.cm.plasma, linewidths=0.5)
+sns.kdeplot(
+    strain_sigay[red_chan],
+    strain_sigay[green_chan],
+    ax=ax_joint,
+    cmap=plt.cm.plasma,
+    linewidths=0.5,
+)
+sns.kdeplot(
+    strain_sigby[red_chan],
+    strain_sigby[green_chan],
+    ax=ax_joint,
+    cmap=plt.cm.plasma,
+    linewidths=0.5,
+)
 
-sns.kdeplot(strain_sigby[red_chan], ax=ax_mx, color=figure_util.black, legend=False, shade=True)
-sns.kdeplot(strain_sigay[red_chan], ax=ax_mx, color=figure_util.red, legend=False, shade=True)
-sns.kdeplot(strain_sigby[green_chan], ax=ax_my, color=figure_util.black, legend=False, vertical=True, shade=True)
-sns.kdeplot(strain_sigay[green_chan], ax=ax_my, color=figure_util.red, legend=False, vertical=True, shade=True)
+sns.kdeplot(
+    strain_sigby[red_chan], ax=ax_mx, color=figure_util.black, legend=False, shade=True
+)
+sns.kdeplot(
+    strain_sigay[red_chan], ax=ax_mx, color=figure_util.red, legend=False, shade=True
+)
+sns.kdeplot(
+    strain_sigby[green_chan],
+    ax=ax_my,
+    color=figure_util.black,
+    legend=False,
+    vertical=True,
+    shade=True,
+)
+sns.kdeplot(
+    strain_sigay[green_chan],
+    ax=ax_my,
+    color=figure_util.red,
+    legend=False,
+    vertical=True,
+    shade=True,
+)
 
 
 ax_joint.scatter(
@@ -165,14 +202,16 @@ ax_joint = plot_regression(
 xmin = 1.0300 - 0.3500
 ax_joint.set_xlim(xmin, rbins.max())
 ax_joint.set_ylim(0, gbins.max())
-ax_mx.ticklabel_format(style='sci',scilimits=(0,0),axis='y',useMathText=True )
-ax_my.ticklabel_format(style='sci',scilimits=(0,0),axis='x',useMathText=True )
+ax_mx.ticklabel_format(style="sci", scilimits=(0, 0), axis="y", useMathText=True)
+ax_my.ticklabel_format(style="sci", scilimits=(0, 0), axis="x", useMathText=True)
 
 
 # ax.set_title("RFP vs YFP")
 # arts = [asiga, asigb]
 # labels = [siga.get_label(), asigb.get_label()]
-ax_joint.legend(loc="center right")#, bbox_to_anchor=(0, 0), bbox_transform=ax_leg.transAxes)
+ax_joint.legend(
+    loc="center right"
+)  # , bbox_to_anchor=(0, 0), bbox_transform=ax_leg.transAxes)
 ax_joint.set_xlabel("RFP flouresence (AU)")
 ax_joint.set_ylabel("YFP flouresence (AU)")
 
@@ -183,4 +222,5 @@ fig.set_size_inches(width, height)
 fig.subplots_adjust(left=0.10, bottom=0.1, top=0.97, right=0.97)
 # fig.tight_layout()
 figure_util.save_figures(fig, filename, ["pdf", "png"], this_dir)
-#figure_util.save_figures(fig, filename, ["png"], this_dir)
+# figure_util.save_figures(fig, filename, ["png"], this_dir)
+
