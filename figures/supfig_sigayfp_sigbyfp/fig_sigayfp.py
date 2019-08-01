@@ -51,14 +51,7 @@ sigavsiga = file_df[
     (
         file_df["strain"].isin(type_to_strain["et_sigar_sigay"])
         & (file_df["time"] == 48.0)
-        & (file_df["dirname"]== "Set_2/48hrs/63x")
-    )
-]
-print(sigavsiga)
-sigavsigb = file_df[
-    (
-        file_df["strain"].isin(type_to_strain["et_sigar_sigby"])
-        & (file_df["time"] == 48.0)
+        & (file_df["dirname"] == "Set_2/48hrs/63x")
     )
 ]
 
@@ -67,20 +60,22 @@ green_chan = "green_raw_mean"
 cell_df[red_chan] = cell_df[red_chan] / 10000
 cell_df[green_chan] = cell_df[green_chan] / 10000
 
-strain_sigby = cell_df.loc[cell_df["global_file_id"].isin(sigavsigb.index), :]
+xmin = 1.0300 - 0.3500
+# strain_sigby = cell_df.loc[cell_df["global_file_id"].isin(sigavsigb.index), :]
 strain_sigay = cell_df.loc[cell_df["global_file_id"].isin(sigavsiga.index), :]
+#strain_sigay = strain_sigay.loc[strain_sigay[red_chan] >= xmin, :]
 
 
 def plot_regression(x, y, ax=None, **kwargs):
     slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(x, y)
     nx = np.linspace(x.min(), x.max(), 100)
-    print(nx)
-    print(intercept + slope * nx)
+    # print(nx)
+    # print(intercept + slope * nx)
     if ax is not None:
         ax.plot(
             nx,
             intercept + slope * nx,
-            label="R$^2$: {0:0.03f}".format(r_value ** 2),
+            label="R$^2$: {0:0.02f}".format(r_value ** 2),
             **kwargs
         )
     return ax
@@ -90,40 +85,40 @@ fig = plt.figure()
 gs = fig.add_gridspec(
     nrows=2,
     ncols=2,
-    height_ratios=[0.2, 0.8],
-    width_ratios=[0.8, 0.2],
+    height_ratios=[0.3, 0.7],
+    width_ratios=[0.5, 0.5],
     wspace=0.06,
     hspace=0.06,
 )  # left=0.05, right=0.48, wspace=0.05)
-ax_joint = fig.add_subplot(gs[1, 0])
-ax_mx = fig.add_subplot(gs[0, 0], sharex=ax_joint)
-ax_my = fig.add_subplot(gs[1, 1], sharey=ax_joint)
-ax_leg = fig.add_subplot(gs[0, 1])
-ax_leg.axis("off")
-ax_20x = fig.add_axes([0.065, 0.78, 0.45, 0.21])
-ax_63x = fig.add_axes([0.5, 0.78, 0.45,0.21])
+ax_joint = fig.add_subplot(gs[1, :])
+# ax_mx = fig.add_subplot(gs[0, 0], sharex=ax_joint)
+# ax_my = fig.add_subplot(gs[1, 1], sharey=ax_joint)
+# ax_leg = fig.add_subplot(gs[0, 1])
+# ax_leg.axis("off")
+ax_20x = fig.add_subplot(gs[0, 0])  # fig.add_axes([0.065, 0.78, 0.45, 0.21])
+ax_63x = fig.add_subplot(gs[0, 1])  # fig.add_axes([0.5, 0.78, 0.45,0.21])
 
 
 w = 2048
 h = 1548
 wh63 = 500
-FP_max_min = [(0, (2 ** 16) - 1), (0, 45000), (0,1)]  # RFP  # YFP
-label =  r"et-WT P$_{\mathit{sigA}}$-YFP"
+FP_max_min = [(0, (2 ** 16) - 1), (0, 45000), (0, 1)]  # RFP  # YFP
+label = r"et-WT P$_{\mathit{sigA}}$-YFP"
 grad_image = "Test_snaps/48hrs/NEB034_48hrs_20x_4.tif"
 grad_region = ((500, 500 + h), (0, 0 + w))  # row, cols
-scalebar  = 63
+scalebar = 20
 
 path = os.path.join("datasets/lsm700_live20x_newstrain1/images", grad_image)
 ax_20x = subfig_draw_bin.get_figure(
-        ax_20x,
-        label,
-        path,
-        grad_region,
-        [0, 1],
-        FP_max_min,
-        (0, 100),  # not doing yet
-        add_scale_bar=scalebar,
-    )
+    ax_20x,
+    label,
+    path,
+    grad_region,
+    [0, 1],
+    FP_max_min,
+    (0, 100),  # not doing yet
+    add_scale_bar=scalebar,
+)
 grand_lab = (0.03, 0.97)
 ax_20x.text(
     grand_lab[0],
@@ -133,16 +128,6 @@ ax_20x.text(
     ha="left",
     color="white",
     fontsize=figure_util.letter_font_size,
-    transform=ax_20x.transAxes,
-)
-ax_20x.text(
-    0.97,
-    0.03,
-    label,
-    va="bottom",
-    ha="right",
-    color="white",
-    fontsize=6,
     transform=ax_20x.transAxes,
 )
 
@@ -176,15 +161,15 @@ ax_63x.text(
     fontsize=figure_util.letter_font_size,
     transform=ax_63x.transAxes,
 )
-ax_63x.text(
-    0.97,
-    0.03,
-    label,
-    va="bottom",
-    ha="right",
-    color="white",
-    fontsize=6,
-    transform=ax_63x.transAxes,
+ax_joint.text(
+    grand_lab[0],
+    grand_lab[1],
+    "C",
+    va="top",
+    ha="left",
+    color="black",
+    fontsize=figure_util.letter_font_size,
+    transform=ax_joint.transAxes,
 )
 
 ###############################
@@ -198,16 +183,6 @@ rbins = np.linspace(0, 2, 100)
 gbins = np.linspace(0, 4, 100)
 
 
-# strain_sigby.plot.scatter(x=red_chan, y=green_chan,s=2, ax=ax, c="cyan", alpha=0.2)# label=r"P$_{\mathrm{sigA}}$-RFP P$_{\mathrm{sigB}}$-YFP")
-strain_sigby.plot.scatter(
-    x=red_chan,
-    y=green_chan,
-    s=2,
-    ax=ax_joint,
-    c=[figure_util.black],
-    alpha=0.2,
-    edgecolors="none",
-)  # , label="P$_{\mathrm{sigA}}$-RFP P$_{\mathrm{sigA}}$-YFP")
 strain_sigay.plot.scatter(
     x=red_chan,
     y=green_chan,
@@ -216,7 +191,7 @@ strain_sigay.plot.scatter(
     c=[figure_util.red],
     alpha=0.2,
     edgecolors="none",
-)  # , label="P$_{\mathrm{sigA}}$-RFP P$_{\mathrm{sigA}}$-YFP")
+)  
 # cbarax =
 # sns.jointplot(strain_sigay[red_chan], strain_sigay[green_chan], cmap=plt.cm.plasma, joint_kws={ "linewidths":0.5})
 # sns.jointplot(strain_sigby[red_chan], strain_sigby[green_chan], cmap=plt.cm.plasma, joint_kws={ "linewidths":1})
@@ -224,65 +199,19 @@ sns.kdeplot(
     strain_sigay[red_chan],
     strain_sigay[green_chan],
     ax=ax_joint,
-    cmap=plt.cm.plasma,
+    cmap=plt.cm.bone,
     linewidths=0.5,
 )
-sns.kdeplot(
-    strain_sigby[red_chan],
-    strain_sigby[green_chan],
-    ax=ax_joint,
-    cmap=plt.cm.plasma,
-    linewidths=0.5,
-)
+# ax_joint.scatter(
+#     x=[],
+#     y=[],
+#     s=10,
+#     c=[figure_util.red],
+#     label=r"P$_{\mathit{sigA}}$-RFP P$_{\mathit{sigA}}$-YFP",
+# )
+    
+print(strain_sigay[red_chan].min())
 
-sns.kdeplot(
-    strain_sigby[red_chan], ax=ax_mx, color=figure_util.black, legend=False, shade=True
-)
-sns.kdeplot(
-    strain_sigay[red_chan], ax=ax_mx, color=figure_util.red, legend=False, shade=True
-)
-sns.kdeplot(
-    strain_sigby[green_chan],
-    ax=ax_my,
-    color=figure_util.black,
-    legend=False,
-    vertical=True,
-    shade=True,
-)
-sns.kdeplot(
-    strain_sigay[green_chan],
-    ax=ax_my,
-    color=figure_util.red,
-    legend=False,
-    vertical=True,
-    shade=True,
-)
-
-
-ax_joint.scatter(
-    x=[],
-    y=[],
-    s=10,
-    c=[figure_util.black],
-    alpha=1,
-    label=r"P$_{\mathit{sigA}}$-RFP P$_{\mathit{sigB}}$-YFP",
-)
-ax_joint.scatter(
-    x=[],
-    y=[],
-    s=10,
-    c=[figure_util.red],
-    label=r"P$_{\mathit{sigA}}$-RFP P$_{\mathit{sigA}}$-YFP",
-)
-
-ax_joint = plot_regression(
-    strain_sigby[red_chan],
-    strain_sigby[green_chan],
-    ax=ax_joint,
-    color=figure_util.black,
-    linestyle="-",
-    linewidth=2,
-)
 ax_joint = plot_regression(
     strain_sigay[red_chan],
     strain_sigay[green_chan],
@@ -292,16 +221,8 @@ ax_joint = plot_regression(
     linewidth=2,
 )
 
-xmin = 1.0300 - 0.3500
 ax_joint.set_xlim(xmin, rbins.max())
 ax_joint.set_ylim(0, gbins.max())
-ax_mx.ticklabel_format(style="sci", scilimits=(0, 0), axis="y", useMathText=True)
-ax_my.ticklabel_format(style="sci", scilimits=(0, 0), axis="x", useMathText=True)
-
-
-# ax.set_title("RFP vs YFP")
-# arts = [asiga, asigb]
-# labels = [siga.get_label(), asigb.get_label()]
 ax_joint.legend(
     loc="center right"
 )  # , bbox_to_anchor=(0, 0), bbox_transform=ax_leg.transAxes)
@@ -310,9 +231,9 @@ ax_joint.set_ylabel("YFP flouresence (AU)")
 
 
 filename = "sup_sigayfp"
-width, height = figure_util.get_figsize(figure_util.fig_width_small_pt, wf=1.0, hf=1.3)
+width, height = figure_util.get_figsize(figure_util.fig_width_small_pt, wf=1.0, hf=1.2)
 fig.set_size_inches(width, height)
-fig.subplots_adjust(left=0.10, bottom=0.06, top=0.75, right=0.97)
+fig.subplots_adjust(left=0.10, bottom=0.08, top=0.99, right=0.97)
 # fig.tight_layout()
 figure_util.save_figures(fig, filename, ["pdf", "png"], this_dir)
 # figure_util.save_figures(fig, filename, ["png"], this_dir)
