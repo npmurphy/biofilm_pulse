@@ -51,9 +51,10 @@ sigavsiga = file_df[
     (
         file_df["strain"].isin(type_to_strain["et_sigar_sigay"])
         & (file_df["time"] == 48.0)
-        & (file_df["dirname"] == "Set_2/48hrs/63x")
+        # & (file_df["dirname"] == "Set_2/48hrs/63x")
     )
 ]
+# print(sigavsiga)
 
 red_chan = "red_raw_mean"
 green_chan = "green_raw_mean"
@@ -63,7 +64,21 @@ cell_df[green_chan] = cell_df[green_chan] / 10000
 xmin = 1.0300 - 0.3500
 # strain_sigby = cell_df.loc[cell_df["global_file_id"].isin(sigavsigb.index), :]
 strain_sigay = cell_df.loc[cell_df["global_file_id"].isin(sigavsiga.index), :]
-#strain_sigay = strain_sigay.loc[strain_sigay[red_chan] >= xmin, :]
+
+set_2 = strain_sigay["global_file_id"].isin([19, 20, 21])
+set_3 = strain_sigay["global_file_id"].isin([102, 103, 104, 105])
+set_2_yfp_mean = strain_sigay.loc[set_2, green_chan].mean()
+set_3_yfp_mean = strain_sigay.loc[set_3, green_chan].mean()
+print("set_2 green mean", set_2_yfp_mean)
+print("set_3 green mean", set_3_yfp_mean)
+shift = set_2_yfp_mean - set_3_yfp_mean
+print("shifting by ", shift)
+strain_sigay.loc[set_3, green_chan] = strain_sigay.loc[set_3, green_chan] + shift
+
+# mean_x = (file_df["dirname"] == "Set_2/48hrs/63x")
+
+# strain_sigay_other_set = cell_df.loc[cell_df["global_file_id"].isin(sigavsiga.index), :]
+# strain_sigay = strain_sigay.loc[strain_sigay[red_chan] >= xmin, :]
 
 
 def plot_regression(x, y, ax=None, **kwargs):
@@ -191,7 +206,7 @@ strain_sigay.plot.scatter(
     c=[figure_util.red],
     alpha=0.2,
     edgecolors="none",
-)  
+)
 # cbarax =
 # sns.jointplot(strain_sigay[red_chan], strain_sigay[green_chan], cmap=plt.cm.plasma, joint_kws={ "linewidths":0.5})
 # sns.jointplot(strain_sigby[red_chan], strain_sigby[green_chan], cmap=plt.cm.plasma, joint_kws={ "linewidths":1})
@@ -209,7 +224,7 @@ sns.kdeplot(
 #     c=[figure_util.red],
 #     label=r"P$_{\mathit{sigA}}$-RFP P$_{\mathit{sigA}}$-YFP",
 # )
-    
+
 print(strain_sigay[red_chan].min())
 
 ax_joint = plot_regression(
@@ -220,6 +235,7 @@ ax_joint = plot_regression(
     linestyle="-",
     linewidth=2,
 )
+
 
 ax_joint.set_xlim(xmin, rbins.max())
 ax_joint.set_ylim(0, gbins.max())
