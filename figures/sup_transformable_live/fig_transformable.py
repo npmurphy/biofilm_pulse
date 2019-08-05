@@ -59,7 +59,7 @@ strains_to_plot = [
     ),
     (
         "etdelru_sigar_sigby",
-        "et-Δ$\mathit{rsbRU}$ P$_{\mathit{sigB}}$-YFP",
+        "Δ$\mathit{rsbRU}$ P$_{\mathit{sigB}}$-YFP",
         (
             (
                 "Set_2/48hrs/NEB_009_48hrs_20x_4.tif",
@@ -91,7 +91,7 @@ strains_to_plot = [
     # ),
     (
         "et2xqp_sigar_sigby",
-        "et-2×$\mathit{rsbQP}$ P$_{sigB}$-YFP",
+        "2×$\mathit{rsbQP}$ P$_{sigB}$-YFP",
         (
             (
                 "Test_snaps/48hrs/NEB011_48hrs_20x_5.tif",
@@ -107,7 +107,7 @@ strains_to_plot = [
     ),
     (
         "etdelsigf_sigar_sigby",
-        "et-Δ$\mathit{rsbRU}$-Δ$\mathit{σF}$ P$_{\mathit{sigB}}$-YFP",
+        "Δ$\mathit{rsbRU}$-Δ$\mathit{σF}$ P$_{\mathit{sigB}}$-YFP",
         (
             (
                 "Set_2/48hrs/NEB_018_48hrs_20x_2.tif",
@@ -123,7 +123,7 @@ strains_to_plot = [
     ),
     (
         "et_sigar_yflay",
-        "et-WT P$_{\mathit{yflA}}$-YFP",
+        "WT P$_{\mathit{yflA}}$-YFP",
         (
             (
                 "Set_2/48hrs/NEB_024_48hrs_20x_1.tif",
@@ -139,7 +139,7 @@ strains_to_plot = [
     ),
     (
         "et_sigar_csbby",
-        "et-WT P$_{\mathit{csbB}}$-YFP",
+        "WT P$_{\mathit{csbB}}$-YFP",
         (
             (
                 "Set_2/48hrs/NEB_026_48hrs_20x_1.tif",
@@ -440,19 +440,20 @@ for i, (strain_name, label, image_prop) in enumerate(strains_to_plot):
         va="top",
         ha="left",
         color="white",
+        weight='bold',
         fontsize=figure_util.letter_font_size,
         transform=ax_cellim[i].transAxes,
     )
-    ax_cellim[i].text(
-        0.97,
-        0.03,
-        label,
-        va="bottom",
-        ha="right",
-        color="white",
-        fontsize=6,
-        transform=ax_cellim[i].transAxes,
-    )
+    # ax_cellim[i].text(
+    #     0.97,
+    #     0.03,
+    #     label,
+    #     va="bottom",
+    #     ha="right",
+    #     color="white",
+    #     fontsize=6,
+    #     transform=ax_cellim[i].transAxes,
+    # )
 
 
 #%% save

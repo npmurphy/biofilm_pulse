@@ -41,7 +41,9 @@ def out_line_inclusion_zone_and_edge(img_path, slice_start, slice_stop, roi):
     )
 
 
-def get_figure(ax, name, impath, roi, chans, FP_max_min, slicel, add_scale_bar=0):
+def get_figure(
+    ax, name, impath, roi, chans, FP_max_min, slicel, add_scale_bar=0, **kwargs
+):
     slice_srt, slice_end = slicel
     im = skimage.io.imread(impath)
     print(impath)
@@ -81,22 +83,23 @@ def get_figure(ax, name, impath, roi, chans, FP_max_min, slicel, add_scale_bar=0
     if add_scale_bar == 20:
         length = 100
         PX_TO_UM = PX_TO_UM_20 / scale_down
-        pos_r_c = (90, 1400)
-        width = 70
-        fs = 150
+        pos_r_c = (30, 330)
+        width = 30
+        fs = 42
 
     elif add_scale_bar == 63:
         PX_TO_UM = PX_TO_UM_63 / scale_down
         length = 5
-        width = 25
-        pos_r_c = (30, 350)
-        fs = 50
+        width = 10
+        pos_r_c = (10, 80)
+        fs = 16
 
     img = np.dstack(images)
     # img[outline, :] = [ 255, 255, 255]
     # img[edge, :] = [ 255, 255, 0]
     # img = np.rot90(img, 3)
     if add_scale_bar:
+        print("making scale bar")
         img = draw_scale_bar(
             img,
             *pos_r_c,
