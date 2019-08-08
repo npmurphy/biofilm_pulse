@@ -75,7 +75,7 @@ for chan, ylab, cmax, ax in plots:
     ax = subfig_hist.get_figure(ax, compiled_trace, bins, chan, **opts)
     ax.set_ylabel(ylab)
     ax.set_ylim(bottom=0, ymax=cmax)
-    ax.ticklabel_format(style="sci", scilimits=(1, 3), axis="y")
+    ax.ticklabel_format(style="sci", scilimits=(1, 3), axis="y", useMathText=True)
     ax.set_xlim(0, right=10)
     ax.tick_params(axis="y", which="both", direction="out")  #
     ax.yaxis.labelpad = -1
