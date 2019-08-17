@@ -71,13 +71,13 @@ def sub_array_correction(list_of_points, row_offset, col_offset):
 """
     next_frame_difference is the +5 means look +5 in the future. 
 """
-def predict_next_location_simple(image_pattern, list_of_positions, this_frame, next_frame_difference):
+def predict_next_location_simple(image_pattern, list_of_positions, this_frame, next_frame_difference, search_w=70):
     image_1 = skimage.io.imread(image_pattern.format(this_frame))
     image_2 = skimage.io.imread(image_pattern.format(this_frame + next_frame_difference))
 
     cell_w = 30
-    search_w = 70
     results = {}
+
     for cell_id, (r, c) in list_of_positions:
         r, c = int(r), int(c)
         # print(r, c) 

@@ -39,10 +39,11 @@ class State:
         filepattern,
         track_path,
         image_start=1,
-        #cell_start: int = 1,
+        # cell_start: int = 1,
         viewmethod="gauss",  # straight",
         vmax=1.3,
         image_range=(None, None),
+        just_suspicious_cells=False,
     ):
         self.filepattern = filepattern
         self.parse_re = re.compile(re.sub(r"{\d?:\d+d}", r"(\d+)", self.filepattern))
@@ -53,6 +54,7 @@ class State:
         self.blue_chan = "ch02"
 
         self.color_mode = "trackstatus"
+        self.just_suspicious_cells = just_suspicious_cells
 
         self.cell_interactor_style = {
             "edgecolor": "white",
@@ -66,7 +68,7 @@ class State:
         init_shape = get_shape(self.filepattern.format(self.image_range[0]))
         self.vmaxs = vmax
         self.cells = self.trackdata.get_cell_list()
-        self.current_cell_id = 0 #int(cell_start)
+        self.current_cell_id = 0  # int(cell_start)
         self.current_image = image_start
         self.view_methods = {"gauss": (2, lambda x: skimage.filters.gaussian(x, 1.1))}
         dim, self.view_method = self.view_methods[viewmethod]
@@ -111,29 +113,19 @@ class State:
             self.number_of_steps - 1
         )
 
-        #self.last_selected_image = self.current_image
+        # self.last_selected_image = self.current_image
 
         # imgcmap = "bone"
         # imgcmap = "viridis"
         imgcmap = "hot"
 
         self.art_images = [
-            ax.imshow(
-                bg,
-                cmap=plt.get_cmap(imgcmap),
-                vmin=0,
-                interpolation="nearest",
-            )
+            ax.imshow(bg, cmap=plt.get_cmap(imgcmap), vmin=0, interpolation="nearest")
             for ax, bg in zip(self.ax_images, self.bg_images)
         ]
 
         self.art_overlaps = [
-            ax.imshow(
-                bg,
-                cmap=plt.get_cmap(imgcmap),
-                vmin=0,
-                interpolation="nearest",
-            )
+            ax.imshow(bg, cmap=plt.get_cmap(imgcmap), vmin=0, interpolation="nearest")
             for ax, bg in zip(self.ax_overlaps, self.overlap_images)
         ]
 
@@ -151,11 +143,10 @@ class State:
         self.move_to_image(self.current_image)
         self.go_to_next_unapproved()
 
-    
     # def select_image(self, event):
     #     if event.inaxes is None:
     #         return None
-    #     frame = event.inaxes.name 
+    #     frame = event.inaxes.name
     #     self.last_selected_image = int(frame)
     #     return self.last_selected_image
 
@@ -183,6 +174,9 @@ class State:
         vals = (frame, status, self.current_cell_id, len(self.cells))
         return "Image:{0} Cell#{2} **{1}**".format(*vals)
 
+    # def get_cells_list_for_frame(self, frame):
+    #     self.cells = self.td.get
+
     def move_to_image(self, number):
         if number not in self.image_range:
             print(
@@ -205,7 +199,7 @@ class State:
             self.art_images[i].set_clim(vmax=self.bg_images[i].max() * self.vmaxs)
             # self.ax_images[i].set_title(self.make_title())
             self.ax_images[i].name = self.current_image + i
-            #self.ax_images[i].set_title(self.make_title( name = self.current_image + i
+            # self.ax_images[i].set_title(self.make_title( name = self.current_image + i
 
         self.fig.canvas.draw_idle()
         return True
@@ -216,16 +210,40 @@ class State:
             next_cell = self.cells[i]
             print("checking cell", next_cell)
             try:
-                cell_status = self.trackdata.get_cell_properties(
+                cell_props = self.trackdata.get_cell_properties(
                     self.current_image + 1, next_cell
-                )["trackstatus"]
+                )
             except:
                 print("It doesnt exist in the next frame", next_cell)
                 continue
-            if cell_status == "auto":
-                print("Its, good, lets look at ", next_cell)
-                self.move_to_cell_all_axes(next_cell)
-                return True
+            if cell_props["trackstatus"] == "auto":
+                if self.just_suspicious_cells:
+                    look_at_it = False
+                    how_it_was = self.trackdata.get_cell_properties(
+                        self.current_image, next_cell
+                    )
+                    diff_len = np.sqrt(
+                        (how_it_was["length"] - cell_props["length"]) ** 2
+                    )
+                    diff_width = np.sqrt(
+                        (how_it_was["width"] - cell_props["width"]) ** 2
+                    )
+                    print(f"{diff_len}: length_diff")
+                    print(f"{diff_width}: length_diff")
+                    if diff_len > 5:
+                        look_at_it = True
+                    if diff_width > 5:
+                        look_at_it = True
+                else:
+                    look_at_it = True
+
+                if look_at_it:
+                    print("Lets look at ", next_cell)
+                    self.move_to_cell_all_axes(next_cell)
+                    return True
+                else:
+                    print(f"{next_cell} is looks too similar, skipping")
+                    continue
             else:
                 print("Its got no status or is null skipping", next_cell)
                 continue
@@ -236,24 +254,12 @@ class State:
         """ this updates the track data with currently edited cell"""
         if interactive_cell is not None:
             print("updating the data structure")
-            print(
-                "OLD",
-                self.trackdata.get_cell_params(
-                    frame, self.current_cell_id
-                ),
-            )
+            print("OLD", self.trackdata.get_cell_params(frame, self.current_cell_id))
             properties = interactive_cell.get_position_props()
             properties.update({"status": "checked"})
             print("GUI", properties)
-            self.trackdata.set_cell_properties(
-                frame, self.current_cell_id, properties
-            )
-            print(
-                "Saved",
-                self.trackdata.get_cell_params(
-                    frame, self.current_cell_id
-                ),
-            )
+            self.trackdata.set_cell_properties(frame, self.current_cell_id, properties)
+            print("Saved", self.trackdata.get_cell_params(frame, self.current_cell_id))
 
     def move_to_cell_all_axes(self, cell):
         frame = self.current_image
@@ -329,9 +335,7 @@ class State:
 
     def set_track_status(self, cell_id, frame, judgement):
         print(judgement, cell_id, frame)
-        self.trackdata.set_cell_properties(
-            frame, cell_id, {"trackstatus": judgement}
-        )
+        self.trackdata.set_cell_properties(frame, cell_id, {"trackstatus": judgement})
         self.trackdata.save()
 
     def on_key_press(self, event):
@@ -362,14 +366,20 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--images", type=str, required=True)
     parser.add_argument("--trackdata", type=str, required=True)
-    #parser.add_argument("-c", "--start_cell", type=str, default="1")
+    # parser.add_argument("-c", "--start_cell", type=str, default="1")
     parser.add_argument("-s", "--start_image", type=int, default=1)
     parser.add_argument("--view", type=str, default="gauss")
     parser.add_argument("--vmax", type=float, default=1.0)
+    parser.add_argument("--just_suspicious_cells", action="store_true")
     pa = parser.parse_args()
 
     state = State(
-        pa.images, pa.trackdata, pa.start_image, pa.view, pa.vmax
+        pa.images,
+        pa.trackdata,
+        pa.start_image,
+        pa.view,
+        pa.vmax,
+        just_suspicious_cells=pa.just_suspicious_cells,
     )
 
     state.fig.canvas.mpl_connect("key_press_event", state.on_key_press)

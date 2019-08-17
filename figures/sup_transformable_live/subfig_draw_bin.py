@@ -48,7 +48,8 @@ def get_figure(
     im = skimage.io.imread(impath)
     print(impath)
     print("MEAN:", im[:, :, 1].mean())
-    print("MEAN+2std:", im[:, :, 1].mean() + 2 * im[:, :, 1].std())
+    # print("MEAN+2std:", im[:, :, 1].mean() + 2 * im[:, :, 1].std())
+    print("Median/Maximum", np.median(im[:, :, 1].flatten() / im[:, :, 1].max()))
     print("Median:", np.median(im[:, :, 1].flatten()))
     print("Maximum:", im[:, :, 1].max())
     scale_down = 0.25
@@ -65,7 +66,14 @@ def get_figure(
             # low = im[:,:,1].mean() - 2*im[:,:,1].std()
             # high = im[:,:,1].max()
             low = 0
-            high = im[:, :, 1].mean() + 5 * im[:, :, 1].std()
+            high = 7 * np.mean(
+                im[:, :, 1].flatten()
+            ) 
+            if "63" in impath:
+                high = 8 * np.mean(
+                im[:, :, 1].flatten()
+            ) 
+            print("SCALE:", high)
             FP_max_min = (FP_max_min[0], (low, high), FP_max_min[2])
 
         images[c] = process_fp(

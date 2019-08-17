@@ -17,14 +17,6 @@ python bin/make_cell_track_movie.py \
     #11 28 10
      #--cokmpileddata ${basedir}/${dataset}/${lookat}/compiled.tsv \
 
-python bin/make_cell_track_movie.py \
-    --dataset ${datadir}/${dataset}/${lookat}/compiled_redo.tsv \
-    --trackdata ${datadir}/${dataset}/${lookat}/cell_track.json \
-    --image_pattern ${basedir}/${dataset}/${lookat}/${cpattern} \
-    --output_pattern "datasets/movie_1_simp/frame_{0:03d}.png" \
-    --simple_only \
-    --cell 11 \
-    --channels 00 01
 
 ##ffmpeg -start_number 38 -i datasets/movie_1/frame_%03d.png datasets/movie1.mpg
 
@@ -69,3 +61,28 @@ ffmpeg -start_number 0 \
        -r 25 \
        -f mpeg -vcodec mpeg1video -b:v 5000k -y \
        datasets/movie20x_2.mpg
+
+
+################
+## 2xQP movie
+############
+#basedir="/media/nmurphy/BF_Data_Orange/raw_data/iphox_movies/Biofilm_movie_2xQP_test"
+basedir="/media/nmurphy/BF_Data_Orange/raw_data/iphox_movies/WT_2xQP_movie_III/"
+dataset="Mark_and_Find_001"
+lookat="Position025"
+pattern=${lookat}"_t{0:03d}_z0_ch{1}.tif" 
+    
+python bin/make_simple_movie.py \
+    --image_pattern ${basedir}/${dataset}/${lookat}/${pattern} \
+    --output_pattern "/media/nmurphy/BF_Data_Orange/datasets/movie_2xQP/frame_{0:03d}.png" \
+    --start_frame 100 \
+    --end_frame 500 \
+    --channels 00 01
+
+ffmpeg -start_number 100 \
+       -i datasets/movie_2xQP/frame_%03d.png \
+       -vframes 500 \
+       -q:v 3  \
+       -f mpeg -vcodec mpeg1video -b:v 6000k -y \
+       datasets/movie_2xQP.mpg
+       #-r 25 \
