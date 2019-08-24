@@ -207,9 +207,6 @@ strain_sigay.plot.scatter(
     alpha=0.2,
     edgecolors="none",
 )
-# cbarax =
-# sns.jointplot(strain_sigay[red_chan], strain_sigay[green_chan], cmap=plt.cm.plasma, joint_kws={ "linewidths":0.5})
-# sns.jointplot(strain_sigby[red_chan], strain_sigby[green_chan], cmap=plt.cm.plasma, joint_kws={ "linewidths":1})
 sns.kdeplot(
     strain_sigay[red_chan],
     strain_sigay[green_chan],
@@ -217,21 +214,21 @@ sns.kdeplot(
     cmap=plt.cm.bone,
     linewidths=0.5,
 )
-# ax_joint.scatter(
-#     x=[],
-#     y=[],
-#     s=10,
-#     c=[figure_util.red],
-#     label=r"P$_{\mathit{sigA}}$-RFP P$_{\mathit{sigA}}$-YFP",
-# )
 
 print(strain_sigay[red_chan].min())
-
 ax_joint = plot_regression(
-    strain_sigay[red_chan],
-    strain_sigay[green_chan],
+    strain_sigay.loc[set_2, red_chan],
+    strain_sigay.loc[set_2, green_chan],
     ax=ax_joint,
     color=figure_util.red,
+    linestyle="-",
+    linewidth=2,
+)
+ax_joint = plot_regression(
+    strain_sigay.loc[set_3, red_chan],
+    strain_sigay.loc[set_3, green_chan],
+    ax=ax_joint,
+    color=figure_util.blue,
     linestyle="-",
     linewidth=2,
 )
