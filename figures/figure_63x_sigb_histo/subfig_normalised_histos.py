@@ -83,7 +83,8 @@ def get_figure(cell_df, file_df, axes, time, location, list_of_histos):
                         (file_df["location"] == location) &
                         (file_df["strain"] == des_strain_map[strain])].index
         opts = {"color":color, "label":label, "alpha":0.4}
-        print(strain)
+        number_of_experiments = file_df.loc[fids, "dirname"].unique()
+        print(strain, "N=", number_of_experiments)
         
         axes[i] = plot_strain_fileindiv_histos(axes[i], cell_df, fids, look_chan, norm_chan, slicested[0], slicested[1], lookbins, opts)
         #axes[i] = plot_strain_histos(axes[i], cell_df, fids, look_chan, norm_chan, slicested[0], slicested[1], lookbins, opts)

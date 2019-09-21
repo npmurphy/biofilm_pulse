@@ -95,6 +95,7 @@ def get_figure(
         label = kwargs["label"]
 
     st_files = file_df.index[(file_df.strain == strain)]
+    print(f'{strain} is {len(st_files)}, N={len(file_df.loc[st_files, "dirname"].unique())}')
     data_columns = ["file_{0}_{1}".format(s, chan) for s in st_files]
     total_columns = ["file_{0}_total_counts".format(s) for s in st_files]
 

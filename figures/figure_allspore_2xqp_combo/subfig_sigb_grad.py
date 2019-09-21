@@ -30,6 +30,7 @@ def get_figure(ax, file_df, gradient_df, strain_des):
                         (file_df["strain"] == des_strain_map[strain])].index
         print(strain, " has ", len(fids))
         df = gradient_df[gradient_df["file_id"].isin(fids)]
+        print(file_df.loc[fids, "name"])
 
         df = df[df["cdist"]>2.0] # ignore top 2um for consistency
         df_mean = df.groupby("cdist").mean()
