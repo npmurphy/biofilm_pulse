@@ -317,6 +317,13 @@ gbins = np.linspace(0, 4, nbins)
 #         ("wt_sigar_sigby",    gchan, rchan, gbins, slice_srt_end, "WT P$_{sigB}$-YFP", strain_color["JLB021"]),
 
 df = cell_df.loc[(cell_df["good_cell"]), :]
+# def norm(x, channel):
+#     return x[channel] / image_means.loc[x["global_file_id"], channel]
+#     # return x[channel] / image_means.loc[x["global_file_id"], "red_raw_mean"]
+
+# # df["red_imggood_norm"]  = cell_df.apply(lambda x: norm(x, "red_raw_mean"), axis="columns") 
+# df["green_imggood_norm"]  = cell_df.apply(lambda x: norm(x, "green_raw_mean"), axis="columns") 
+
 for i, (strain_name, label, _) in enumerate(strains_to_plot):
     fids_df = file_df[
         (
@@ -336,8 +343,8 @@ for i, (strain_name, label, _) in enumerate(strains_to_plot):
         ax_histos[i],
         df,
         fids,
-        "green_raw_meannorm",
-        "red_raw_meannorm",
+        "green_raw_mean",
+        "green_raw_mean",
         0,
         100,
         gbins,
