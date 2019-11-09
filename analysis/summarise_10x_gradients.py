@@ -42,17 +42,36 @@ try:
     os.mkdir(output_dir)
 except FileExistsError as e:
     pass
+
+source_data = pd.DataFrame()
 for c, (strain) in enumerate(
     ["wt_sigar_sigby", "delru_sigar_sigby", "delqp_sigar_sigby"]
 ):  # ,"2xqp_sigby" ,"delsigb_sigby"]
     df = get_strain(strain)
     df = df[df["cdist"] > 2.0]
+
+    print(df.head())
+    source_series = [
+        df[df["file_id"] == filed]
+        .groupby("cdist")
+        .mean()["ratio"]
+        .rename(f"{strain.split('_')[0]}_{filed}")
+        for filed in df["file_id"].unique()
+    ]
+    source_strain = pd.concat(source_series, axis=1)
+    source_data = pd.concat([source_data, source_strain], axis=1)
+
     df_mean = df.groupby("cdist").mean()
     df_sem = df.groupby("cdist").sem()
     columns["mean"] = df_mean["ratio"].values
+    pd.testing.assert_series_equal(
+        source_strain.mean(axis=1), df_mean["ratio"], check_names=False
+    )
     columns["upsem"] = columns["mean"] + df_sem["ratio"].values
     columns["downsem"] = columns["mean"] - df_sem["ratio"].values
     columns["distance"] = df_mean.index
     data = pd.DataFrame(columns)
     data.index.name = "i"
     data.to_csv(os.path.join(output_dir, strain + ".tsv"), sep="\t")
+
+source_data.to_csv("source_data/figure2_d.tsv", sep="\t")
