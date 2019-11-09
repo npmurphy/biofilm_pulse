@@ -36,6 +36,8 @@ def plot_strain_fileindiv_histos(ax, df, fileids, view_chan, norm_chan, slice_st
     newchan = view_chan +"_slicenorm"
     xbins = bins[1:] - ((bins[1]-bins[0])/2)
     slice_meaned = histo_slice_mean_norm(df, fileids, view_chan, norm_chan, slice_st, slice_end)
+    subset_for_plotting = slice_meaned[["global_file_id", newchan]]
+    subset_for_plotting.to_csv(f"source_data/figure3_d_{fileids[0]}.tsv", sep="\t")
     histos = np.zeros((len(fileids),len(xbins)))
     total_cells = 0
     for f, fid in enumerate(fileids):
@@ -85,7 +87,7 @@ def get_figure(cell_df, file_df, axes, time, location, list_of_histos):
         opts = {"color":color, "label":label, "alpha":0.4}
         number_of_experiments = file_df.loc[fids, "dirname"].unique()
         print(strain, "N=", number_of_experiments)
-        
+        print("File_id 0 is : ", fids[0]) 
         axes[i] = plot_strain_fileindiv_histos(axes[i], cell_df, fids, look_chan, norm_chan, slicested[0], slicested[1], lookbins, opts)
         #axes[i] = plot_strain_histos(axes[i], cell_df, fids, look_chan, norm_chan, slicested[0], slicested[1], lookbins, opts)
     return axes
