@@ -7,6 +7,7 @@ import lib.figure_util as figure_util
 import pandas as pd
 import seaborn as sns
 
+
 def get_figure_peaks(
     ax, file_df, gradient_data, strains, chan, min_sample_size=None, kwargs={}
 ):
@@ -24,7 +25,7 @@ def get_figure_peaks(
         if min_sample_size:
             for dc, tc in zip(data_columns, total_columns):
                 gradient_data.loc[gradient_data[tc] < min_sample_size, dc] = np.nan
-                #print(gradient_data[dc])
+                # print(gradient_data[dc])
         smooth_data = gradient_data[data_columns].rolling(window=5).mean()
 
         strain_grads = smooth_data[data_columns].values
@@ -40,14 +41,20 @@ def get_figure_peaks(
     # sns.v
     # iolinplot(x="strain", y="peak", data=df, ax=ax)
     alpha = 1
-    my_pal = {figure_util.strain_label[s]: (*figure_util.strain_color[s], alpha) for s in strains}
+    my_pal = {
+        figure_util.strain_label[s]: (*figure_util.strain_color[s], alpha)
+        for s in strains
+    }
     my_pal["WT"] = "gray"
     print(my_pal)
-    ax = sns.boxplot(y="strain", x="peak", data=df, ax=ax, palette=my_pal, linewidth=1)#, boxprops={"alpha":.3})
-    #ax = sns.swarmplot(y="strain", x="peak", data=df, ax=ax, s=3, color="black", alpha=0.7)
+    ax = sns.boxplot(
+        y="strain", x="peak", data=df, ax=ax, palette=my_pal, linewidth=1
+    )  # , boxprops={"alpha":.3})
+    # ax = sns.swarmplot(y="strain", x="peak", data=df, ax=ax, s=3, color="black", alpha=0.7)
     ax.set_xlabel("")
-    #ax.legend()
+    # ax.legend()
     return ax
+
 
 def get_figure_individual(
     ax, file_df, gradient_data, strain, chan, min_sample_size=None, kwargs={}
@@ -65,7 +72,7 @@ def get_figure_individual(
     if min_sample_size:
         for dc, tc in zip(data_columns, total_columns):
             gradient_data.loc[gradient_data[tc] < min_sample_size, dc] = np.nan
-    
+
     smooth_data = gradient_data[data_columns].rolling(window=5).mean()
 
     strain_grads = smooth_data.values
@@ -73,7 +80,6 @@ def get_figure_individual(
     for l in range(strain_grads.shape[1]):
         ax.plot(
             distances, strain_grads[:, l], color=plt.cm.Set3(l / 12), linewidth=1
-        
         )  # , label=l)
 
     ax.set_ylim(bottom=0)
@@ -95,7 +101,9 @@ def get_figure(
         label = kwargs["label"]
 
     st_files = file_df.index[(file_df.strain == strain)]
-    print(f'{strain} is {len(st_files)}, N={len(file_df.loc[st_files, "dirname"].unique())}')
+    print(
+        f'{strain} is {len(st_files)}, N={len(file_df.loc[st_files, "dirname"].unique())}'
+    )
     data_columns = ["file_{0}_{1}".format(s, chan) for s in st_files]
     total_columns = ["file_{0}_total_counts".format(s) for s in st_files]
 
@@ -106,6 +114,9 @@ def get_figure(
     # doesnt work
     # gradient_data.loc[(gradient_data[total_columns]<min_sample_size).values, data_columns] = np.nan
     strain_grads = gradient_data[data_columns]
+    source_data = strain_grads.copy()
+    source_data["distance"] = gradient_data["distance"]
+    source_data.to_csv("source_data/figure5_a_spores.tsv", sep="\t")
 
     mean_trace = strain_grads.mean(axis=1)
     sem_trace = strain_grads.sem(axis=1)
