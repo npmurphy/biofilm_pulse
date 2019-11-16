@@ -71,9 +71,16 @@ def make_movie(start, end, image_pattern, output_pattern, channels):
         print("frame {0}".format(i))
 
         current_image = get_image(image_pattern, i, channels)
-        small = current_image[:, :]  # 380:]
+        row_start = 200
+        col_start = 210
+        width = 600
+        height = 600
+        small = current_image[
+            row_start : row_start + height, col_start : col_start + width, :
+        ]  # 380:]
         # time_offset = (12 * 60) + 3
-        time_offset = (7 * 60) + 23
+        # time_offset = (12 * 60) + 3
+        time_offset = (7 * 60) + 23  # 2xQP hard coded
         time = time_offset + (i * 10)
         annotated = annotate_image(small, time)
 

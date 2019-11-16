@@ -76,13 +76,13 @@ python bin/make_simple_movie.py \
     --image_pattern ${basedir}/${dataset}/${lookat}/${pattern} \
     --output_pattern "/media/nmurphy/BF_Data_Orange/datasets/movie_2xQP/frame_{0:03d}.png" \
     --start_frame 100 \
-    --end_frame 500 \
+    --end_frame 257 \
     --channels 00 01
 
 ffmpeg -start_number 100 \
        -i datasets/movie_2xQP/frame_%03d.png \
-       -vframes 500 \
-       -q:v 3  \
+       -vframes 257 \
+       -r 25 \
        -f mpeg -vcodec mpeg1video -b:v 6000k -y \
-       datasets/movie_2xQP.mpg
-       #-r 25 \
+       datasets/movie_2xQP_new.mpg
+    #    -f mpeg 
