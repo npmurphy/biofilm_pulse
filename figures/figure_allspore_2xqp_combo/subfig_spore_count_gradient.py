@@ -117,6 +117,7 @@ def get_figure(
     source_data = strain_grads.copy()
     source_data["distance"] = gradient_data["distance"]
     source_data.to_csv("source_data/figure5_a_spores.tsv", sep="\t")
+    source_data.to_csv(f"source_data/figure8_a_{strain}.tsv", sep="\t")
 
     mean_trace = strain_grads.mean(axis=1)
     sem_trace = strain_grads.sem(axis=1)

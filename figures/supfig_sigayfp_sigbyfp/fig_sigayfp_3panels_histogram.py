@@ -21,7 +21,7 @@ import seaborn as sns
 figure_util.apply_style()
 letters = figure_util.letters
 
-basedir = "/media/nmurphy/BF_Data_Orange/datasets/new_strain_snaps1/"
+basedir = os.path.join(this_dir, "../../datasets/new_strain_snaps1/")
 cell_df = pd.read_hdf(os.path.join(basedir, "single_cell_data.h5"), "cells")
 file_df = filedb.get_filedb(os.path.join(basedir, "file_list.tsv"))
 
@@ -172,7 +172,7 @@ grad_image = "Test_snaps/48hrs/NEB034_48hrs_20x_4.tif"
 grad_region = ((500, 500 + h), (0, 0 + w))  # row, cols
 scalebar = 20
 
-path = os.path.join("datasets/lsm700_live20x_newstrain1/images", grad_image)
+path = os.path.join(this_dir, "../../datasets/lsm700_live20x_newstrain1/images", grad_image)
 scales20 = [FP_max_min_r, FP_max_min_g, FP_max_min]
 axes20 = [ax_20x_r, ax_20x_g, ax_20x]
 letters20 = ["A", "B", "C"]
@@ -213,7 +213,7 @@ scalebar = 63
 axes63 = [ax_63x_r, ax_63x_g, ax_63x]
 scales63 = [FP_Single_max_min_r, FP_Single_max_min_g, FP_Single_max_min]
 letters63 = ["D", "E", "F"]
-path = os.path.join("datasets/new_strain_snaps1/images", cell_image)
+path = os.path.join(this_dir, "../../datasets/new_strain_snaps1/images", cell_image)
 grand_lab = (0.03, 0.97)
 for i, (a, s, l) in enumerate(zip(axes63, scales63, letters63)):
     if i != 0:
@@ -273,6 +273,7 @@ def plot_bar_chart(ax, data, bins, **kwargs):
 
 from scipy.stats import variation
 print("Num cells", len(strain_sigay.loc[set_2, red_chan]))
+strain_sigay.loc[set_2, [red_chan, green_chan]].to_csv("source_data/sup_figure4_g.tsv", sep="\t")
 ax_joint = plot_bar_chart(
     ax_joint,
     strain_sigay.loc[set_2, red_chan],

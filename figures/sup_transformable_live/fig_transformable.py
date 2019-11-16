@@ -311,6 +311,7 @@ def is_a_good_cell(v, mean=10300, std=3500):
 
 cell_df["good_cell"] = cell_df["red_raw_mean"].apply(is_a_good_cell)
 # def get_data_subset(df, file_df, list_of_histos, time, location, output_path):
+source_data = cell_df.copy()
 nbins = 100
 gbins = np.linspace(0, 4, nbins)
 #         #("2xqp_sigar_sigby",  gchan, rchan, gbins, slice_srt_end, "2xQP", strain_color["JLB095"]),
@@ -323,7 +324,13 @@ df = cell_df.loc[(cell_df["good_cell"]), :]
 
 # # df["red_imggood_norm"]  = cell_df.apply(lambda x: norm(x, "red_raw_mean"), axis="columns") 
 # df["green_imggood_norm"]  = cell_df.apply(lambda x: norm(x, "green_raw_mean"), axis="columns") 
-
+source_data = source_data.loc[source_data["global_file_id"].isin(file_df.loc[file_df["time"] == 48.0, :].index), :]
+strain_labs = sum([ type_to_strain[s[0]] for s in strains_to_plot ], [])
+print(strain_labs)
+strain_files = file_df.loc[file_df["strain"].isin(strain_labs), :]
+source_data = source_data.loc[source_data["global_file_id"].isin(strain_files.index)]
+source_data["strain"] = source_data["global_file_id"].apply(lambda i: file_df.loc[i, "strain"])
+source_data.to_csv("source_data/sup_figure8.tsv", sep="\t")
 for i, (strain_name, label, _) in enumerate(strains_to_plot):
     fids_df = file_df[
         (

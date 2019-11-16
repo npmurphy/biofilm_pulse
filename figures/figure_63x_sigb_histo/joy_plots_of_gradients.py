@@ -19,7 +19,9 @@ def get_strain_result(file_df, cell_df, time, location, strain_num, chan, max_va
                     (file_df["location"] == location) &
                     (file_df["strain"] == strain_num )].index
     df = cell_df[cell_df["global_file_id"].isin(fids)]
-
+    let = {"jlb021": "abef", "jlb088": "cg", "jlb039": "dh", "jlb095": "B"}
+    source_data_chan = ["distance", "global_file_id", "green_raw_bg_mean", "red_raw_bg_mean"]
+    df[source_data_chan].to_csv(f"source_data/sup_figure6_{let[strain_num]}.tsv", sep="\t")
     distance_samples = (2.5, 140, 6) # start,stop,spacing
     width = 2.
     distances, bins, distrib, stats = sliding_window_histos_with_stats(df, distance_samples,
