@@ -30,11 +30,11 @@ def prepare_image(image_path):
     outim = lib.figure_util.draw_scale_bar(
         image,
         20,
-        image.shape[1] - 200,
+        image.shape[1] - 250,
         scale_length=length / PX_TO_UM,
-        thickness=30,
+        thickness=50,
         legend="{0}μm".format(length),
-        fontsize=40,
+        fontsize=80,
     )
     return outim
 
