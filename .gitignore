@@ -27,3 +27,9 @@ figures/figure_allspore_2xqp_combo/spore_sigb_combo.pdf
 *.tiff
 *.mat
 *.m~
+*.sqllite
+source_data/
+old_backups/
+.cache/
+.prospector.yaml
+.vscode
