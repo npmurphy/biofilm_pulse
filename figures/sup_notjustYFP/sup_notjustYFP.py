@@ -18,120 +18,89 @@ figure_util.apply_style()
 strain_map, des_strain_map = strainmap.load()
 
 
-fig = plt.figure()
-grid = gs.GridSpec(1, 2, width_ratios=[3, 1])
-grid.update(left=0.01, right=0.98, bottom=0.11, top=0.98, hspace=0.04, wspace=0.21)
-# grid.update(hspace=0.05)
+fig, ax = plt.subplots(2, 3)
 
 
 def prepare_image(image_path):
-    scales = {1: (0, 20), 0: (0, 100), 2: (0, 0)}  # green  # red
 
     image = skimage.io.imread(image_path)
 
-    print(image.shape)
-    images = [image[1, :, :], image[0, :, :], np.zeros_like(image[0, :, :])]
-    images = [
-        skimage.exposure.rescale_intensity(im, in_range=scales[i], out_range=(0, 255))
-        for i, im in enumerate(images)
-    ]
-    # images = [i[1026:2056, 892:1700].copy() for i in images]
-    r = 790
-    images = [i[r : r + 1024, 0:1026].copy() for i in images]
-    # images = [ im.astype(np.uint8) for im in images]
-    # images += [ np.zeros_like(imges[-1])]
-    outim = np.dstack(images)
-    # outim = np.rot90(outim, 3)
+    image = np.rot90(image, -1)
     length = 100
     outim = lib.figure_util.draw_scale_bar(
-        outim,
+        image,
         20,
-        outim.shape[1] - 200,
+        image.shape[1] - 250,
         scale_length=length / PX_TO_UM,
-        thickness=30,
+        thickness=50,
         legend="{0}μm".format(length),
-        fontsize=40,
+        fontsize=80,
     )
     return outim
 
 
 this_dir = os.path.dirname(os.path.realpath(__file__))
 
-strains = [figure_util.strain_label[s] for s in ["JLB022"]]
-imagedir = "/media/nmurphy/BF_Data_Orange/datasets/ancient_sigw/"
-biofilm_images = ["SigW_48hrs_center_3.tif"]
+strains = [figure_util.strain_label[s] for s in ["JLB022", "JLB035"]]
+# imagedir = "/media/nmurphy/BF_Data_Orange/datasets/ancient_sigw/"
+imagedir = "/home/nmurphy/work/projects/bf_pulse/figures/sup_notjustYFP/sigW_fig_data"
+
+rfponly_images = [
+    "RFP_only_48hrs_center_2_channels_crop.tif",
+    "RFP_only_48hrs_center_RED_60_crop.tif",
+    "RFP_only_48hrs_center_GREEN_25_crop.tif",
+]
+sigW_images = [
+    "SigW_48hrs_center_2channels_crop.tif",
+    "SigW_48hrs_center_RED_60_crop.tif",
+    "SigW_48hrs_center_GREEN_25_crop.tif",
+]
 
 letters = figure_util.letters
-letter_lab = (0.05, 0.99)
-for i, (label, imgpath) in enumerate(zip(strains, biofilm_images)):
-    im = prepare_image(os.path.join(imagedir, imgpath))
-    aximg = plt.subplot(grid[0])
-    # label = figure_util.strain_label[des_strain_map[strain].upper()]
-    aximg.imshow(
-        im,
-        # interpolation="bicubic")
-        interpolation="none",
-    )
-    # aximg.set_title(label, transform=aximg.transAxes)
-    # aximg.text(
-    #     0.98,
-    #     0.02,
-    #     label,
-    #     ha="right",
-    #     va="bottom",
-    #     transform=aximg.transAxes,
-    #     fontsize=plt.rcParams["axes.titlesize"],
-    #     color="white",
-    # )
-    aximg.grid(False)
-    aximg.axis("off")
-    aximg.text(
-        letter_lab[0],
-        letter_lab[1],
-        letters[i],
-        transform=aximg.transAxes,
-        verticalalignment="top",
-        horizontalalignment="right",
-        color="white",
-        fontsize=figure_util.letter_font_size,
-    )
+letter_lab = (0.06, 0.99)
+for r, (label, strain_ims) in enumerate(zip(strains, [sigW_images, rfponly_images])):
+    for i, imgpath in enumerate(strain_ims):
+        im = prepare_image(os.path.join(imagedir, imgpath))
+        aximg = ax[r, i]  # plt.subplot(grid[0])
+        # label = figure_util.strain_label[des_strain_map[strain].upper()]
+        aximg.imshow(
+            im,
+            # interpolation="bicubic")
+            interpolation="none",
+        )
+        # aximg.set_title(label, transform=aximg.transAxes)
+        # aximg.text(
+        #     0.98,
+        #     0.02,
+        #     label,
+        #     ha="right",
+        #     va="bottom",
+        #     transform=aximg.transAxes,
+        #     fontsize=plt.rcParams["axes.titlesize"],
+        #     color="white",
+        # )
+        aximg.grid(False)
+        aximg.axis("off")
+        aximg.text(
+            letter_lab[0],
+            letter_lab[1],
+            letters[(r * 3) + i],
+            transform=aximg.transAxes,
+            verticalalignment="top",
+            horizontalalignment="right",
+            color="white",
+            fontsize=figure_util.letter_font_size,
+        )
 
-ax = plt.subplot(grid[:, 1])
-
-data_plots = ["wt_sigar_sigwy"]
-
-for c, strain in enumerate(data_plots):
-    dpath = "datasets/ancient_sigw/gradient_summary/{0}.tsv"
-    df = pd.read_csv(dpath.format(strain), sep="\t")
-    print(df.columns)
-    color = figure_util.strain_color[des_strain_map[strain].upper()]
-    label = figure_util.strain_label[des_strain_map[strain].upper()]
-    ax.plot(df["mean"], df["distance"], color=color, label=label, linewidth=0.5)
-    ax.fill_betweenx(df["distance"], df["upsem"], df["downsem"], color=color, alpha=0.4)
-# leg = ax.legend(loc="lower right")
-# leg.get_frame().set_alpha(1.0)
-# ax, leg = figure_util.shift_legend(ax, leg, yshift=0.10, xshift=0.1)
-
-# ax.set_xlim(0.09, 0.29)
-ax.set_ylim(150, 0)
-ax.set_xlim(0, 0.4)
-ax.grid(True)
-ax.set_ylabel("Distance from top of biofilm (μm)", labelpad=0)
-ax.set_xlabel("YFP/RFP ratio")
-ax.text(
-    -0.29,
-    letter_lab[1],
-    letters[1],
-    ha="right",
-    va="top",
-    transform=ax.transAxes,
-    fontsize=figure_util.letter_font_size,
-)
 
 filename = os.path.join(this_dir, "sup_notjustYFP")
-width, height = figure_util.get_figsize(figure_util.fig_width_small_pt, wf=1.0, hf=0.75)
+width, height = figure_util.get_figsize(
+    figure_util.fig_width_medium_pt, wf=1.0, hf=0.64
+)
+fig.subplots_adjust(
+    left=0.01, right=0.99, top=0.99, bottom=0.01, hspace=0.05, wspace=0.05
+)
 fig.set_size_inches(width, height)
-# fig.tight_layout()
 print("request size : ", figure_util.inch2cm((width, height)))
 fig.savefig(filename + ".png")
 fig.savefig(filename + ".pdf")
