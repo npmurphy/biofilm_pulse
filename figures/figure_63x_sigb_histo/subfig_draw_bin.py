@@ -60,7 +60,7 @@ def get_figure(ax, name, impath, roi, chans, FP_max_min, slicel, add_scale_bar=F
     img[edge, :] = [255, 255, 0]
     img = np.rot90(img, 3)
     if add_scale_bar:
-        img = draw_scale_bar(img, 400, 350, (5 / PX_TO_UM), 20, "5μm")
+        img = draw_scale_bar(img, 400, 350, (5 / PX_TO_UM), 20, "5μm", fontsize=0)
     ax.imshow(img, interpolation="none", aspect=1)
     ax.set_title(name)
     ax.grid(False)
