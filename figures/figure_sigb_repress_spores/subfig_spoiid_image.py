@@ -67,7 +67,7 @@ def get_figure(ax, img_base, cache_path):
     # img[:,:,2] = 0
     # img = np.rot90(img)
     print(img.shape)
-    img = draw_scale_bar(img, 30, 30, 5 / PX_TO_UM, 10, "5μm")
+    img = draw_scale_bar(img, 30, 30, 5 / PX_TO_UM, 10, "5μm", fontsize=0)
 
     # label = "figure_util.strain_label[des_strain_map[strain].upper()]
     # ax.imshow(img, interpolation="none") #bicubic")
