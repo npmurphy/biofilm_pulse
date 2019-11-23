@@ -169,11 +169,12 @@ def draw_scale_bar(img, r, c, scale_length, thickness, legend, fontsize=40):
     scalebar = int(scale_length)
     img[r : r + thickness, c : c + scalebar, :] = 255  # white
 
-    pilim = Image.fromarray(img)
-    draw = ImageDraw.Draw(pilim)
-    smallfont = ImageFont.truetype("Arial", fontsize)
-    draw.text((c, r + thickness), legend, (255, 255, 255), font=smallfont)
-    img = np.array(pilim)
+    if fontsize > 0:
+        pilim = Image.fromarray(img)
+        draw = ImageDraw.Draw(pilim)
+        smallfont = ImageFont.truetype("Arial", fontsize)
+        draw.text((c, r + thickness), legend, (255, 255, 255), font=smallfont)
+        img = np.array(pilim)
     return img
 
 

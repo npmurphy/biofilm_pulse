@@ -50,7 +50,7 @@ for i, (strain, imgpath, slice_it) in enumerate(biofilm_images):
         height, width, _ = im.shape
         # height - 50
         im = lib.figure_util.draw_scale_bar(
-            im, height - 70, 20, sbl / PX_TO_UM, 14, "{0}μm".format(sbl)
+            im, height - 70, 20, sbl / PX_TO_UM, 14, "{0}μm".format(sbl), fontsize=0
         )
 
     outpath = os.path.join(this_dir, "images", os.path.splitext(imgpath)[0] + ".jpg")
