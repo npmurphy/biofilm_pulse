@@ -209,7 +209,7 @@ def using_snap_shots():
         scale_length=length / PX_TO_UM,
         thickness=30,
         legend="{0}μm".format(length),
-        fontsize=60,
+        fontsize=0,
     )
 
     skimage.io.imsave(outimage + "_strip.png", final)
