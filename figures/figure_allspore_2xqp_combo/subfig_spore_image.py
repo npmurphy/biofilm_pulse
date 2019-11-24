@@ -54,7 +54,7 @@ def plot_big_image(
     if scalebar:
         SCALE_PX_TO_UM = PX_TO_UM / scale_down
         bim = figure_util.draw_scale_bar(
-            bim, 40, 40, 25 / SCALE_PX_TO_UM, 20, "25μm", fontsize=80
+            bim, 40, 40, 25 / SCALE_PX_TO_UM, 20, "25μm", fontsize=0
         )
 
     ax.imshow(bim, interpolation="none")
