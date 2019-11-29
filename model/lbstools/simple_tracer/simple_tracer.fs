@@ -1,12 +1,8 @@
 module custom_sweeper
 
 open Microsoft.Research.CRNEngine
-open Microsoft.Research.CliLibrary
-open System.Diagnostics
 open System.IO
 open Argu
-open System.Diagnostics
-
 
 type CliArguments =
     | Seed of int 
@@ -15,7 +11,8 @@ type CliArguments =
     | Parameter_overrides of string
 with
     interface IArgParserTemplate with
-        member s.Usage = match s with
+        member s.Usage = 
+            match s with
             | Seed _ -> "Initialisation seed"
             | Output_name _ -> "name of output file"
             | Parameters_file _ -> "a path to a directive parameters file"
@@ -27,15 +24,10 @@ let get_chosen_env_entry env_headings env =
 
 
 
-let do_stochastic_simulation (incrn:Crn.t) new_params = 
+let do_stochastic_simulation (incrn:Crn) new_params = 
     //let crn = { incrn with settings = { incrn.settings with simulator = Crn_settings.Oslo } }
-    let crn = { incrn with settings = { incrn.settings with simulator = Crn_settings.SSA } }
-    let ssa, results = crn 
-                    |> Common.update_crn_with_parameters new_params 
-                    |> Crn.to_ssa
-                    |> Ssa.simulate
+    let results = (incrn.substitute new_params).to_ssa().simulate()
     results 
-
 
 
 [<EntryPoint>]
@@ -101,7 +93,7 @@ let main(args) =
                     |> outfilename 
     
     printfn "Threshold would be %f" (Common.get_threshold_value final_params 0.2)
-    let text_conts = sim_result |> Table.to_tab_separated_CSV 
+    let text_conts = sim_result |> Table<float>.to_tab_separated_CSV 
     System.IO.File.WriteAllText(outfile,  text_conts) |> ignore
 
     0 //success code

@@ -33,3 +33,8 @@ old_backups/
 .cache/
 .prospector.yaml
 .vscode
+
+[Bb]in/
+[Oo]bj/
+.vs/
+**/[Pp]ackages/*

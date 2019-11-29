@@ -5,3 +5,4 @@ nuget FSharp.Core
 nuget MathNet.Numerics >= 3.19
 nuget MathNet.Numerics.FSharp
 nuget FSharp.Collections.ParallelSeq
+nuget CRNEngine
