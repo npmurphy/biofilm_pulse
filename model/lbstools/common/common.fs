@@ -1,25 +1,30 @@
 module Common 
+
 open Microsoft.Research.CRNEngine
-open Microsoft.Research.CliLibrary
 open FSharp.Collections.ParallelSeq
-let string_of_file s =
-  Io.println ("Loading file: " + s);
-  Io.read_file s
+open System.IO
+
+let string_of_file s = 
+  printfn "Loading file: %s" s
+  File.ReadAllText s
 
 let read_single_column_sweep_file path = 
-    let file = System.IO.File.ReadAllLines path
+    let file = File.ReadAllLines path
     let title = Array.head file 
     let string_array = Array.tail file
     title, string_array |> Array.map (float) 
     
 let write_single_column_sweep_file path var (nums: float []) = 
     let numstr = nums |> Array.map (sprintf "%f") |> Array.toList
-    System.IO.File.WriteAllLines(path,  var::numstr)
+    File.WriteAllLines(path,  var::numstr)
 
 let parse_list_of_parameters (string_p:string) = 
-    let p_list = string_p.Split [|';'|] |> Array.map (fun (pv:string) ->  (pv.Split [| '=' |]))
-    let p_tuples = p_list |> Array.map (fun e -> e.[0], e.[1])
-    p_tuples |> Array.map (fun (k, v) -> (k.Trim(), (float v))) |> Map.ofArray
+    if string_p.Length = 0 
+    then Map.empty
+    else
+        let p_list = string_p.Split [|';'|] |> Array.map (fun (pv:string) ->  (pv.Split [| '=' |]))
+        let p_tuples = p_list |> Array.map (fun e -> e.[0], e.[1])
+        p_tuples |> Array.map (fun (k, v) -> (k.Trim(), (float v))) |> Map.ofArray
     
 
 
@@ -50,9 +55,8 @@ let roll a s    =
 let col_slice (aa:float [] []) (c:int) = 
     Array.init (aa.Length) (fun r -> Array.item c (Array.item r aa))
 
-let entry_exit_indexes_species_threshold (simdata:Table.t<float>) species threshold =
+let entry_exit_indexes_species_threshold simdata species threshold =
     //tag rows based on the threshold
-    let times = simdata.times
     let specdata = (Table.find_column species simdata).values |> List.toArray
     // let debug_all_over_t = specdata |> Array.forall (fun s -> s > threshold)
     // printfn "All over threshodl %b" debug_all_over_t
@@ -95,7 +99,7 @@ let entry_exit_indexes_species_threshold (simdata:Table.t<float>) species thresh
     Array.zip ingress egress
         |> Array.filter ( fun (i,e) -> e > i )
 
-let peak_stats (simdata:Table.t<float>) (species:string) threshold =
+let peak_stats simdata species threshold =
     let entry_exit = entry_exit_indexes_species_threshold simdata species threshold
     //entry_exit |> Array.iter (fun (a,b) -> printfn "(%i, %i)" a b)
     let durations = entry_exit
@@ -106,25 +110,16 @@ let peak_stats (simdata:Table.t<float>) (species:string) threshold =
     durations, peaks
 
 //let do_sweep (rng:System.Random) (crn:Crn.t) (sweep_inst:Instance.t) (measure_spec:string) threshold reps  =
-let do_sweep (rng:System.Random) (crn:Crn.t) (env_to_run:Environment.t) (measure_spec:string) threshold reps  =
+let do_sweep (rng:System.Random) (crn:Crn) env_to_run measure_spec threshold reps  =
     //let threshold = sweep_inst.environment.["A0"] + 2.0
     printfn "Doing Sweep %s" (Environment.to_string env_to_run ) //sweep_inst.environment)
     let do_simulation i =
-        let prcnt = (((float i) / (float reps))*100.0)
-        // if (int prcnt) % 10 = 0 then
-        //      printf "%f%%\r" prcnt
-        //printfn "%i%%\r" i
         let seed = Some(rng.Next())
-        let crn =  { crn with settings = { crn.settings with stochastic = { crn.settings.stochastic with seed = seed } } }
-        // let crn =  { crn with settings = { 
-        //                 crn.settings with stochastic = {
-        //                     crn.settings.stochastic with seed = seed }
-        //            }}
-        let this_env_crn = Crn.to_ssa (Crn.substitute env_to_run crn)
+        let crn = crn.update_settings { crn.settings with stochastic = { crn.settings.stochastic with seed = seed } }
+        let ssa = (crn.substitute env_to_run).to_ssa ()
         //printfn "%s" this_env_crn.simulator.settings.
-        let ssa, sim_data = Ssa.simulate this_env_crn
+        let sim_data = ssa.simulate ()
         //printfn "Sim done! times %s" (sim_data.times.ToString ())
-        // let ssa, sim_data = Crn.simulate_ssa_env sweep_inst.environment crn
         let durs, peaks = peak_stats sim_data measure_spec threshold
         let durs = if Array.isEmpty durs then [| 0.0 |] else durs
         let peaks = if Array.isEmpty peaks then [| 0.0 |] else peaks
@@ -166,12 +161,11 @@ let update_list old_list new_list =
 let update_map old_map new_map = 
     new_map |> Map.fold (fun res_list k v -> Map.add k v res_list) old_map
 
-let initials_of_list pair_list : Crn.initial list = 
-    let new_init k v = 
-        Initial.create false (Expression.Float v) (Species.from_string k) (Expression.Float 0.0) None
-    pair_list |> List.map (fun (s, v) -> new_init s v) 
+let initials_of_list pair_list = 
+    let new_init (k, v) = Initial.create (Expression.Float v, Species.create k, Expression.Float 0.0, None)
+    pair_list |> List.map new_init 
 
-let update_initials (crn:Crn.t) (new_initials:Crn.initial list) = 
+let update_initials (crn:Crn) (new_initials:Initial<Species,Value> list) = 
     let old_inits = crn.initials
     let old_init_map = old_inits |> List.map (fun i -> i.species.name, i) |> Map.ofList 
     let new_init_map = new_initials |> List.map (fun i -> i.species.name, i) |> Map.ofList
@@ -180,37 +174,31 @@ let update_initials (crn:Crn.t) (new_initials:Crn.initial list) =
     { crn with initials = updated_inits}
 
 
-let set_sim_times (crn:Crn.t) final points = 
+let set_sim_times (crn:Crn) final points = 
     let new_times = { crn.settings.simulation with final = final; points = points } 
-    Crn.update_settings { crn.settings with simulation = new_times } crn
+    crn.update_settings { crn.settings with simulation = new_times }
 
-let set_sim_time  final points (crn:Crn.t) = 
+let set_sim_time  final points (crn:Crn) = 
     let new_times = { crn.settings.simulation with final = final; points = points } 
-    Crn.update_settings { crn.settings with simulation = new_times } crn
+    crn.update_settings { crn.settings with simulation = new_times }
 
 
-let update_seed nseed (crn:Crn.t) =
-    let crn =  Crn.update_settings { crn.settings with stochastic = { crn.settings.stochastic with seed = nseed} } crn
-    crn
-let run_ssa nseed (crn:Crn.t)  = 
+let update_seed nseed (crn:Crn) = crn.update_settings { crn.settings with stochastic = { crn.settings.stochastic with seed = nseed} }
+    
+let run_ssa nseed (crn:Crn)  = 
     //let ntcrn = set_sim_times crn 1e6 (int 1e6 )
-    let crn =  Crn.update_settings { crn.settings with stochastic = { crn.settings.stochastic with seed = nseed} } crn
-    let crnssa = Crn.to_ssa crn
-    let _, data = Ssa.simulate crnssa
-    data
+    let crn = crn.update_settings { crn.settings with stochastic = { crn.settings.stochastic with seed = nseed} }
+    let ssa = crn.to_ssa ()
+    ssa.simulate ()
 
-let run_with_env seed (crn:Crn.t) env = 
-    let this_env_crn = Crn.substitute env crn
+let run_with_env seed (crn:Crn) env = 
+    let this_env_crn = crn.substitute env
     run_ssa seed this_env_crn
 
 
-let update_crn_with_parameters p (crn:Crn.t) = 
-    let crn_nv = Crn.update_settings 
-                    (crn.settings |> Crn_settings.substitute (Environment.create (p|>Map.toList) ))
-                    crn
-    crn_nv
+let update_crn_with_parameters p (crn:Crn) = crn.substitute p
 
-let run_with_parameters seed (crn:Crn.t) p = 
+let run_with_parameters seed (crn:Crn) p = 
     run_ssa seed <| update_crn_with_parameters p crn 
 
 let rec find_check_time tlist target index = 
@@ -236,44 +224,28 @@ let test_find_check_time() =
     let high_target = 1.5
     ([1.5], 0) = (find_check_time bad_list high_target 0)
 
-let drop_transience (table:Table.t<'v>) first_time =
+let drop_transience (table:Table<'v>) first_time =
     let new_times, discard_num = find_check_time table.times first_time 0
-    let new_table:Table.t<'v> = 
+    let new_table:Table<'v> = 
         { times = new_times
-          columns = table.columns |> List.map (fun (c:Table.column<'v>) -> 
+          columns = table.columns |> List.map (fun (c:Column<'v>) -> 
                                                     {name = c.name;
                                                      values = (skip discard_num c.values)})
         }
     new_table
         
-let set_plot_species (spec: string []) (crn:Crn.t) = 
+let set_plot_species (spec: string []) (crn:Crn) = 
      let speclist = spec |> Array.map (fun s -> Expression.Key (Key.Species (Species.create s))) |> Array.toList
      { crn with settings = {crn.settings with simulation = { crn.settings.simulation with plots = speclist}}}
-
-// let crn_update_plots new_plots (crn:Crn.t) = 
-//     let new_settings = { crn.settings with simulation = { crn.settings.simulation with plots = new_plots  }}
-//     Crn.update_settings new_settings crn
-
-// let ssa_set_plot_maxima (crn:Crn.t) (maxima:Map<string,int>) (ssa:Ssa.t) = 
-//     let populations = ssa.simulator.populations
-//     let new_plots = 
-//         crn.settings.simulation.plots
-//             |> List.map (fun x -> 
-//                 let sp = match x with 
-//                         | Expression.Key (Key.Species k) -> k 
-//                         | _ -> failwith "Can't handle arbitrary expressions"
-//                 Populations.set_max populations populations.species_to_index.[sp] (Map.tryFind sp.name maxima)
-//                 )
-//     crn_update_plots new_plots crn
 
 // Here is a natsty imperitive function Neil wrote 
 // I am not sure how it is setting the maxima so I am 
 //leaving it here. attempts to replace it are above. 
-let set_populations_maxima (crn:Crn.t) (populations:Populations.t<Species.t,float>) (maxima:Map<string,int>) = 
+let set_populations_maxima (crn:Crn) (populations:Populations<Species,float>) (maxima:Map<string,int>) = 
   crn.settings.simulation.plots 
     |> List.iter (fun x -> 
         let sp = match x with Expression.Key (Key.Species k) -> k | _ -> failwith "Can't handle arbitrary expressions"
-        Populations.set_max populations populations.species_to_index.[sp] (Map.tryFind sp.name maxima)
+        populations.set_max populations.species_to_index.[sp] (Map.tryFind sp.name maxima)
     )
     // let plots_need_max = 
     //     crn.settings.simulation.plots 
@@ -305,11 +277,11 @@ let rec get_index_of_sample target (index, s_list) =
 //     let value = List.item found data_times
 //     ()
 
-let rate_to_strings (rate:Crn.rate) : string list =
+let rate_to_strings rate : string list =
     match rate with
       | Rate.MassAction( mar ) -> Expression.mentions mar                                       
       | Rate.Function e        -> Expression.mentions e 
-                                    |> List.map (fun (s:Crn.key) -> 
+                                    |> List.map (fun s -> 
                                         match s with 
                                           | Key.Parameter(p) -> p 
                                           | _ -> "")  
@@ -317,20 +289,16 @@ let rate_to_strings (rate:Crn.rate) : string list =
 
 // given a CRN, this extracts the parameters in the reactions so you dont need to specify them 
 // in the parameters section.
-let params_from_crn (crn:Crn.t) = 
-  let reactions: Crn.reaction list = crn.reactions 
-  let rates = List.concat [ List.map (fun (r:Crn.reaction) -> r.rate ) reactions
-                          ; List.map (fun (r:Crn.reaction) -> r.reverseRate) reactions
-                              |> List.choose id
+let params_from_crn (crn:Crn) = 
+  let rates = List.concat [ List.map (fun r -> r.rate ) crn.reactions
+                          ; List.map (fun r -> r.reverse) crn.reactions |> List.choose id
                           ]
-  let parm = rates |> List.collect rate_to_strings |> List.distinct |> List.filter ((=) "" >> not) 
-  parm  
-
-
+  rates |> List.collect rate_to_strings |> List.distinct |> List.filter ((=) "" >> not) 
+  
 let crn_no_params prog_text = 
     let crn = prog_text 
                 |> model_of_prog
-                |> (fun m -> m.systems) 
+                |> (fun m -> m.top :: m.systems) 
                 |> List.head 
     let prams = crn |> params_from_crn
                     |> List.map (fun i -> (i, 0.0) )
@@ -339,9 +307,8 @@ let crn_no_params prog_text =
     let new_params = update_map prams orig_params 
     let new_plist = new_params |> Map.toList |> List.map (fun (k, v) -> Parameter.create (k, v, None) )
     let new_settings = { crn.settings with parameters = new_plist } 
-    let crnp = Crn.update_settings new_settings crn 
-    crnp
-
+    crn.update_settings new_settings
+    
 
 let get_rows (samples: float list) (data:float list) = 
     let value_list_pairs = samples |> List.scan (fun (si, sl) t -> get_index_of_sample t (si, sl)) (0, data) 
@@ -380,29 +347,29 @@ let array_add (array:uint64 []) pos (v:uint64) =
     ()
 
 
-let simulate_stationary (ssa:Ssa.t) = 
+let simulate_stationary ssa = 
     Ssa.simulate_with_stationary (Ssa.set_number_of_points 1 ssa)
 
-let get_plot_indices_max (pops: Populations.t<Species.t,float>) (plots:Expression.t<Key.inlined_t<int>> list) = 
+let get_plot_indices_max pops (plots:Expression.t<Inlined<int>> list) = 
   plots 
-  |>  List.map (fun p -> 
+  |> List.map (fun p -> 
     match p with 
-    | Expression.Key (Key.inlined_t.ISpecies index) -> 
+    | Expression.Key (Inlined.Species index) -> 
       match pops.index_to_species.[index].max with
         | Some max -> index, max 
         | None -> failwithf "No maximum specified for plot species %s" pops.index_to_species.[index].species.name
     | _ -> failwithf "Currently do not support expressions"
   )
 
-let get_plot_indices (pops: Populations.t<Species.t,float>) (plots:Expression.t<Key.inlined_t<int>> list) = 
+let get_plot_indices plots = 
   plots
   |>  List.map (fun p -> 
     match p with 
-    | Expression.Key (Key.inlined_t.ISpecies index) -> index
+    | Expression.Key (Inlined.Species index) -> index
     | _ -> failwithf "Currently do not support expressions"
   )
 
-let get_threshold_value env percentile = 
+let get_threshold_value (env:Map<string,float>) percentile = 
     let transrate = ((Map.find "stress" env) * (Map.find "pscale_a" env) * (Map.find "a0" env)) + (Map.find "ascale_a" env)
     printf "%A" [| (Map.find "stress" env) ; (Map.find "pscale_a" env) ; (Map.find "a0" env) ; (Map.find "ascale_a" env) |]
     let translation = Map.find "trA" env
@@ -411,7 +378,8 @@ let get_threshold_value env percentile =
 
      //printfn "about to do gamma %g %g" (transrate/prot_deg)  (translation/rna_deg)
     //printfn "about to do gamma %g %g" (max 0.0 (transrate/5e-3)) (min 0.0  (0.005/0.05))
-    let threshold = MathNet.Numerics.Distributions.Gamma.InvCDF((transrate/prot_deg), (rna_deg/translation), percentile)
+    let threshold = MathNet.Numerics.Distributions.Gamma.InvCDF(transrate/prot_deg, rna_deg/translation, percentile)
+    //let threshold = 0.0
     let realthresh = if threshold = infinity 
                      then 0.0
                      else threshold
@@ -433,10 +401,10 @@ let array2d_to_string array =
 
 // let get_id_max_of_spec_name spec_name pops = 
 //      Populations.tryFind_species pops spec_name 
-let get_list_ind_max species_groups (pops:Populations.t<Species.t, float>)  (plots:Expression.t<Key.inlined_t<int>> list) =
+let get_list_ind_max species_groups (pops:Populations<Species, float>)  (plots:Expression.t<Inlined<int>> list) =
     let plot_reps_spec_name spec_list plot =
         match plot with 
-        | Expression.Key (Key.inlined_t.ISpecies index) -> Array.contains pops.index_to_species.[index].species.name spec_list
+        | Expression.Key (Inlined.Species index) -> Array.contains pops.index_to_species.[index].species.name spec_list
         | _ -> false
         
     let plots_groups = species_groups 
@@ -444,20 +412,20 @@ let get_list_ind_max species_groups (pops:Populations.t<Species.t, float>)  (plo
 
     plots_groups |> Array.map (fun plot_group -> get_plot_indices_max pops (plot_group |> Array.toList) |> List.toArray) 
 
-let species_names_to_pop_index species_list  (pops:Populations.t<Species.t, float>) =
+let species_names_to_pop_index species_list  (pops:Populations<Species, float>) =
     species_list |> Array.map (fun name -> pops.species_to_index.[Species.create name])
 
 
 
-let ssa_update_skip_time (skip_time:float) (ssa:Ssa.t) =
+let ssa_update_skip_time (skip_time:float) (ssa:Ssa) =
      { ssa with settings = {ssa.settings with stationary_skiptime = Some skip_time} }
 
-let crn_update_skip_time (skip_time:float) (crn:Crn.t) =
+let crn_update_skip_time (skip_time:float) (crn:Crn) =
     let nsettings = { crn.settings with stochastic = { crn.settings.stochastic with stationary_skiptime = Some skip_time}}
-    Crn.update_settings nsettings crn  
+    crn.update_settings nsettings
 
 /// Get the A vs B probability distribution (for quasi potential)
-let get_quasi_potential  (species_groups:string [][]) (ssa:Ssa.t)=
+let get_quasi_potential  (species_groups:string [][]) (ssa:Ssa)=
   let cancel = ref false 
   if (species_groups.Length > 2) || (species_groups.Length < 2)
   then failwith "Only doing 2x2 quasi potentials"
@@ -475,7 +443,7 @@ let get_quasi_potential  (species_groups:string [][]) (ssa:Ssa.t)=
   let mutable distribution_2d = Array.init (Amax + 1) (fun _ -> Array.zeroCreate<double> (Bmax + 1))
   let mutable total_time = 0.0
   let mutable prev_pops = ssa.simulator.populations
-  let update_distribution t dt (pops:Populations.t<Species.t, float>) = 
+  let update_distribution t dt (pops:Populations<Species, float>) = 
     if (t > skip_time)
     then
       total_time <- total_time + dt;
@@ -485,13 +453,13 @@ let get_quasi_potential  (species_groups:string [][]) (ssa:Ssa.t)=
           distribution_2d.[vA].[vB] <- distribution_2d.[vA].[vB] + dt
     prev_pops <- pops
 
-  let final_sim = Ssa.simulate_callback cancel (ignore) (Some update_distribution) ssa
+  let final_sim = ssa.simulate_callback cancel (ignore) ignore (Some update_distribution)
 
   let final_distribution = distribution_2d |> Array.map (fun row -> row |> Array.map (fun e -> e/total_time))
   printfn "total %f " (final_distribution |> Array.map (fun row -> row |> Array.sum ) |> Array.sum)
   final_sim, species_groups, final_distribution
 
-let biofilm_simulation compute_residency (ssa:Ssa.t): (Ssa.t * int * int * float list * float list) =
+let biofilm_simulation compute_residency (ssa:Ssa): (Ssa * int * int * float list * float list) =
   let cancel = ref false 
   let skip_time = match ssa.settings.stationary_skiptime with Some v -> v | None -> ssa.simulator.settings.initial
   let species = [| "A"; "B"|]
@@ -507,7 +475,7 @@ let biofilm_simulation compute_residency (ssa:Ssa.t): (Ssa.t * int * int * float
   let mutable Aresident = false
   let mutable Bresident = false
   let mutable residency_timer = 0.0
-  let update_distribution t dt (pops:Populations.t<Species.t, float>) = 
+  let update_distribution t dt (pops:Populations<Species, float>) = 
     if (t > skip_time)
     then
       let vA = int (pops.index_to_species.[Aind].value)
@@ -529,12 +497,12 @@ let biofilm_simulation compute_residency (ssa:Ssa.t): (Ssa.t * int * int * float
             Aresident <- false
             Bresident <- true
 
-  let final_sim = Ssa.simulate_callback cancel (ignore) (Some update_distribution) ssa
+  let final_sim = ssa.simulate_callback cancel ignore ignore (Some update_distribution)
   let sigB = int (final_sim.simulator.populations.index_to_species.[Bind].value)
   final_sim, sigB, maxA, !residencyA, !residencyB
 
 
-let biofilm_simulation_thresh_time threshold (ssa:Ssa.t): (Ssa.t * int * int * float) =
+let biofilm_simulation_thresh_time threshold (ssa:Ssa) =
   let cancel = ref false 
   let skip_time = match ssa.settings.stationary_skiptime with Some v -> v | None -> ssa.simulator.settings.initial
   let species = [| "A"; "B"|]
@@ -548,7 +516,7 @@ let biofilm_simulation_thresh_time threshold (ssa:Ssa.t): (Ssa.t * int * int * f
   let mutable sigB = 0 
   let mutable residencyA = 0.0
   let mutable residency_timer = 0.0
-  let update_distribution t dt (pops:Populations.t<Species.t, float>) = 
+  let update_distribution t dt (pops:Populations<Species, float>) = 
     if (t > skip_time)
     then
       let vA = int (pops.index_to_species.[Aind].value)
@@ -563,11 +531,11 @@ let biofilm_simulation_thresh_time threshold (ssa:Ssa.t): (Ssa.t * int * int * f
             residency_timer <- 0.0
             temp_maxA <- 0
 
-  let final_sim = Ssa.simulate_callback cancel (ignore) (Some update_distribution) ssa
+  let final_sim = ssa.simulate_callback cancel ignore ignore (Some update_distribution)
   let sigB = int (final_sim.simulator.populations.index_to_species.[Bind].value)
   final_sim, sigB, maxA, residencyA
 
-let online_stats (ssa:Ssa.t) : (Ssa.t * float * float) =
+let online_stats (ssa:Ssa) =
   let cancel = ref false 
   let skip_time = match ssa.settings.stationary_skiptime with Some v -> v | None -> ssa.simulator.settings.initial
   let species = "A"
@@ -579,7 +547,7 @@ let online_stats (ssa:Ssa.t) : (Ssa.t * float * float) =
   let mutable num = 0
   let mutable rmean = 0.0
   let mutable rstd = 0.0
-  let update_stats t dt (pops:Populations.t<Species.t, float>) = 
+  let update_stats t _ pops =
     if (t > skip_time)
     then
       num <- num + 1
@@ -588,5 +556,5 @@ let online_stats (ssa:Ssa.t) : (Ssa.t * float * float) =
       rmean <- rmean + dif/(float num)
       rstd <- (rstd + dif*(vA - rmean))
 
-  let final_sim = Ssa.simulate_callback cancel (ignore) (Some update_stats) ssa
+  let final_sim = ssa.simulate_callback cancel ignore ignore (Some update_stats)
   final_sim, rmean, sqrt(rstd/(float (num - 1)))

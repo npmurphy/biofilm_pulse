@@ -1,12 +1,9 @@
 module custom_sweeper
 
 open Microsoft.Research.CRNEngine
-open Microsoft.Research.CliLibrary
-open System.Diagnostics
 open System.IO
 open Argu
 open FSharp.Collections.ParallelSeq
-open System.Diagnostics
 
 
 type CliArguments =
@@ -20,7 +17,8 @@ type CliArguments =
     | Analysis_method of string
 with
     interface IArgParserTemplate with
-        member s.Usage = match s with
+        member s.Usage = 
+            match s with
             | Multicore     -> "Process different files using multiple cores (if possible)."
             | Simulations _ -> "Set the number of simulation runs to perform."
             | Seed _ -> "Initialisation seed"
@@ -37,16 +35,12 @@ let get_chosen_env_entry env_headings env =
 
 //////////////////////////////
 // Deterministic
-let do_determinist_spore env_heading (incrn:Crn.t) env thresholds sweep_env = 
-    //let crn = { incrn with settings = { incrn.settings with simulator = Crn_settings.Oslo } }
-    let crn = { incrn with settings = { incrn.settings with simulator = Crn_settings.Sundials } }
-    let envstr = sweep_env |> Map.toList |> List.map (snd >> (sprintf "%f")) |> String.concat "\t"
+let do_determinist_spore env_heading (incrn:Crn) env thresholds sweep_env = 
     let new_params = Common.update_map env sweep_env
-    let ode, results = crn 
-                    |> Common.set_sim_time 5000.0 3
-                    |> Common.update_crn_with_parameters new_params 
-                    |> Crn.to_ode
-                    |> Ode.simulate_oslo_single
+    let crn = incrn |> Common.set_sim_time 5000.0 3
+    let ode = (crn.substitute new_params).to_ode ()
+    //let results = Ode.simulate_sundials ode
+    let results = ode.to_oslo().simulate()
     let A = List.last (Table.find_column "A" results).values
     let B = List.last (Table.find_column "B" results).values
     [| Array.concat [ get_chosen_env_entry env_heading new_params
@@ -57,22 +51,18 @@ let do_determinist_spore env_heading (incrn:Crn.t) env thresholds sweep_env =
 
 ///////////////////////////
 // Biofilm sim take II. time over percentile 
-let get_common_bf_sporeprob_sim_func_threshtime (incrn:Crn.t) env sweep_env = 
+let get_common_bf_sporeprob_sim_func_threshtime (incrn:Crn) env sweep_env = 
     let new_params = Common.update_map env sweep_env
-    let crn  = {incrn with settings = {incrn.settings with simulator = Crn_settings.SSA }}
-                |> Common.update_crn_with_parameters new_params 
+    let crn  = incrn.substitute new_params 
     printfn "thresh %f" new_params.["threshold"]
     let threshold = int new_params.["threshold"]
     let do_simulation seed i =
-        let bf_sim = crn 
-                        |> Common.update_seed seed 
-                        |> Crn.to_ssa
-                        |> Common.biofilm_simulation_thresh_time threshold 
-        let ssaout , sigB, maxA, a_time = bf_sim
+        let seeded = crn |> Common.update_seed seed 
+        let _, sigB, maxA, a_time = seeded.to_ssa () |> Common.biofilm_simulation_thresh_time threshold 
         maxA, a_time, sigB 
     new_params, do_simulation
 
-let do_biofilm_sim_threshtime env_heading (rng:System.Random) (incrn:Crn.t) env simulations sweep_env = 
+let do_biofilm_sim_threshtime env_heading (rng:System.Random) (incrn:Crn) (env:Map<string,float>) simulations sweep_env = 
     let transrate = ((Map.find "stress" sweep_env) * (Map.find "pscale_a" env) * (Map.find "b0" env)) + (Map.find "ascale_a" env)
     //printfn "about to do gamma %g %g" (transrate/5e-3)  (0.005/0.05)
     //printfn "about to do gamma %g %g" (max 0.0 (transrate/5e-3)) (min 0.0  (0.005/0.05))
@@ -118,7 +108,7 @@ let summarise_simulations_threshspore (thresh_vals:float[]) (num_sims:int) (resu
     let Apercents = thresh_vals |> Array.map (fun t -> find_percent num_sims t atimes)
     AmaxMean, atimemax, atimemin, atimemean, bmean, Apercents
 
-let do_percentage_chance_spore_thresh env_heading (rng:System.Random) (incrn:Crn.t) env simulations (threshold_times:float[]) sweep_env = 
+let do_percentage_chance_spore_thresh env_heading (rng:System.Random) (incrn:Crn) env simulations (threshold_times:float[]) sweep_env = 
     let new_params, do_simulation = get_common_bf_sporeprob_sim_func_threshtime incrn env sweep_env
 
     let turn_into_stringmap amean atimemax atimemin atimemean bmean percents =
@@ -148,21 +138,17 @@ let do_percentage_chance_spore_thresh env_heading (rng:System.Random) (incrn:Crn
 
 //////////////////////////////
 // Biofilm Sim 
-let get_common_bf_sporeprob_sim_func (incrn:Crn.t) env sweep_env = 
+let get_common_bf_sporeprob_sim_func (incrn:Crn) env sweep_env = 
     let new_params = Common.update_map env sweep_env
-    let crn  = {incrn with settings = {incrn.settings with simulator = Crn_settings.SSA }}
-                |> Common.update_crn_with_parameters new_params 
+    let crn  = incrn.substitute new_params 
 
     let do_simulation seed i =
-        let bf_sim = crn 
-                        |> Common.update_seed seed 
-                        |> Crn.to_ssa
-                        |> Common.biofilm_simulation false
-        let ssaout , sigB, maxA, residencyA, residencyB = bf_sim
+        let seeded = crn |> Common.update_seed seed         
+        let _, sigB, maxA, _, _ = seeded.to_ssa () |> Common.biofilm_simulation false
         maxA, sigB 
     new_params, do_simulation
 
-let do_biofilm_sim env_heading (rng:System.Random) (incrn:Crn.t) env simulations sweep_env = 
+let do_biofilm_sim env_heading (rng:System.Random) (incrn:Crn) env simulations sweep_env = 
     let new_params, do_simulation = get_common_bf_sporeprob_sim_func incrn env sweep_env
     let collect_results list_of_results = 
         list_of_results 
@@ -200,7 +186,7 @@ let summarise_simulations thresh_vals num_sims results_of_lots_of_sims =
     let Apercents = thresh_vals |> Array.map (fun t -> find_percent num_sims t Amaxes)
     AmaxMean, bmean, Apercents
 
-let do_percentage_chance_spore env_heading (rng:System.Random) (incrn:Crn.t) env simulations thresholds sweep_env = 
+let do_percentage_chance_spore env_heading (rng:System.Random) (incrn:Crn) env simulations thresholds sweep_env = 
     let new_params, do_simulation = get_common_bf_sporeprob_sim_func incrn env sweep_env
 
     let turn_into_stringmap amean bmean percents =
@@ -223,21 +209,19 @@ let do_percentage_chance_spore env_heading (rng:System.Random) (incrn:Crn.t) env
 // End spore probability 
 //////////////////////////////
 
-let do_quasi_potential (rng:System.Random) (incrn:Crn.t) env simulations trans_start species_groups_maxes sweep_env = 
+let do_quasi_potential (rng:System.Random) (incrn:Crn) env simulations trans_start species_groups_maxes sweep_env = 
     //printfn "Doing Sweep %s" (sweep_env.ToString())
-    let crn = { incrn with settings = { incrn.settings with simulator = Crn_settings.SSA } }
-
     let envstr = sweep_env |> Map.toList |> List.map (snd >> (sprintf "%f")) |> String.concat "\t"
     //let do_simulation seed i =
     let new_params = Common.update_map env sweep_env
-    let new_run_time = (crn.settings.simulation.final - trans_start) * (float simulations)
+    let new_run_time = (incrn.settings.simulation.final - trans_start) * (float simulations)
     let timer = System.Diagnostics.Stopwatch()
-    let runssa = crn 
-                |> Common.set_sim_time new_run_time 0  // points not important
-                |> Common.update_crn_with_parameters new_params 
-                |> Common.update_seed (Some (rng.Next()))
-                |> Crn.to_ssa
-                |> Common.ssa_update_skip_time trans_start
+    let crn = 
+        incrn 
+        |> Common.set_sim_time new_run_time 0  // points not important
+        |> Common.update_crn_with_parameters new_params 
+        |> Common.update_seed (Some (rng.Next()))
+    let runssa = crn.to_ssa () |> Common.ssa_update_skip_time trans_start
     timer.Start()
     let flat_max_list = species_groups_maxes |> Array.collect (fun mxd -> Map.toArray mxd) 
     let grouped_spec_names = species_groups_maxes |> Array.map (fun group -> (Map.toArray group) |> Array.map fst)
@@ -262,7 +246,7 @@ let do_quasi_potential_headers env species =
 //////////////////////////////
 // Species Histogram stats. 
 //////////////////////////////
-let do_histogram (rng:System.Random) (crn:Crn.t) env simulations droptime spec_max sweep_env = 
+let do_histogram (rng:System.Random) (crn:Crn) env simulations droptime spec_max sweep_env = 
     //printfn "Doing Sweep %s" (sweep_env.ToString())
     let envstr = sweep_env |> Map.map (fun k v -> (sprintf "%f" v))
     let plotspecs = spec_max |> Map.toArray |> Array.map fst
@@ -282,7 +266,7 @@ let do_histogram (rng:System.Random) (crn:Crn.t) env simulations droptime spec_m
           |> Map.ofArray
           |> Common.update_map sweep_vals 
 
-    let ssa = (Crn.to_ssa rcrn) 
+    let ssa = rcrn.to_ssa () 
     let nssa = {ssa with settings = { ssa.settings with stationary_skiptime = Some droptime}}
     Common.set_populations_maxima crn nssa.simulator.populations spec_max 
     let timer = System.Diagnostics.Stopwatch()
@@ -297,7 +281,7 @@ let do_histogram (rng:System.Random) (crn:Crn.t) env simulations droptime spec_m
 //////////////////////////////
 // Quick mean and std
 //////////////////////////////
-let do_mean_std (rng:System.Random) (crn:Crn.t) env simulations droptime sweep_env = 
+let do_mean_std (rng:System.Random) (crn:Crn) env simulations droptime sweep_env = 
     //printfn "Doing Sweep %s" (sweep_env.ToString())
     let envstr = sweep_env |> Map.map (fun k v -> (sprintf "%f" v))
     let new_params = Common.update_map env sweep_env
@@ -307,7 +291,7 @@ let do_mean_std (rng:System.Random) (crn:Crn.t) env simulations droptime sweep_e
     let rcrn = crn  |> Common.update_seed (Some (rng.Next()))
                     |> Common.set_sim_time total_time 1 //(int total_time)
                     |> Common.update_crn_with_parameters new_params
-    let ssa = (Crn.to_ssa rcrn) 
+    let ssa = rcrn.to_ssa () 
     let nssa = {ssa with settings = { ssa.settings with stationary_skiptime = Some droptime}}
 
     let make_result sweep_vals mean stdev = 
@@ -341,7 +325,7 @@ let main(args) =
 
     let filepre = Path.GetFileNameWithoutExtension(filename)
     let outfile_prefix = parser_results.GetResult(<@ Output_name @>, defaultValue=filepre) 
-    let outfilename = sprintf "%s|%s.tsv" outfile_prefix
+    let outfilename = sprintf "%s %s.tsv" outfile_prefix
 
     // Parse the main file. 
     let base_crn = System.IO.File.ReadAllText(filename) |> Common.crn_no_params 
@@ -374,13 +358,13 @@ let main(args) =
     let sweep_file = parser_results.GetResult(<@ Sweep_file @>, defaultValue = None)
     let sweep_instance =
         match sweep_file with 
-        | Some (scrnp) -> System.IO.File.ReadAllText(scrnp)
-                                |> Crn.from_string
-                                |> Crn.get_instances 
-        | None -> Crn.get_instances base_crn 
+        | Some (scrnp) -> 
+            let crn = System.IO.File.ReadAllText(scrnp) |> Crn.from_string
+            crn.get_instances ()
+        | None -> base_crn.get_instances ()
     printfn "Parsed sweep"
     
-    let sweep_envs = sweep_instance |> List.map (fun (si:Instance.t ) -> si.environment) 
+    let sweep_envs = sweep_instance |> List.map (fun si -> si.environment) 
 
     let sim_time = final_params.["sim_hour"] * final_params.["sim_duration"]
     let sim_minute = final_params.["sim_minute"]
