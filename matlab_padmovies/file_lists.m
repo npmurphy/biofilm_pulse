@@ -1,6 +1,6 @@
 
-%basedir = '/home/nmurphy/work/projects/stochastic/data/bio_film_data/hdisk/biofilm_fig1/';
-basedir = '/home/nmurphy/SLCU/teamJL/Niall/bfpulse_paper_data/proc_data/biofilm_fig1/';
+%basedir = '/home/nmurphy/SLCU/teamJL/Niall/bfpulse_paper_data/proc_data/biofilm_fig1/';
+basedir = '../proc_data/biofilm_fig1/';
 
 make_schitz = @(date, name, frames) create_new_schnitzobj(basedir, date, name, frames);
 
