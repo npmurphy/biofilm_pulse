@@ -1,0 +1,16 @@
+
+init Gb 1
+| init Ga 1
+
+| mB ->{trB} mB + B
+| B ->{dp}
+| Gb ->{(((b0 * stress) * pscale_b) + ascale_b)} Gb + mB
+| mB ->{dm}
+
+| mA ->{trA} mA + A
+| A ->{dp}
+| Ga ->{(((a0 * stress) * pscale_a) + ascale_b)} Ga + mA
+| mA ->{dm}
+
+| B + Ga <->{bB}{uB} GaB
+| A + Gb <->{bA}{uA} GbA

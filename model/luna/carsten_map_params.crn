@@ -1,0 +1,14 @@
+directive parameters [ 
+b0 = 0.05;
+a0 = 0.05;
+trB = 0.05;
+trA = 0.05;
+dm = 0.005;
+dp = 5e-3;
+sim_minute = 60.000000;
+sim_hour = 3600.000000;
+bA = 1.0;
+bB = 1.0;
+uA = 0.1;
+uB = 0.1;
+]

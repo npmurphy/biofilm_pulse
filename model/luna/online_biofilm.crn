@@ -1,0 +1,38 @@
+// This code can be pasted into the CRN tab of the online simulator at
+// https://classicdsd.azurewebsites.net/ 
+// In the "directives tab" the simulation run time and number of traces can be modified. 
+
+directive parameters [ 
+b0 = 0.05;
+a0 = 0.05;
+trB = 0.05;
+trA = 0.05;
+dm = 0.005;
+dp = 5e-3;
+bA = 1.0;
+bB = 1.0;
+uA = 0.1;
+uB = 0.1;
+stress=0.005;
+ascale_a=0.0;
+ascale_b=0.0;
+pscale_a=0.7;
+pscale_b=0.25; //wildtype
+]
+
+
+init Gb 1
+| init Ga 1
+
+| mB ->{trB} mB + B
+| B ->{dp}
+| Gb ->{(((b0 * stress) * pscale_b) + ascale_b)} Gb + mB
+| mB ->{dm}
+
+| mA ->{trA} mA + A
+| A ->{dp}
+| Ga ->{(((a0 * stress) * pscale_a) + ascale_b)} Ga + mA
+| mA ->{dm}
+
+| B + Ga <->{bB}{uB} GaB
+| A + Gb <->{bA}{uA} GbA
