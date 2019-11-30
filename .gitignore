@@ -38,3 +38,6 @@ old_backups/
 [Oo]bj/
 .vs/
 **/[Pp]ackages/*
+model/lbstools/.fake/
+model/lbstools/.paket/
+model/lbstools/build/

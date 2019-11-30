@@ -13,7 +13,7 @@ To get this data you need to contact us.
 
 
 ### Model 
-Information about the computational model are found in [model/README.md](model/READ.md).
+Information about the computational model are found in [model/README.md](model/README.md).
 
 ## Figures
 
