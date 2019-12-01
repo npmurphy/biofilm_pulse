@@ -41,3 +41,4 @@ old_backups/
 model/lbstools/.fake/
 model/lbstools/.paket/
 model/lbstools/build/
+source_data*/

@@ -101,16 +101,16 @@ dirname="SigB/72hrs"
 widths='--sample_freq 0.25 --slice_width 0.5'
 python bin/gradient_10x_maker.py -f ${img_dir}/${dirname}/*.tiff ${widths} --bg_subtract  ${bgvalues}.json
 
-## Stopped using these
-#python bin/data_aggregator_10x.py \
-#    -db ${outputdir}/filedb.tsv \
-#    --basepathtoignore ${img_dir} \
-#    --data distmap \
-#    --outfile ${outputdir}/gradient_data \
-#    -f ${img_dir}/SigB/*/*.tiff \
-#       ${img_dir}/delRU/*.tiff \
-#       ${img_dir}/delQP/*.tiff \
-#       ${img_dir}/2xQP/*.tiff \
-#       ${img_dir}/delSigB/*.tiff
-#    
+## Store gradient for each image
+python bin/data_aggregator_10x.py \
+   -db ${outputdir}/filedb.tsv \
+   --basepathtoignore ${img_dir} \
+   --data distmap \
+   --outfile ${outputdir}/gradient_data \
+   -f ${img_dir}/SigB/*/*.tiff \
+      ${img_dir}/delRU/*.tiff \
+      ${img_dir}/delQP/*.tiff \
+      ${img_dir}/2xQP/*.tiff \
+      ${img_dir}/delSigB/*.tiff
+   
 
