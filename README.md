@@ -75,13 +75,47 @@ python figures/figure_bf_movie/figure_bf_movie.py
 ```
 
 ### Figure 5
+This figure compares Sigma B gradients and spore gradients.
+Also plots sigma B activity vs sporulation activity. 
+
+Single cell data (see Figure 2), Spore gradient data (see Figure 7). 
+These data can be found at [https://dx.doi.org/10.5281/zenodo.3544513/](https://dx.doi.org/10.5281/zenodo.3544513/) in the files `LSM700_63x_sigb.zip` and `LSM700_63x_sspb_giant.zip`.
+
+Single cell three reporter data were processed as in the workflow `workflows/workflow_3fp.sh`.
+These large tilescan images were shrunk down to 1/20 their original size and segmented using a Support Vector Machine (SVM) model trained with a set of manually labeled images from Figure 6. The SVM segmentation script is `bin/giant63_svm_segmentation.py`. 
+The small mask was increased back up to full size and the images were processed using the single cell segmentation algorithm from Figure 3. 
+
+The resulting data can be found at [https://dx.doi.org/10.5281/zenodo.3544513/](https://dx.doi.org/10.5281/zenodo.3544513/) in the file `LSM780_63x_spoiid_v_sigb.zip`.
+
+The figure was generated with
 ```
 python figures/figure_sigb_repress_spores/sigb_vs_spore.py
 ```
 
 ### Figure 6
+Figure shows results of our computational model. 
+For more details see [model/README.md](model/README.md). 
+
+The resulting data can be found at [https://dx.doi.org/10.5281/zenodo.3544513/](https://dx.doi.org/10.5281/zenodo.3544513/) in the file `model_results.zip`.
+
+The figure was generated with 
+```
+python figures/figure_model_summary.py
+```
 
 ### Figure 7
+This figure shows sigma B gradients and spore gradients for WT and the 2xQP mutant. 
+
+The sigma B gradient data is from the Figure 2 dataset and is found at [https://dx.doi.org/10.5281/zenodo.3544513/](https://dx.doi.org/10.5281/zenodo.3544513/) in the file `LSM780_10x_sigb.zip`.
+
+The spore gradients were extracted from large tilescan images using the workflow `workflows/workflow_giantsspb.sh`.
+The biofilm was segmented using the same method as Figure 2 and manually adjusted using the mask editor `minidraw`. 
+
+The data was summarised for quick plotting using `analysis/summarize_cell_spore_counts.py`.
+
+The resulting data can be found at [https://dx.doi.org/10.5281/zenodo.3544513/](https://dx.doi.org/10.5281/zenodo.3544513/) in the file `LSM700_63x_sspb_giant.zip`.
+
+The figure was generated using
 ```
  python figures/figure_allspore_2xqp_combo/figure_all_spore_sigb_combo.py
 ```
