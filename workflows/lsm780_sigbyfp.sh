@@ -28,7 +28,7 @@ python bin/background_values.py --output ${bgvalues} --files ${filesBG} ${filesS
 
 
 ##########################
-## catagorise and images. 
+## catagories and images. 
 ##########################
 dirname="2xQP"
 dirname="delRU"
@@ -43,7 +43,7 @@ python bin/manual_correct_orientation.py -d ${img_dir}/${dirname}
 
 # Due to inconsitantancies edge and center numbering system, the code in filename_parser.py 
 # does not assign the correct location to many images.
-# Instead I manually looked at the images and assined "edge", "edgecenter" or "center" to them
+# Instead I manually looked at the images and assigned "edge", "edgecenter" or "center" to them
 python bin/manual_bf_location.py -o ${outputdir}/image_locations.json -d ${img_dir}/${dirname}
  
 # this generated a file that maps the files to my manual location assignment.
@@ -101,15 +101,16 @@ dirname="SigB/72hrs"
 widths='--sample_freq 0.25 --slice_width 0.5'
 python bin/gradient_10x_maker.py -f ${img_dir}/${dirname}/*.tiff ${widths} --bg_subtract  ${bgvalues}.json
 
-python bin/data_aggregator_10x.py \
-    -db ${outputdir}/filedb.tsv \
-    --basepathtoignore ${img_dir} \
-    --data distmap \
-    --outfile ${outputdir}/gradient_data \
-    -f ${img_dir}/SigB/*/*.tiff \
-       ${img_dir}/delRU/*.tiff \
-       ${img_dir}/delQP/*.tiff \
-       ${img_dir}/2xQP/*.tiff \
-       ${img_dir}/delSigB/*.tiff
-    
+## Stopped using these
+#python bin/data_aggregator_10x.py \
+#    -db ${outputdir}/filedb.tsv \
+#    --basepathtoignore ${img_dir} \
+#    --data distmap \
+#    --outfile ${outputdir}/gradient_data \
+#    -f ${img_dir}/SigB/*/*.tiff \
+#       ${img_dir}/delRU/*.tiff \
+#       ${img_dir}/delQP/*.tiff \
+#       ${img_dir}/2xQP/*.tiff \
+#       ${img_dir}/delSigB/*.tiff
+#    
 
