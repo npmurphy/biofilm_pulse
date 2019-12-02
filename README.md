@@ -3,17 +3,24 @@
 Stochastic pulsing of gene expression can generate phenotypic diversity in a genetically identical population of cells, but it is unclear whether it has a role in the development of multicellular systems. Here, we show how stochastic pulsing of gene expression enables spatial patterns to form in a model multicellular system, Bacillus subtilis bacterial biofilms. We use quantitative microscopy and time-lapse imaging to observe pulses in the activity of the general stress response sigma factor σB in individual cells during biofilm development. Both σB and sporulation activity increase in a gradient, peaking at the top of the biofilm, even though σB represses sporulation. As predicted by a simple mathematical model, increasing σB expression shifts the peak of sporulation to the middle of the biofilm. Our results demonstrate how stochastic pulsing of gene expression can play a key role in pattern formation during biofilm development.
 
 ## Repository explanation
-The code in this repository assumes you have in your local, checkout out version, a directory called `datasets`. 
+The code in this repository assumes that you have 
+a directory called `datasets` in your local repository.
 The contents of this directory can be found at https://dx.doi.org/10.5281/zenodo.3544513/. 
 
-There is also an assumed directory called `proc_data`. 
-To get this data you need to contact us. 
+There is also an assumed directory called `proc_data` that holds the images to be analysed. Please contact the authors for this data. 
 
 ### Segmentation Code
+The main segmentation functions used are found in the functions
+* `basic_segment` in `lib/processing/slice10x/segment.py`.
+* `laphat_segment_v1` in file `lib/cell_segmenter.py`.
 
 
 ### Model 
 Information about the computational model are found in [model/README.md](model/README.md).
+
+### Workflow files
+In `workflows/` are bash shell scripts that show how raw images were pushed through the pipelines. 
+They were not meant to be run as a standard script but rather interactively like a notebook running different sections. They should be used more as a record of parameters and what flags to pass the different tools, that a full stand alone pipeline. 
 
 ## Figures
 
@@ -75,14 +82,14 @@ python figures/figure_bf_movie/figure_bf_movie.py
 ```
 
 ### Figure 5
-This figure compares Sigma B gradients and spore gradients.
-Also plots sigma B activity vs sporulation activity. 
+This figure compares σB gradients and spore gradients.
+Also plots σB activity vs sporulation activity. 
 
 Single cell data (see Figure 2), Spore gradient data (see Figure 7). 
 These data can be found at [https://dx.doi.org/10.5281/zenodo.3544513/](https://dx.doi.org/10.5281/zenodo.3544513/) in the files `LSM700_63x_sigb.zip` and `LSM700_63x_sspb_giant.zip`.
 
 Single cell three reporter data were processed as in the workflow `workflows/workflow_3fp.sh`.
-These large tilescan images were shrunk down to 1/20 their original size and segmented using a Support Vector Machine (SVM) model trained with a set of manually labeled images from Figure 6. The SVM segmentation script is `bin/giant63_svm_segmentation.py`. 
+These large tilescan images were shrunk down to 1/20 their original size and segmented using the method from Figure 2 and manually corrected. 
 The small mask was increased back up to full size and the images were processed using the single cell segmentation algorithm from Figure 3. 
 
 The resulting data can be found at [https://dx.doi.org/10.5281/zenodo.3544513/](https://dx.doi.org/10.5281/zenodo.3544513/) in the file `LSM780_63x_spoiid_v_sigb.zip`.
@@ -104,12 +111,12 @@ python figures/figure_model_summary.py
 ```
 
 ### Figure 7
-This figure shows sigma B gradients and spore gradients for WT and the 2xQP mutant. 
+This figure shows σB gradients and spore gradients for WT and the 2xQP mutant. 
 
-The sigma B gradient data is from the Figure 2 dataset and is found at [https://dx.doi.org/10.5281/zenodo.3544513/](https://dx.doi.org/10.5281/zenodo.3544513/) in the file `LSM780_10x_sigb.zip`.
+The σB gradient data is from the Figure 2 dataset and is found at [https://dx.doi.org/10.5281/zenodo.3544513/](https://dx.doi.org/10.5281/zenodo.3544513/) in the file `LSM780_10x_sigb.zip`.
 
 The spore gradients were extracted from large tilescan images using the workflow `workflows/workflow_giantsspb.sh`.
-The biofilm was segmented using the same method as Figure 2 and manually adjusted using the mask editor `minidraw`. 
+The biofilm was segmented using the same method as Figure 2 and manually adjusted using the mask editor `bin/mask_maker.py --minidraw`. 
 
 The data was summarised for quick plotting using `analysis/summarize_cell_spore_counts.py`.
 
@@ -123,12 +130,12 @@ The figure was generated using
 ## Supplemental Figures
 
 ### Supplemental Figure 1 
-Figure showing our movie setup biofilms look like normal biofilms. 
+Figure showing that biofilms from our live movie assay look like normal biofilms. 
 
 `pdflatex figures/sup_moviebf/sup_moviebf.tex`
 
 ### Supplemental Figure 2
-Figure showing σB activity gradient over time for WT and two knockout strains. 
+Figure showing σB activity gradients over time for WT and two knockout strains. 
 The data is the same as used for Figure 2 and can be found at [https://dx.doi.org/10.5281/zenodo.3544513/](https://dx.doi.org/10.5281/zenodo.3544513/) in the file `LSM700_63x_sigb.zip`.
 
 Gradients are computed from single cell data using `analysis/summarise_63x_gradients.py`.
@@ -136,8 +143,9 @@ Gradients are computed from single cell data using `analysis/summarise_63x_gradi
 Figure created with `python figures/sup_63x_gradients/sup_63x_grad_error.py`
 
 ### Supplemental Figure 3
-Figure shows other sigma factors don't have gradients and its not a side effect of YFP. 
-`python figures/sup_notjustYFP/sup_notjustYFP.py`
+Figure shows other sigma factors do not have gradients and its not a side effect of YFP. 
+
+Figure created with `python figures/sup_notjustYFP/sup_notjustYFP.py`
 
 ### Supplemental Figure 4
 Figure showing σA activity does not show gradients or hetrogenious expression if we use a YFP reporter.
@@ -148,11 +156,24 @@ Figure created with `fig_sigayfp_3panels_histogram.py`
 ### Supplemental Figure 5
 Figure showing σB activity gradient in biofilms growing on roots. 
 
-`python figures/sup_roots/sup_roots.py`
+Figure created with `python figures/sup_roots/sup_roots.py`
 
 ### Supplemental Figure 6
+Figure shows σB activity histograms at different depths in biofilms from WT and mutant strains. 
+The dataset is the same as Figure 3 and can be found at [https://dx.doi.org/10.5281/zenodo.3544513/](https://dx.doi.org/10.5281/zenodo.3544513/) in the file `LSM700_63x_sigb.zip`.
+
+The figure was generated using `python figures/figure_63x_sigb_histo/joy_plots_of_gradients.py`.
+
 ### Supplemental Figure 7
+Single cell trace data from biofilm movies. 
+The data is the same as from Figure 4 and can be found at [https://dx.doi.org/10.5281/zenodo.3544513/](https://dx.doi.org/10.5281/zenodo.3544513/) in the file `iphox_gradient_snaps.zip`.
+
+The figure was generated using `python figures/supfig_bfmovie_pulses/supfig_bfmovie_pulse.py`.
+
+
 ### Supplemental Figure 8
+The figure shows biofilm cross sections, single cell snapshots, and expression histograms for a number of mutants.
+
 The workflow file `workflows/lsm700_newstrains.sh` shows the tools used to process the raw images.
 The process is identical to that for Figure 3. 
 The same segmentation code is used. 
@@ -162,7 +183,19 @@ The resulting data can be found at [https://dx.doi.org/10.5281/zenodo.3544513/](
 The figure was created using `python figures/sup_transformable_live/fig_transformable.py`.
 
 ### Supplemental Figure 9
+The figure shows two 2d-histograms showing the correlation between σB and an early sporulation gene. 
+
+The data is the same as used in Figure 5.C and can be found at [https://dx.doi.org/10.5281/zenodo.3544513/](https://dx.doi.org/10.5281/zenodo.3544513/) in the file `LSM780_63x_spoiid_v_sigb.zip`.
+
+The figure was generated using `python figures/supfig_spoiid_anticorr/supfig_spoiid_anticorr.py`
+
 ### Supplemental Figure 10
+The figure shows spore gradients and the distribution of the peaks of the sporulation gradient. 
+
+The data is the same as used in Figure 7 and can be found at [https://dx.doi.org/10.5281/zenodo.3544513/](https://dx.doi.org/10.5281/zenodo.3544513/) in the file `LSM700_63x_sspb_giant.zip`.
+
+The figure was generated with `python figures/figure_allspore_2xqp_combo/figure_spore_counts.py`
+
 
 ### Supplemental Figure 11
 2xQP gradients and σB activity at different depths histograms. 
