@@ -34,7 +34,7 @@ old_backups/
 .prospector.yaml
 .vscode
 
-model/*/[Bb]in/
+model/**/[Bb]in/
 [Oo]bj/
 .vs/
 **/[Pp]ackages/*
