@@ -37,6 +37,7 @@ def get_figure_peaks(
             df.loc[i] = {"strain": name, "peak": distances[max_i], "file": l}
             # max_l += [max_i]
     print(df)
+    df.to_csv("source_data/sup_figure10_c.tsv", sep="\t", index=None)
 
     # sns.v
     # iolinplot(x="strain", y="peak", data=df, ax=ax)
@@ -117,7 +118,7 @@ def get_figure(
     source_data = strain_grads.copy()
     source_data["distance"] = gradient_data["distance"]
     source_data.to_csv("source_data/figure5_a_spores.tsv", sep="\t")
-    source_data.to_csv(f"source_data/figure8_a_{strain}.tsv", sep="\t")
+    source_data.to_csv(f"source_data/figure10_a_{strain}.tsv", sep="\t", index=None)
 
     mean_trace = strain_grads.mean(axis=1)
     sem_trace = strain_grads.sem(axis=1)
