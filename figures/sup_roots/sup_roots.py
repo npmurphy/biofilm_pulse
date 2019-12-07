@@ -47,7 +47,7 @@ def prepare_image(
         scale_length=scale_bar_length / (PX_TO_UM / scale_image),
         thickness=thickness,
         legend="{0} μm".format(scale_bar_length),
-        fontsize=40,
+        fontsize=0,
     )
     return outim
 
@@ -55,7 +55,7 @@ def prepare_image(
 this_dir = os.path.dirname(os.path.realpath(__file__))
 
 strains = [figure_util.strain_label[s] for s in ["JLB021", "JLB098"]]
-imagedir = "/media/nmurphy/BF_Data_Orange/proc_data/root_data"
+imagedir = os.path.join(this_dir, "../../proc_data/root_data")
 
 big_image = ["JLB021_48hrs_tile_scan_1_new_bright_10xReduction.tif"]
 small_images = ["JLB021_48hrs_root_1_63x_3.tif", "JLB098_48hrs_root_1_63x_2.tif"]

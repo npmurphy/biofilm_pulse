@@ -21,21 +21,24 @@ strain_map, des_strain_map = strainmap.load()
 fig, ax = plt.subplots(2, 3)
 
 
-def prepare_image(image_path):
+def prepare_image(image_path, i):
 
     image = skimage.io.imread(image_path)
 
     image = np.rot90(image, -1)
     length = 100
-    outim = lib.figure_util.draw_scale_bar(
-        image,
-        20,
-        image.shape[1] - 250,
-        scale_length=length / PX_TO_UM,
-        thickness=50,
-        legend="{0}μm".format(length),
-        fontsize=80,
-    )
+    if i == 0:
+        outim = lib.figure_util.draw_scale_bar(
+            image,
+            20,
+            image.shape[1] - 250,
+            scale_length=length / PX_TO_UM,
+            thickness=50,
+            legend="{0}μm".format(length),
+            fontsize=0,
+        )
+    else:
+        outim = image
     return outim
 
 
@@ -43,7 +46,7 @@ this_dir = os.path.dirname(os.path.realpath(__file__))
 
 strains = [figure_util.strain_label[s] for s in ["JLB022", "JLB035"]]
 # imagedir = "/media/nmurphy/BF_Data_Orange/datasets/ancient_sigw/"
-imagedir = "/home/nmurphy/work/projects/bf_pulse/figures/sup_notjustYFP/sigW_fig_data"
+imagedir = os.path.join(this_dir, "./sigW_fig_data")
 
 rfponly_images = [
     "RFP_only_48hrs_center_2_channels_crop.tif",
@@ -60,7 +63,7 @@ letters = figure_util.letters
 letter_lab = (0.06, 0.99)
 for r, (label, strain_ims) in enumerate(zip(strains, [sigW_images, rfponly_images])):
     for i, imgpath in enumerate(strain_ims):
-        im = prepare_image(os.path.join(imagedir, imgpath))
+        im = prepare_image(os.path.join(imagedir, imgpath), i)
         aximg = ax[r, i]  # plt.subplot(grid[0])
         # label = figure_util.strain_label[des_strain_map[strain].upper()]
         aximg.imshow(

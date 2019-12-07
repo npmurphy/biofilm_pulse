@@ -114,7 +114,7 @@ def get_figure(
             (length / PX_TO_UM),
             width,
             "{0}μm".format(length),
-            fontsize=fs
+            fontsize=0, #fs
         )
     ax.imshow(img, interpolation="none", aspect=1)
     # ax.set_title(name)

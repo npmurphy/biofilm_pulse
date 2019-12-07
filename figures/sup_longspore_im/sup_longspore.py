@@ -67,7 +67,7 @@ def prepare_image(
         scale_length=scale_bar_length / (PX_TO_UM / scale_image),
         thickness=thickness,
         legend="{0} μm".format(scale_bar_length),
-        fontsize=40,
+        fontsize=0,
     )
     return outim
 

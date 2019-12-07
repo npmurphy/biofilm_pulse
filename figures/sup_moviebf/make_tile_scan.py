@@ -28,15 +28,16 @@ images += [np.zeros_like(images[-1])]
 outim = np.dstack(images)
 outim = np.rot90(outim, 3)
 length = 100
+outim = outim[400 : (400 + 1215), 5008:].copy()
 r, c, _ = outim.shape
 outim = lib.figure_util.draw_scale_bar(
     outim,
-    1400,
-    c - 500,
+    r - 200,
+    c - 400,
     scale_length=length / PX_TO_UM,
-    thickness=120,
+    thickness=50,
     legend="{0}μm".format(length),
-    fontsize=150,
+    fontsize=0,
 )
 
-skimage.io.imsave(os.path.join(this_dir, "tilescan_{0}.png".format(imname)), outim)
+skimage.io.imsave(os.path.join(this_dir, "tilescan_{0}_small.jpg".format(imname)), outim)

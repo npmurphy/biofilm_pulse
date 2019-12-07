@@ -9,6 +9,8 @@ The contents of this directory can be found at https://dx.doi.org/10.5281/zenodo
 
 There is also an assumed directory called `proc_data` that holds the images to be analysed. Please contact the authors for this data. 
 
+The Python 3.6 environment I think you need is in conda yaml file [environment.yaml](environment.yaml) and a dump of the actual conda environment is in [environment_actual.yaml](environment_actual.yaml).
+
 ### Segmentation Code
 The main segmentation functions used are found in the functions
 * `basic_segment` in `lib/processing/slice10x/segment.py`.
@@ -151,7 +153,7 @@ Figure created with `python figures/sup_notjustYFP/sup_notjustYFP.py`
 Figure showing σA activity does not show gradients or hetrogenious expression if we use a YFP reporter.
 The data is the same as used for Sup Figure 8 and can be found at [https://dx.doi.org/10.5281/zenodo.3544513/](https://dx.doi.org/10.5281/zenodo.3544513/) in the file `new_strain_snaps1.zip`.
 
-Figure created with `fig_sigayfp_3panels_histogram.py`
+Figure created with `python figures/supfig_sigayfp_sigbyfp/fig_sigayfp_3panels_histogram.py`
 
 ### Supplemental Figure 5
 Figure showing σB activity gradient in biofilms growing on roots. 
